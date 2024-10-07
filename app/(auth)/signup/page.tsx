@@ -1,10 +1,14 @@
 "use client"; // Add this line at the top to prevent server-side rendering
 
 import React, { useState } from 'react';
+import { account, ID } from '../../../app/appwrite';
+import { useRouter } from 'next/navigation';
 
 const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [loggedInUser, setLoggedInUser] = useState<any | null>(null);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordsMatch, setPasswordsMatch] = useState(true);
 
@@ -18,13 +22,37 @@ const SignUpPage: React.FC = () => {
     setPasswordsMatch(password === e.target.value);
   };
 
+  const router = useRouter(); // Move this outside of the login function
+
+  const login = async (email: string, password: string) => {
+    try {
+      const session = await account.createEmailPasswordSession(email, password);
+      const user = await account.get();
+      setLoggedInUser(user);
+      router.push('/browse-tickets'); // Ensure this is called after successful login
+    } catch (error) {
+      console.error('Login failed:', error);
+      // Handle login error (e.g., show error message to user)
+    }
+  };
+
+  const register = async () => {
+    try {
+      await account.create(ID.unique(), email, password, name);
+      await login(email, password); // Ensure login is called after registration
+    } catch (error) {
+      console.error('Registration failed:', error);
+      // Handle registration error (e.g., show error message to user)
+    }
+  };
+
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();
     if (!passwordsMatch) {
       alert('Passwords do not match');
       return;
     }
-    console.log('Signing up with', { email, password });
+    register();
   };
 
   const passwordInputClass = `w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none ${
@@ -39,6 +67,17 @@ const SignUpPage: React.FC = () => {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-purple-900 to-blue-900 text-gray-200">
       <h1 className="text-4xl font-bold mb-8">Sign Up</h1>
       <form onSubmit={handleSignUp} className="bg-gray-800 p-8 rounded-lg shadow-md w-80">
+      <div className="mb-4">
+          <label htmlFor="name" className="block text-sm font-medium mb-2">Name</label>
+          <input
+            type="text"
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
         <div className="mb-4">
           <label htmlFor="email" className="block text-sm font-medium mb-2">Student Email</label>
           <input

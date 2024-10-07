@@ -1,15 +1,40 @@
 "use client"; // Add this line at the top to prevent server-side rendering
 
 import React, { useState } from 'react';
+import { account } from '../../../app/appwrite';
+import { useRouter } from 'next/navigation';
 
+// Define the LoginPage component
 const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // State variables for email, password, and logged-in user
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loggedInUser, setLoggedInUser] = useState<any | null>(null);
+  
+  // Initialize the router for navigation
+  const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Add login logic here
-    console.log('Logging in with', { email, password });
+  // Function to handle login logic
+  const login = async (email: string, password: string) => {
+    try {
+      // Create a session with email and password
+      const session = await account.createEmailPasswordSession(email, password);
+      // Retrieve the logged-in user details
+      const user = await account.get();
+      setLoggedInUser(user);
+      // Redirect to the browse-tickets page upon successful login
+      router.push('/browse');
+    } catch (error) {
+      console.error('Login failed:', error);
+      // Handle login error (e.g., show error message to user)
+    }
+  };
+
+  // Handle form submission
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault(); // Prevent default form submission
+    await login(email, password); // Call login function
+    console.log('Logging in with', { email, password }); // Log the login attempt
   };
 
   return (
@@ -22,7 +47,7 @@ const LoginPage: React.FC = () => {
             type="email"
             id="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)} // Update email state on change
             className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
@@ -33,7 +58,7 @@ const LoginPage: React.FC = () => {
             type="password"
             id="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)} // Update password state on change
             className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
@@ -45,8 +70,11 @@ const LoginPage: React.FC = () => {
           Login
         </button>
       </form>
+      <p className="mt-4 text-sm">
+        <a href="/signup" className="text-blue-400 hover:underline">Create account</a>
+      </p>
     </div>
   );
 };
 
-export default LoginPage;
+export default LoginPage; // Export the LoginPage component
