@@ -25,11 +25,11 @@ const SignUpPage: React.FC = () => {
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
-    if (!email.endsWith(".edu")){
+    if (!e.target.value.endsWith(".edu")) {
       console.log("not stu email")
       setIsStuEmail(false)
     }
-    else{
+    else {
       setIsStuEmail(true)
     }
   };
@@ -77,7 +77,11 @@ const SignUpPage: React.FC = () => {
   }`;
 
   const buttonClass = `w-full py-3 rounded-lg font-medium transition-colors ${
-    passwordsMatch ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-red-600 text-white cursor-not-allowed'
+    passwordsMatch&&isStuEmail ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-red-600 text-white cursor-not-allowed'
+  }`;
+
+    const emailClass = `w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none ${
+    isStuEmail ? 'focus:ring-2 focus:ring-blue-500' : 'border-2 border-red-500'
   }`;
 
   return (
@@ -102,7 +106,7 @@ const SignUpPage: React.FC = () => {
             id="email"
             value={email}
             onChange={handleEmailChange}
-            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={emailClass}
             required
           />
         </div>
@@ -131,9 +135,13 @@ const SignUpPage: React.FC = () => {
         <button
           type="submit"
           className={buttonClass}
-          disabled={!passwordsMatch}
+          //disabled when passwordsMatch or isStuEmail is false
+          disabled={!passwordsMatch || !isStuEmail}
+        //says Sign up if passwordsMatch and isStuEmail is true
+        //says Passwords Do Not Match if passwordsMatch is false
+        //says Not a student email if isStuEmail is false
         >
-          {passwordsMatch ? 'Sign Up' : isStuEmail ? 'Passwords Do Not Match' : 'Not a student email'}
+          {passwordsMatch && isStuEmail ? 'Sign Up' : !passwordsMatch ? 'Passwords Do Not Match' : 'Not a student email'}
         </button>
       </form>
     </div>
