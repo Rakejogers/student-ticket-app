@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState('');
+  const [isStuEmail, setIsStuEmail] = useState(true);
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loggedInUser, setLoggedInUser] = useState<any | null>(null);
@@ -22,6 +23,17 @@ const SignUpPage: React.FC = () => {
     setPasswordsMatch(password === e.target.value);
   };
 
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    if (!email.endsWith(".edu")){
+      console.log("not stu email")
+      setIsStuEmail(false)
+    }
+    else{
+      setIsStuEmail(true)
+    }
+  };
+
   const router = useRouter(); // Move this outside of the login function
 
   const login = async (email: string, password: string) => {
@@ -29,7 +41,7 @@ const SignUpPage: React.FC = () => {
       const session = await account.createEmailPasswordSession(email, password);
       const user = await account.get();
       setLoggedInUser(user);
-      router.push('/browse-tickets'); // Ensure this is called after successful login
+      router.push('/browse'); // Ensure this is called after successful login
     } catch (error) {
       console.error('Login failed:', error);
       // Handle login error (e.g., show error message to user)
@@ -50,6 +62,11 @@ const SignUpPage: React.FC = () => {
     e.preventDefault();
     if (!passwordsMatch) {
       alert('Passwords do not match');
+      return;
+    }
+    // New validation for .edu email
+    if (!email.endsWith('.edu')) {
+      alert('Please use a valid student email ending with .edu');
       return;
     }
     register();
@@ -84,7 +101,7 @@ const SignUpPage: React.FC = () => {
             type="email"
             id="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={handleEmailChange}
             className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
@@ -116,7 +133,7 @@ const SignUpPage: React.FC = () => {
           className={buttonClass}
           disabled={!passwordsMatch}
         >
-          {passwordsMatch ? 'Sign Up' : 'Passwords Do Not Match'}
+          {passwordsMatch ? 'Sign Up' : isStuEmail ? 'Passwords Do Not Match' : 'Not a student email'}
         </button>
       </form>
     </div>
