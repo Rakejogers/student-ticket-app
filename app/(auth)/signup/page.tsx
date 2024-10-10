@@ -16,7 +16,7 @@ const SignUpPage: React.FC = () => {
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
     setPasswordsMatch(e.target.value === confirmPassword);
-  };
+  }; 
 
   const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setConfirmPassword(e.target.value);
