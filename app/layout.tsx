@@ -37,13 +37,13 @@ export default function RootLayout({
             <div className="container mx-auto flex justify-between items-center">
               <div className="flex items-center gap-4">
                 {/* <img src="/logo.png" alt="Logo" className="h-8" /> */}
-                <Link href="/" className="text-2xl font-bold">Student Ticket Marketplace</Link>
+                <Link href="/browse/events" className="text-2xl font-bold">Student Ticket Marketplace</Link>
               </div>
               <div className="flex items-center gap-6">
                 <Link href="/list-ticket" className="px-3 py-2 rounded bg-blue-700 hover:bg-blue-600 transition-colors">
                   Sell
                 </Link>
-                <Link href="/browse" className="px-3 py-2 rounded bg-blue-700 hover:bg-blue-600 transition-colors">
+                <Link href="/browse/events" className="px-3 py-2 rounded bg-blue-700 hover:bg-blue-600 transition-colors">
                   Buy
                 </Link>
                 <Link href="/login" className="px-3 py-2 rounded bg-blue-700 hover:bg-blue-600 transition-colors">
@@ -56,6 +56,9 @@ export default function RootLayout({
                   <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
                     <Link href="/account/profile" className="block px-4 py-2 hover:bg-gray-200">
                       Profile
+                    </Link>
+                    <Link href="/account/my-tickets" className="block px-4 py-2 hover:bg-gray-200">
+                      My Tickets
                     </Link>
                     <Link href="/account/settings" className="block px-4 py-2 hover:bg-gray-200">
                       Settings

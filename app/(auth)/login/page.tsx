@@ -1,15 +1,14 @@
 "use client"; // Add this line at the top to prevent server-side rendering
 
 import React, { useState } from 'react';
-import { account } from '../../../app/appwrite';
 import { useRouter } from 'next/navigation';
+import pb from '@/app/pocketbase';
 
 // Define the LoginPage component
 const LoginPage: React.FC = () => {
   // State variables for email, password, and logged-in user
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loggedInUser, setLoggedInUser] = useState<any | null>(null);
   
   // Initialize the router for navigation
   const router = useRouter();
@@ -18,10 +17,10 @@ const LoginPage: React.FC = () => {
   const login = async (email: string, password: string) => {
     try {
       // Create a session with email and password
-      const session = await account.createEmailPasswordSession(email, password);
-      // Retrieve the logged-in user details
-      const user = await account.get();
-      setLoggedInUser(user);
+      const authData = await pb.collection('users').authWithPassword(
+        email,
+        password
+      );
       // Redirect to the browse-tickets page upon successful login
       router.push('/browse');
     } catch (error) {

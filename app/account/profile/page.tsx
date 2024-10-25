@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { account } from "../../appwrite";
 import isAuth from "../../../components/isAuth";
+import pb from "@/app/pocketbase";
 
 const ProfilePage = () => {
   const [user, setUser] = useState<any | null>(null);
@@ -12,9 +12,12 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const user = await account.get();
+        if(pb.authStore.model == null){
+          throw new Error("User not found");
+        }
+        const user = await pb.collection('users').getOne(pb.authStore.model.id);
         setUser(user);
-        setVenmo(user.prefs.venmo || ""); // NEED TO CREATE THIS IN APPWRITE (I think)
+        setVenmo(user.venmo || ""); 
       } catch (error) {
         console.error('Failed to fetch user', error);
       }
@@ -26,7 +29,9 @@ const ProfilePage = () => {
   // ADD VENMO VALIDATION?
   const handleUpdateVenmo = async () => {
     try {
-      await account.updatePrefs({ venmo });
+      await pb.collection('users').update(user.id, 
+        { venmo: venmo }
+      );
       console.log("Venmo updated successfully!");
       setIsUpdatingVenmo(false);
     } catch (error) {

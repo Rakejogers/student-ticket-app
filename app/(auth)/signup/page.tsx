@@ -1,15 +1,14 @@
 "use client"; // Add this line at the top to prevent server-side rendering
 
 import React, { useState } from 'react';
-import { account, ID } from '../../../app/appwrite';
 import { useRouter } from 'next/navigation';
+import pb from "@/app/pocketbase";
 
 const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [isStuEmail, setIsStuEmail] = useState(true);
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [loggedInUser, setLoggedInUser] = useState<any | null>(null);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordsMatch, setPasswordsMatch] = useState(true);
 
@@ -38,9 +37,7 @@ const SignUpPage: React.FC = () => {
 
   const login = async (email: string, password: string) => {
     try {
-      const session = await account.createEmailPasswordSession(email, password);
-      const user = await account.get();
-      setLoggedInUser(user);
+      const session = await pb.collection('users').authWithPassword(email, password);
       router.push('/browse'); // Ensure this is called after successful login
     } catch (error) {
       console.error('Login failed:', error);
@@ -50,7 +47,16 @@ const SignUpPage: React.FC = () => {
 
   const register = async () => {
     try {
-      await account.create(ID.unique(), email, password, name);
+      const data = {
+        "email": email,
+        "emailVisibility": true,
+        "password": password,
+        "passwordConfirm": password,
+        "name": name,
+        "seller_verified": false
+      };
+
+      const record = await pb.collection('users').create(data);
       await login(email, password); // Ensure login is called after registration
     } catch (error) {
       console.error('Registration failed:', error);

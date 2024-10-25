@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { account } from "../app/appwrite";
 import { useRouter } from "next/navigation";
+import pb from "../app/pocketbase"
 
 export default function isAuth(Component: any) {
   return function IsAuth(props: any) {
@@ -11,10 +11,14 @@ export default function isAuth(Component: any) {
     useEffect(() => {
       const checkAuth = async () => {
         try {
-          await account.get();
-          setIsLoading(false);
+          if (pb.authStore.isValid==true){
+            setIsLoading(false);
+            return;
+          } else {
+            router.push('/login');
+          }
         } catch (error) {
-          router.push('/login');
+          console.log(error)
         }
       };
       checkAuth();

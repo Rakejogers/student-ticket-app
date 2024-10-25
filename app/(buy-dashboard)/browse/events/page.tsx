@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import isAuth from '../../../components/isAuth';
+import isAuth from '../../../../components/isAuth';
 
 interface Ticket {
   id: string;
