@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import pb from "@/app/pocketbase";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Link } from "lucide-react";
 
 const LogoutButton = () => {
     const router = useRouter();
@@ -36,9 +38,9 @@ const LogoutButton = () => {
     }, []);
     
     return (
-      <a onClick={handleLogout} className="block px-4 py-2 hover:bg-gray-200">
+      <Button onClick={handleLogout} className="text-white bg-red-500 hover:bg-red-600">
         Logout
-      </a>
+      </Button>
     );
   };
 

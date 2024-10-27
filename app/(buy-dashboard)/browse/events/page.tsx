@@ -1,50 +1,107 @@
-"use client"; // Add this line at the top to prevent server-side rendering
+'use client'
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import isAuth from '../../../../components/isAuth';
+import { useState } from 'react'
+import Link from 'next/link'
+import { Input } from "@/components/ui/input"
+import { Toggle } from "@/components/ui/toggle"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { TbBallBasketball, TbBallAmericanFootball } from "react-icons/tb";
+import isAuth from '@/components/isAuth';
+import { useEffect } from 'react';
+import  pb  from '@/app/pocketbase';
+import { RecordModel } from 'pocketbase'
 
-interface Ticket {
-  id: string;
-  event: string;
-  price: number;
-  date: string;
-  location: string;
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+    }).format(date);
+  };
+
+
+const BrowseEventsPage: React.FC = () => {
+    const [events, setEvents] = useState<RecordModel[]>([]);
+    const [selectedSport, setSelectedSport] = useState<'basketball' | 'football' | null>(null)
+    const [searchTerm, setSearchTerm] = useState('')
+
+    // fetch events
+    useEffect(() => {
+        const fetchEvents = async () => {
+          try {
+            const records = await pb.collection('events').getList(1, 10, {
+              sort: '+date'
+            });
+            setEvents(records.items);
+          } catch (error) {
+            console.error('Error fetching events:', error);
+          }
+        };
+
+        fetchEvents();
+      }, []);
+
+    const filteredEvents = events.filter(event => 
+      (selectedSport ? event.sport === selectedSport : true) &&
+      event.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+
+    return (
+        <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white">
+          <div className="container mx-auto p-4">
+            <h1 className="text-2xl font-bold mb-4">Events</h1>
+
+            <div className="flex space-x-4 mb-4">
+              <Toggle 
+                pressed={selectedSport === 'basketball'} 
+                onPressedChange={() => setSelectedSport(s => s === 'basketball' ? null : 'basketball')}
+              >
+                <TbBallBasketball className="mr-2 h-4 w-4" />
+                Basketball
+              </Toggle>
+              <Toggle 
+                pressed={selectedSport === 'football'} 
+                onPressedChange={() => setSelectedSport(s => s === 'football' ? null : 'football')}
+              >
+                <TbBallAmericanFootball className="mr-2 h-4 w-4" />
+                Football
+              </Toggle>
+            </div>
+
+            <Input
+              type="search"
+              placeholder="Search events..."
+              className="mb-4"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredEvents.map(event => (
+                <Link href={`/browse/events/event?eventId=${event.id}`} key={event.id}>
+                    <Card className="cursor-pointer hover:shadow-lg transition-shadow border border-gray-200 rounded-lg">
+                        <CardHeader className="bg-gray-100 p-4">
+                            <CardTitle className="text-xl font-semibold">{event.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4">
+                            <p className="text-gray-600"><strong>Date:</strong> {formatDate(event.date)}</p>
+                            <p className="text-gray-600"><strong>Venue:</strong> {event.venue}</p>
+                        </CardContent>
+                    </Card>
+                </Link>
+              ))}
+            </div>
+
+            {filteredEvents.length === 0 && (
+              <p className="text-center text-gray-500 mt-4">No events found.</p>
+            )}
+          </div>
+        </div>
+    )
 }
 
-const BrowseTicketsPage: React.FC = () => {
-  const [tickets, setTickets] = useState<Ticket[]>([]);
-
-  useEffect(() => {
-    // Mock data fetching
-    const mockTickets: Ticket[] = [
-      { id: '1', event: 'Concert A', price: 50, date: '2024-10-10', location: 'Venue X' },
-      { id: '2', event: 'Concert B', price: 60, date: '2024-10-15', location: 'Venue Y' },
-      { id: '3', event: 'Game C', price: 45, date: '2024-11-05', location: 'Stadium Z' },
-    ];
-    setTickets(mockTickets);
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-gradient-to-r from-purple-900 to-blue-900 text-gray-200 p-8">
-      <h1 className="text-4xl font-bold text-center mb-8">Browse Tickets</h1>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {tickets.map((ticket) => (
-          <div key={ticket.id} className="bg-gray-800 p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-2">{ticket.event}</h2>
-            <p className="text-lg">Date: {ticket.date}</p>
-            <p className="text-lg">Location: {ticket.location}</p>
-            <p className="text-lg font-semibold mt-4">Price: ${ticket.price}</p>
-            <Link href={`/tickets/${ticket.id}`}>
-              <button className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                View Details
-              </button>
-            </Link>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-export default isAuth(BrowseTicketsPage);
+export default isAuth(BrowseEventsPage);

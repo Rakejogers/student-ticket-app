@@ -1,16 +1,23 @@
-"use client"; // Add this line at the top to prevent server-side rendering
+'use client'
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import pb from '@/app/pocketbase';
+import { useState } from 'react'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Separator } from "@/components/ui/separator"
+import { CiAt, CiCircleAlert, CiLock } from "react-icons/ci";
+import { useRouter } from 'next/navigation'
+import pb from '@/app/pocketbase'
+import { log } from 'console'
+import Link from 'next/link'
 
-// Define the LoginPage component
-const LoginPage: React.FC = () => {
-  // State variables for email, password, and logged-in user
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  
-  // Initialize the router for navigation
+export default function Component() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+
   const router = useRouter();
 
   // Function to handle login logic
@@ -22,58 +29,92 @@ const LoginPage: React.FC = () => {
         password
       );
       // Redirect to the browse-tickets page upon successful login
-      router.push('/browse');
+      router.push('/browse/events');
     } catch (error) {
       console.error('Login failed:', error);
       // Handle login error (e.g., show error message to user)
     }
   };
 
-  // Handle form submission
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission
-    await login(email, password); // Call login function
-    console.log('Logging in with', { email, password }); // Log the login attempt
-  };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+
+    if (!email || !password) {
+      setError('Please fill in all fields')
+      return
+    }
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setError('Please enter a valid email address')
+      return
+    }
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long')
+      return
+    }
+
+    // Here you would typically send the login data to your server
+    login(email, password)
+  }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-purple-900 to-blue-900 text-gray-200">
-      <h1 className="text-4xl font-bold mb-8">Login</h1>
-      <form onSubmit={handleLogin} className="bg-gray-800 p-8 rounded-lg shadow-md w-80">
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium mb-2">Email</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)} // Update email state on change
-            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="mb-6">
-          <label htmlFor="password" className="block text-sm font-medium mb-2">Password</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)} // Update password state on change
-            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-        >
-          Login
-        </button>
-      </form>
-      <p className="mt-4 text-sm">
-        <a href="/signup" className="text-blue-400 hover:underline">Create account</a>
-      </p>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-100 to-white">
+        <Card className="w-full max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle className="text-2xl">Login</CardTitle>
+            <CardDescription>Enter your credentials to access your account</CardDescription>
+          </CardHeader>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <CiAt className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    className="pl-8"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <CiLock className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    className="pl-8"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+              {error && (
+                <Alert variant="destructive">
+                  <CiCircleAlert className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-4">
+              <Button type="submit" className="w-full">Login</Button>
+              <div className="flex items-center justify-center w-full">
+                <Separator className="flex-grow" />
+              </div>
+              <Link href="/signup" className="block w-full">
+                <Button variant="outline" className="w-full" type="button">
+                  Create Account
+                </Button>
+              </Link>
+            </CardFooter>
+          </form>
+        </Card>
     </div>
-  );
-};
-
-export default LoginPage; // Export the LoginPage component
+  )
+}

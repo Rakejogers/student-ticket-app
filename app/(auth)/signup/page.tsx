@@ -1,44 +1,29 @@
-"use client"; // Add this line at the top to prevent server-side rendering
+'use client'
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import pb from "@/app/pocketbase";
+import { useState, useEffect } from 'react'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { CiAt, CiCircleAlert, CiLock, CiUser } from "react-icons/ci";
+import { useRouter } from 'next/navigation'
+import pb from '@/app/pocketbase'
 
-const SignUpPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [isStuEmail, setIsStuEmail] = useState(true);
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordsMatch, setPasswordsMatch] = useState(true);
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-    setPasswordsMatch(e.target.value === confirmPassword);
-  }; 
-
-  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setConfirmPassword(e.target.value);
-    setPasswordsMatch(password === e.target.value);
-  };
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-    if (!e.target.value.endsWith(".edu")) {
-      console.log("not stu email")
-      setIsStuEmail(false)
-    }
-    else {
-      setIsStuEmail(true)
-    }
-  };
+export default function Component() {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [error, setError] = useState('')
+  const [passwordsMatch, setPasswordsMatch] = useState(true)
 
   const router = useRouter(); // Move this outside of the login function
 
   const login = async (email: string, password: string) => {
     try {
       const session = await pb.collection('users').authWithPassword(email, password);
-      router.push('/browse'); // Ensure this is called after successful login
+      router.push('/browse/events'); // Ensure this is called after successful login
     } catch (error) {
       console.error('Login failed:', error);
       // Handle login error (e.g., show error message to user)
@@ -64,94 +49,117 @@ const SignUpPage: React.FC = () => {
     }
   };
 
-  const handleSignUp = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!passwordsMatch) {
-      alert('Passwords do not match');
-      return;
+  useEffect(() => {
+    setPasswordsMatch(password === confirmPassword)
+  }, [password, confirmPassword])
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+
+    if (!name || !email || !password || !confirmPassword) {
+      setError('Please fill in all fields')
+      return
     }
-    // New validation for .edu email
-    if (!email.endsWith('.edu')) {
-      alert('Please use a valid student email ending with .edu');
-      return;
+
+    if (!email.endsWith('@uky.edu')) {
+      setError('Please use a valid uky.edu email address')
+      return
     }
-    register();
-  };
 
-  const passwordInputClass = `w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none ${
-    passwordsMatch ? 'focus:ring-2 focus:ring-blue-500' : 'border-2 border-red-500'
-  }`;
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long')
+      return
+    }
 
-  const buttonClass = `w-full py-3 rounded-lg font-medium transition-colors ${
-    passwordsMatch&&isStuEmail ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-red-600 text-white cursor-not-allowed'
-  }`;
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
 
-    const emailClass = `w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none ${
-    isStuEmail ? 'focus:ring-2 focus:ring-blue-500' : 'border-2 border-red-500'
-  }`;
+    register()
+  }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-purple-900 to-blue-900 text-gray-200">
-      <h1 className="text-4xl font-bold mb-8">Sign Up</h1>
-      <form onSubmit={handleSignUp} className="bg-gray-800 p-8 rounded-lg shadow-md w-80">
-      <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-medium mb-2">Name</label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium mb-2">Student Email</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={handleEmailChange}
-            className={emailClass}
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium mb-2">Password</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={handlePasswordChange}
-            className={passwordInputClass}
-            required
-          />
-        </div>
-        <div className="mb-6">
-          <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">Confirm Password</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            value={confirmPassword}
-            onChange={handleConfirmPasswordChange}
-            className={passwordInputClass}
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className={buttonClass}
-          //disabled when passwordsMatch or isStuEmail is false
-          disabled={!passwordsMatch || !isStuEmail}
-        //says Sign up if passwordsMatch and isStuEmail is true
-        //says Passwords Do Not Match if passwordsMatch is false
-        //says Not a student email if isStuEmail is false
-        >
-          {passwordsMatch && isStuEmail ? 'Sign Up' : !passwordsMatch ? 'Passwords Do Not Match' : 'Not a student email'}
-        </button>
-      </form>
+    <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-full max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle className="text-2xl">Sign Up</CardTitle>
+            <CardDescription>Create your student ticket UKY account</CardDescription>
+          </CardHeader>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <div className="relative">
+                  <CiUser className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="name"
+                    placeholder="Your Name"
+                    className="pl-8"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Student Email</Label>
+                <div className="relative">
+                  <CiAt className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your.name@uky.edu"
+                    className="pl-8"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <CiLock className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    className={`pl-8 ${!passwordsMatch && password ? 'border-red-500' : ''}`}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirm Password</Label>
+                <div className="relative">
+                  <CiLock className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    className={`pl-8 ${!passwordsMatch && confirmPassword ? 'border-red-500' : ''}`}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+              {!passwordsMatch && password && confirmPassword && (
+                <Alert variant="destructive">
+                  <CiCircleAlert className="h-4 w-4" />
+                  <AlertDescription>Passwords do not match</AlertDescription>
+                </Alert>
+              )}
+              {error && (
+                <Alert variant="destructive">
+                  <CiCircleAlert className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+            </CardContent>
+            <CardFooter>
+              <Button type="submit" className="w-full" disabled={!passwordsMatch}>Sign Up</Button>
+            </CardFooter>
+          </form>
+        </Card>
     </div>
-  );
-};
-
-export default SignUpPage;
+  )
+}

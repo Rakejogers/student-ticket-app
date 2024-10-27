@@ -50,46 +50,48 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Profile</h1>
-      {user ? (
-        <div>
-          <p><strong>Name:</strong> {user.name}</p>
-          <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Venmo:</strong> {venmo}</p>
-          {isUpdatingVenmo ? (
-            <div className="mt-4">
-              <input
-                type="text"
-                value={venmo}
-                onChange={(e) => setVenmo(e.target.value)}
-                placeholder="Enter your new Venmo link"
-                className="p-2 border rounded"
-              />
-              <button onClick={handleUpdateVenmo} className="ml-2 p-2 bg-blue-500 text-white rounded">
-                Save Venmo
+    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white">
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Profile</h1>
+        {user ? (
+          <div>
+            <p><strong>Name:</strong> {user.name}</p>
+            <p><strong>Email:</strong> {user.email}</p>
+            <p><strong>Venmo:</strong> {venmo}</p>
+            {isUpdatingVenmo ? (
+              <div className="mt-4">
+                <input
+                  type="text"
+                  value={venmo}
+                  onChange={(e) => setVenmo(e.target.value)}
+                  placeholder="Enter your new Venmo link"
+                  className="p-2 border rounded"
+                />
+                <button onClick={handleUpdateVenmo} className="ml-2 p-2 bg-blue-500 text-white rounded">
+                  Save Venmo
+                </button>
+                <button onClick={() => setIsUpdatingVenmo(false)} className="ml-2 p-2 bg-red-500 text-white rounded">
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button onClick={() => setIsUpdatingVenmo(true)} className="mt-4 mb-2 p-2 bg-blue-500 text-white rounded">
+                Update Venmo
               </button>
-              <button onClick={() => setIsUpdatingVenmo(false)} className="ml-2 p-2 bg-red-500 text-white rounded">
-                Cancel
-              </button>
-            </div>
-          ) : (
-            <button onClick={() => setIsUpdatingVenmo(true)} className="mt-4 mb-2 p-2 bg-blue-500 text-white rounded">
-              Update Venmo
+            )}
+            <button onClick={handleChangePassword} className="mt-4 mb-2 p-2 bg-blue-500 text-white rounded">
+              Change Password
             </button>
-          )}
-          <button onClick={handleChangePassword} className="mt-4 mb-2 p-2 bg-blue-500 text-white rounded">
-            Change Password
-          </button>
-          <button onClick={handleDeleteAccount} className="mt-4 mb-2 p-2 bg-red-500 text-white rounded">
-            Delete Account
-          </button>
-        </div>
+            <button onClick={handleDeleteAccount} className="mt-4 mb-2 p-2 bg-red-500 text-white rounded">
+              Delete Account
+            </button>
+          </div>
 
-    
-      ) : (
-        <p>Loading...</p>
-      )}
+          
+        ) : (
+          <p>Loading...</p>
+        )}
+      </div>
     </div>
   );
 };

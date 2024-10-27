@@ -1,17 +1,23 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { motion } from "framer-motion";
 import isAuth from '../../../components/isAuth';
 import pb from '@/app/pocketbase';
 import { RecordModel } from 'pocketbase';
 import { useRouter } from 'next/navigation';
 
 const SellTicketsPage: React.FC = () => {
-  const [event, setEvent] = useState('');
-  const [price, setPrice] = useState('');
-  const [ticketType, setTicketType] = useState('');
-  const [events, setEvents] = useState<RecordModel[]>([]);
   const [sport, setSport] = useState('');
+  const [event, setEvent] = useState('');
+  const [ticketType, setTicketType] = useState('');
+  const [price, setPrice] = useState('');
+  const [events, setEvents] = useState<RecordModel[]>([]);
 
   const router = useRouter();
 
@@ -30,10 +36,10 @@ const SellTicketsPage: React.FC = () => {
       }
     };
 
-      fetchEvents();
+    fetchEvents();
   }, [sport]);
 
-  const handleSellTicket = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (pb.authStore.model == null) {
       throw new Error("User not found");
@@ -46,79 +52,91 @@ const SellTicketsPage: React.FC = () => {
       "seller_id": pb.authStore.model.id,
     };
 
-    const record = await pb.collection('tickets').create(data);
-    router.push("/account/my-tickets")
+
+    try {
+      await pb.collection('tickets').create(data);
+      router.push("/account/my-tickets");
+    } catch (error) {
+      console.error('Error creating ticket:', error);
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-purple-900 to-blue-900 text-gray-200">
-      <h1 className="text-4xl font-bold mb-8">Sell Your Ticket</h1>
-      <form onSubmit={handleSellTicket} className="bg-gray-800 p-8 rounded-lg shadow-md w-80">
-        <div className="mb-4">
-          <label htmlFor="sport" className="block text-sm font-medium mb-2">Sport</label>
-          <select
-            id="sport"
-            value={sport}
-            onChange={(e) => setSport(e.target.value)}
-            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          >
-            <option value="">Select ticket type</option>
-            <option value="football">Football</option>
-            <option value="basketball">Basketball</option>
-          </select>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="event" className="block text-sm font-medium mb-2">Event Name</label>
-          <select
-            id="event"
-            value={event}
-            onChange={(e) => setEvent(e.target.value)}
-            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          >
-            <option value="">Select an event</option>
-            {events.map((eventRecord) => (
-              <option key={eventRecord.id} value={eventRecord.id}>
-                {eventRecord.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="ticketType" className="block text-sm font-medium mb-2">Ticket Type</label>
-          <select
-            id="ticketType"
-            value={ticketType}
-            onChange={(e) => setTicketType(e.target.value)}
-            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          >
-            <option value="">Select ticket type</option>
-            {sport !== 'football' && (
-              <option value="ezone">Ezone</option>
-            )}
-            <option value="reserved">Reserved</option>
-          </select>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="price" className="block text-sm font-medium mb-2">Price ($)</label>
-          <input
-            type="number"
-            id="price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-        >
-          Sell Ticket
-        </button>
-      </form>
+    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">Sell Your Ticket</CardTitle>
+            <CardDescription className="text-center">Select your preferences and sell tickets</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="sport">Sport</Label>
+                <Select onValueChange={setSport} required>
+                  <SelectTrigger id="sport">
+                    <SelectValue placeholder="Select a sport" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="football">Football</SelectItem>
+                    <SelectItem value="basketball">Basketball</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="event">Event</Label>
+                <Select onValueChange={setEvent} required>
+                  <SelectTrigger id="event">
+                    <SelectValue placeholder="Select an event" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {events.map((eventRecord) => (
+                      <SelectItem key={eventRecord.id} value={eventRecord.id}>
+                        {eventRecord.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ticket-type">Ticket Type</Label>
+                <Select onValueChange={setTicketType} required>
+                  <SelectTrigger id="ticket-type">
+                    <SelectValue placeholder="Select a ticket type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sport !== 'football' && (
+                      <SelectItem value="ezone">Ezone</SelectItem>
+                    )}
+                    <SelectItem value="reserved">Reserved</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="price">Price</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  placeholder="Enter price"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  required
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <Button className="w-full" type="submit">Sell Ticket</Button>
+            </form>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 };
