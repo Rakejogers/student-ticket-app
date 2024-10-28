@@ -42,8 +42,11 @@ export default function Component() {
         "seller_verified": false
       };
 
+      //create a new user record
       const record = await pb.collection('users').create(data);
       await login(email, password); // Ensure login is called after registration
+
+    //ADD EMAIL VERIFCATION?
     } catch (error) {
       console.error('Registration failed:', error);
       // Handle registration error (e.g., show error message to user)
