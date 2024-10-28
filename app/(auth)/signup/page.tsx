@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { CiAt, CiCircleAlert, CiLock, CiUser } from "react-icons/ci";
 import { useRouter } from 'next/navigation'
 import pb from '@/app/pocketbase'
+import { motion } from 'framer-motion'
 
 export default function Component() {
   const [name, setName] = useState('')
@@ -81,11 +82,17 @@ export default function Component() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-full max-w-md mx-auto">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-100 to-white">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
+        <Card className="w-full mx-auto">
           <CardHeader>
             <CardTitle className="text-2xl">Sign Up</CardTitle>
-            <CardDescription>Create your student ticket UKY account</CardDescription>
+            <CardDescription>Create your student ticket account</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
@@ -160,6 +167,7 @@ export default function Component() {
             </CardFooter>
           </form>
         </Card>
+      </motion.div>
     </div>
   )
 }

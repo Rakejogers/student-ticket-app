@@ -51,6 +51,7 @@ const SellTicketsPage: React.FC = () => {
       "status": "Available",
       "seller_id": pb.authStore.model.id,
     };
+    console.log(data);
 
 
     try {
@@ -112,9 +113,9 @@ const SellTicketsPage: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {sport !== 'football' && (
-                      <SelectItem value="ezone">Ezone</SelectItem>
+                      <SelectItem value="Ezone">Ezone</SelectItem>
                     )}
-                    <SelectItem value="reserved">Reserved</SelectItem>
+                    <SelectItem value="Reserved">Reserved</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

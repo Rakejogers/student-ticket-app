@@ -10,8 +10,8 @@ import { Separator } from "@/components/ui/separator"
 import { CiAt, CiCircleAlert, CiLock } from "react-icons/ci";
 import { useRouter } from 'next/navigation'
 import pb from '@/app/pocketbase'
-import { log } from 'console'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 
 export default function Component() {
   const [email, setEmail] = useState('')
@@ -61,6 +61,11 @@ export default function Component() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-100 to-white">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <Card className="w-full max-w-md mx-auto">
           <CardHeader>
             <CardTitle className="text-2xl">Login</CardTitle>
@@ -115,6 +120,7 @@ export default function Component() {
             </CardFooter>
           </form>
         </Card>
+      </motion.div>
     </div>
   )
 }

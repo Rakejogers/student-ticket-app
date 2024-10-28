@@ -17,7 +17,7 @@ export default function LandingPage() {
           Student Ticket Marketplace
         </h1>
         <p className="text-xl mb-8 text-gray-700">
-          The ONLY Student Ticket Marketplace free and open-source
+          The ONLY Student Ticket Marketplace <u>free</u> and <u>open-source</u>
         </p>
         <Button size="lg" className="bg-blue-600 text-white hover:bg-blue-700" asChild>
           <Link href="/signup">Get Started</Link>

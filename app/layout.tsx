@@ -9,6 +9,9 @@ import {
 import { FaChevronDown } from "react-icons/fa6";
 import LogoutButton from "../components/logoutButton";
 import "./globals.css";
+import { Toaster } from "@/components/ui/toaster"
+import { ThemeProvider } from "@/components/theme-provider"
+
 
 export default function RootLayout({
   children,
@@ -19,7 +22,7 @@ export default function RootLayout({
     <html>
         <body>
             <div className="min-h-screen flex flex-col">
-              <header className="border-b bg-blue-100">
+              <header className="bg-blue-100">
                 <div className="container mx-auto px-4">
                   <nav className="flex items-center justify-between h-16">
                     <div className="text-xl font-bold">
@@ -61,7 +64,15 @@ export default function RootLayout({
                 </div>
               </header>
               <main>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="light"
+                enableSystem
+                disableTransitionOnChange
+              >
                 {children}
+                <Toaster />
+              </ThemeProvider>
               </main>
             </div>
         </body>
