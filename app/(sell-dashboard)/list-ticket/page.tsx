@@ -11,6 +11,8 @@ import isAuth from '../../../components/isAuth';
 import pb from '@/app/pocketbase';
 import { RecordModel } from 'pocketbase';
 import { useRouter } from 'next/navigation';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CiCircleAlert } from "react-icons/ci";
 
 const SellTicketsPage: React.FC = () => {
   const [sport, setSport] = useState('');
@@ -18,13 +20,13 @@ const SellTicketsPage: React.FC = () => {
   const [ticketType, setTicketType] = useState('');
   const [price, setPrice] = useState('');
   const [events, setEvents] = useState<RecordModel[]>([]);
+  const [error, setError] = useState("");
 
   const router = useRouter();
 
   useEffect(() => {
     const fetchEvents = async () => {
       if (!sport) return;
-
       try {
         const records = await pb.collection('events').getList(1, 10, {
           filter: `sport="${sport}"`,
@@ -32,6 +34,7 @@ const SellTicketsPage: React.FC = () => {
         });
         setEvents(records.items);
       } catch (error) {
+        setError("Error fetching events");
         console.error('Error fetching events:', error);
       }
     };
@@ -44,6 +47,10 @@ const SellTicketsPage: React.FC = () => {
     if (pb.authStore.model == null) {
       throw new Error("User not found");
     }
+    if (pb.authStore.model.verified == false) {
+      setError("Please verify your account before selling tickets. Go to Account->Profile to send a verification email.");
+      return;
+    }
     const data = {
       "event_id": event,
       "ticket_type": ticketType,
@@ -51,13 +58,12 @@ const SellTicketsPage: React.FC = () => {
       "status": "Available",
       "seller_id": pb.authStore.model.id,
     };
-    console.log(data);
-
 
     try {
       await pb.collection('tickets').create(data);
       router.push("/account/my-tickets");
     } catch (error) {
+      setError("Error creating ticket");
       console.error('Error creating ticket:', error);
     }
   };
@@ -133,6 +139,12 @@ const SellTicketsPage: React.FC = () => {
                   step="0.01"
                 />
               </div>
+              {error && (
+                <Alert variant="destructive">
+                  <CiCircleAlert className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
               <Button className="w-full" type="submit">Sell Ticket</Button>
             </form>
           </CardContent>

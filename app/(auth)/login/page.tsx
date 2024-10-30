@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
 import { CiAt, CiCircleAlert, CiLock } from "react-icons/ci";
+import { Eye, EyeClosed, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation'
 import pb from '@/app/pocketbase'
 import Link from 'next/link'
@@ -17,22 +18,23 @@ export default function Component() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isView, setIsView] = useState(false)
 
   const router = useRouter();
 
   // Function to handle login logic
   const login = async (email: string, password: string) => {
     try {
-      // Create a session with email and password
       const authData = await pb.collection('users').authWithPassword(
         email,
         password
       );
-      // Redirect to the browse-tickets page upon successful login
-      router.push('/browse/events');
+      const params = new URLSearchParams(window.location.search);
+      const redirectPath = params.get('redirect') || '/browse/events';
+      router.push(redirectPath);
     } catch (error) {
+      setError('Invalid email or password');
       console.error('Login failed:', error);
-      // Handle login error (e.g., show error message to user)
     }
   };
 
@@ -55,7 +57,7 @@ export default function Component() {
       return
     }
 
-    // Here you would typically send the login data to your server
+    // login
     login(email, password)
   }
 
@@ -93,11 +95,24 @@ export default function Component() {
                   <CiLock className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
-                    type="password"
+                    type={isView ? "text" : "password"}
                     className="pl-8"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
+                  {isView ? (
+                        <Eye
+                          className="absolute right-4 top-2 z-10 cursor-pointer text-gray-500"
+                          onClick={() => {
+                            setIsView(!isView)
+                          }}
+                        />
+                      ) : (
+                        <EyeOff
+                          className="absolute right-4 top-2 z-10 cursor-pointer text-gray-500"
+                          onClick={() => setIsView(!isView)}
+                        />
+                  )}
                 </div>
               </div>
               {error && (

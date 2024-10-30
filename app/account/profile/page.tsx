@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,122 +11,124 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
-import { AlertTriangle, AtSign, DollarSign, KeyRound, Trash2, User } from "lucide-react"
-import { useEffect, useState } from "react";
-import isAuth from "../../../components/isAuth";
-import pb from "@/app/pocketbase";
+import { AlertTriangle, AtSign, BadgeCheck, DollarSign, KeyRound, Trash2, User, BadgeX } from "lucide-react"
+import { useEffect, useState } from "react"
+import isAuth from "../../../components/isAuth"
+import pb from "@/app/pocketbase"
 import { RecordModel } from "pocketbase"
 import { useRouter } from "next/navigation"
 
 const ProfilePage: React.FC = () => {
-  const [user, setUser] = useState<RecordModel | null>(null);
-
+  const [user, setUser] = useState<RecordModel | null>(null)
   const [isVenmoDialogOpen, setIsVenmoDialogOpen] = useState(false)
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-
   const [newVenmo, setNewVenmo] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [isVerificationButtonDisabled, setIsVerificationButtonDisabled] = useState(false)
+  const [verificationCooldown, setVerificationCooldown] = useState(0)
+  const [oldPassword, setOldPassword] = useState("")
+
+  const router = useRouter()
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        if(pb.authStore.model == null){
-          throw new Error("User not found");
+        if (pb.authStore.model == null) {
+          throw new Error("User not found")
         }
-        const user = await pb.collection('users').getOne(pb.authStore.model.id);
-        setUser(user);
-        setNewVenmo(user.venmo || ""); 
+        const user = await pb.collection('users').getOne(pb.authStore.model.id)
+        setUser(user)
+        setNewVenmo(user.venmo || "")
       } catch (error) {
-        console.error('Failed to fetch user', error);
+        console.error('Failed to fetch user', error)
       }
-    };
+    }
 
-    fetchUser();
-  }, [isVenmoDialogOpen]);
+    fetchUser()
+  }, [isVenmoDialogOpen])
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout
+    if (verificationCooldown > 0) {
+      timer = setInterval(() => {
+        setVerificationCooldown((prev) => prev - 1)
+      }, 1000)
+    } else {
+      setIsVerificationButtonDisabled(false)
+    }
+
+    return () => {
+      if (timer) clearInterval(timer)
+    }
+  }, [verificationCooldown])
 
   const handleUpdateVenmo = async () => {
     try {
-      if(user == null){
-        throw new Error("User not found");
+      if (user == null) {
+        throw new Error("User not found")
       }
-      await pb.collection('users').update(user.id, { venmo: newVenmo });
-      console.log("Venmo updated successfully!");
-      setUser(prev => (prev ? { ...prev, venmo: newVenmo } : prev)); // Update the local user state
-      setIsVenmoDialogOpen(false); // Close the dialog
+      await pb.collection('users').update(user.id, { venmo: newVenmo })
+      console.log("Venmo updated successfully!")
+      setUser(prev => (prev ? { ...prev, venmo: newVenmo } : prev))
+      setIsVenmoDialogOpen(false)
     } catch (error) {
-      console.error('Failed to update Venmo', error);
+      console.error('Failed to update Venmo', error)
     }
-  };
-
-  const handleChangePassword = () => {
-    // Here you would typically send a request to your backend to update the password
-    console.log("Password changed")
-    setIsPasswordDialogOpen(false)
   }
 
-  const router = useRouter();
+  const handleChangePassword = async () => {
+    try {
+      if (user == null) {
+        throw new Error("User not found")
+      }
+      if (newPassword !== confirmPassword) {
+        throw new Error("Passwords do not match")
+      }
+      await pb.collection('users').update(user.id, {
+        oldPassword: oldPassword, 
+        password: newPassword,
+        passwordConfirm: confirmPassword
+      })
+      await pb.collection('users').authRefresh()
+      console.log("Password changed successfully")
+      setIsPasswordDialogOpen(false)
+      
+    } catch (error) {
+      console.error('Failed to change password', error)
+    }
+  }
 
   const handleDeleteAccount = async () => {
-    
-    // delete account logic
-    if(user == null){
-      throw new Error("User not found");
-    }
-    await pb.collection('users').delete(user.id);
-    console.log("Account deleted")
-    setIsDeleteDialogOpen(false)
-    router.push("/")
-  }
-/*
-const ProfilePage = () => {
-  const [user, setUser] = useState<any | null>(null);
-  const [venmo, setVenmo] = useState<string>("");  
-  const [isUpdatingVenmo, setIsUpdatingVenmo] = useState(false); 
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        if(pb.authStore.model == null){
-          throw new Error("User not found");
-        }
-        const user = await pb.collection('users').getOne(pb.authStore.model.id);
-        setUser(user);
-        setVenmo(user.venmo || ""); 
-      } catch (error) {
-        console.error('Failed to fetch user', error);
-      }
-    };
-
-    fetchUser();
-  }, []);
-
-  // ADD VENMO VALIDATION?
-  const handleUpdateVenmo = async () => {
     try {
-      await pb.collection('users').update(user.id, 
-        { venmo: venmo }
-      );
-      console.log("Venmo updated successfully!");
-      setIsUpdatingVenmo(false);
+      if (user == null) {
+        throw new Error("User not found")
+      }
+      await pb.collection('users').delete(user.id)
+      console.log("Account deleted")
+      setIsDeleteDialogOpen(false)
+      router.push("/")
     } catch (error) {
-      console.error('Failed to update Venmo', error);
+      console.error('Failed to delete account', error)
     }
-  };
+  }
 
-  const handleChangePassword = () => {
-    // Logic to change password
-    console.log("Change password clicked");
-  };
+  const handleSendVerificationEmail = async () => {
+    try {
+      if (user == null) {
+        throw new Error("User not found")
+      }
+      await pb.collection('users').requestVerification(user.email)
+      console.log("Verification email sent")
+      setIsVerificationButtonDisabled(true)
+      setVerificationCooldown(60)
+    } catch (error) {
+      console.error('Failed to send verification email', error)
+    }
+  }
 
-  const handleDeleteAccount = () => {
-    // Logic to delete account
-    console.log("Delete account clicked");
-  };
-  */
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-100 to-white">
       <Card className="w-full max-w-2xl mx-auto transform -translate-y-1/4">
@@ -148,6 +150,23 @@ const ProfilePage = () => {
               <p className="font-medium">{user?.email}</p>
               <p className="text-sm text-gray-500">Email</p>
             </div>
+            {user?.verified ? (
+              <BadgeCheck className="h-6 w-6 text-green-500" />
+            ) : (
+              <>
+                <BadgeX className="h-6 w-6 text-red-500" />
+                <Button 
+                  variant="outline" 
+                  onClick={handleSendVerificationEmail}
+                  disabled={isVerificationButtonDisabled}
+                >
+                  {isVerificationButtonDisabled 
+                    ? `Resend in ${verificationCooldown}s` 
+                    : 'Send Verification Email'
+                  }
+                </Button>
+              </>
+            )}
           </div>
           <div className="flex items-center space-x-4">
             <DollarSign className="h-6 w-6 text-gray-500" />
@@ -205,6 +224,18 @@ const ProfilePage = () => {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="old-password" className="text-right">
+                Old Password
+              </Label>
+              <Input
+                id="old-password"
+                type="password"
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="new-password" className="text-right">
                 New Password
               </Label>
@@ -257,53 +288,5 @@ const ProfilePage = () => {
     </div>
   )
 }
-  /*
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white">
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Profile</h1>
-        {user ? (
-          <div>
-            <p><strong>Name:</strong> {user.name}</p>
-            <p><strong>Email:</strong> {user.email}</p>
-            <p><strong>Venmo:</strong> {venmo}</p>
-            {isUpdatingVenmo ? (
-              <div className="mt-4">
-                <input
-                  type="text"
-                  value={venmo}
-                  onChange={(e) => setVenmo(e.target.value)}
-                  placeholder="Enter your new Venmo link"
-                  className="p-2 border rounded"
-                />
-                <button onClick={handleUpdateVenmo} className="ml-2 p-2 bg-blue-500 text-white rounded">
-                  Save Venmo
-                </button>
-                <button onClick={() => setIsUpdatingVenmo(false)} className="ml-2 p-2 bg-red-500 text-white rounded">
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <button onClick={() => setIsUpdatingVenmo(true)} className="mt-4 mb-2 p-2 bg-blue-500 text-white rounded">
-                Update Venmo
-              </button>
-            )}
-            <button onClick={handleChangePassword} className="mt-4 mb-2 p-2 bg-blue-500 text-white rounded">
-              Change Password
-            </button>
-            <button onClick={handleDeleteAccount} className="mt-4 mb-2 p-2 bg-red-500 text-white rounded">
-              Delete Account
-            </button>
-          </div>
 
-          
-        ) : (
-          <p>Loading...</p>
-        )}
-      </div>
-    </div>
-  );
-};
-*/
-export default isAuth(ProfilePage);
-
+export default isAuth(ProfilePage)

@@ -12,6 +12,7 @@ import pb from '@/app/pocketbase'
 import { motion } from 'framer-motion'
 
 export default function Component() {
+  const [isLoading, setIsLoading] = useState(false)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -24,7 +25,9 @@ export default function Component() {
   const login = async (email: string, password: string) => {
     try {
       const session = await pb.collection('users').authWithPassword(email, password);
-      router.push('/browse/events'); // Ensure this is called after successful login
+      await pb.collection('users').requestVerification(email);
+      setIsLoading(false)
+      router.push('/signup/verify'); // Ensure this is called after successful login
     } catch (error) {
       console.error('Login failed:', error);
       // Handle login error (e.g., show error message to user)
@@ -32,6 +35,7 @@ export default function Component() {
   };
 
   const register = async () => {
+    setIsLoading(true)
     try {
       const data = {
         "email": email,
@@ -45,8 +49,6 @@ export default function Component() {
       //create a new user record
       const record = await pb.collection('users').create(data);
       await login(email, password); // Ensure login is called after registration
-
-    //ADD EMAIL VERIFCATION?
     } catch (error) {
       console.error('Registration failed:', error);
       // Handle registration error (e.g., show error message to user)

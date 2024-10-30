@@ -32,6 +32,7 @@ const BrowseEventsPage: React.FC = () => {
   // fetch events
   useEffect(() => {
     const fetchEvents = async () => {
+      pb.autoCancellation(false);
       setIsLoading(true);
       try {
         const records = await pb.collection('events').getList(1, 10, {

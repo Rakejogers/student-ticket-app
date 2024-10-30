@@ -1,7 +1,6 @@
 "use client";
 
-import Link from 'next/link'
-import { notFound, useSearchParams } from 'next/navigation'
+import { notFound, useSearchParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,44 +13,45 @@ import { ToastAction } from '@/components/ui/toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CalendarIcon, TagIcon, Armchair } from "lucide-react"
 
-const EventPage: React.FC = () => {
-  type EventType = {
+type EventType = {
+  id: string;
+  name: string;
+  date: string;
+  sport: string;
+  venue: string;
+  tickets: Array<{
     id: string;
-    name: string;
-    date: string;
-    sport: string;
-    venue: string;
-    tickets: Array<{
-      id: string;
-      price: number;
-      ticket_type: string;
-      seller_id: string;
-      status: string;
-      expand: {
-        seller_id: {
-          name: string;
-        };
+    price: number;
+    ticket_type: string;
+    seller_id: string;
+    status: string;
+    expand: {
+      seller_id: {
+        name: string;
       };
-    }>;
-  };
+    };
+  }>;
+};
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true,
-    }).format(date);
-  };
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
+  }).format(date);
+};
 
+const EventPage: React.FC = () => {
   const [event, setEvent] = useState<EventType | null>(null);
-  const [offerAmount, setOfferAmount] = useState<string>('');
+  const [offerAmount, setOfferAmount] = useState(0);
 
   const searchParams = useSearchParams();
   const eventId = searchParams.get('eventId');
+  const router = useRouter();
 
   if (eventId == null) {
     notFound()
@@ -99,23 +99,41 @@ const EventPage: React.FC = () => {
 
   const handleOfferSubmit = async (ticketId: string, sellerId: string) => {
     try {
-      // Here you would typically send the offer to your backend
-      // For this example, we'll just show a success message
+      //make sure buyer is verified
+      if (pb.authStore.model?.verified == false) {
+        toast({
+          title: `Verification Required`,
+          description: `Verify your account before sending an offer.`,
+          variant: "destructive",
+          action: (
+            <ToastAction onClick={() => {router.push("/account/profile")}} altText='Verify Account'>Verify Now</ToastAction>
+          ),
+        })
+        return;
+      }
+      // Send offer to seller
+      const data = {
+        ticket: ticketId,
+        sender: pb.authStore.model?.id,
+        receiver: sellerId,
+        amount: offerAmount,
+      };
+
+      await pb.collection('offers').create(data);
+      //show toast to confirm offer sent
+      const sellerName = event?.tickets.find(ticket => ticket.id === ticketId)?.expand.seller_id.name;
       toast({
-        title: `Offer Sent to ${sellerId}`,
+        title: `Offer Sent to ${sellerName}`,
         description: `Your offer of $${offerAmount} has been sent to the seller.`,
-        action: (
-          <ToastAction altText='Offer sent'>Offer Sent</ToastAction>
-        ),
       })
-      console.log(`Offer sent to ${sellerId} for ticket ${ticketId} with amount $${offerAmount}`);
-      setOfferAmount('');
+      setOfferAmount(0);
     } catch (error) {
       toast({
         title: "Error",
         description: "There was an error sending your offer. Please try again.",
         variant: "destructive",
       })
+      console.error('Error sending offer:', error);
     }
   };
 
@@ -230,7 +248,7 @@ const EventPage: React.FC = () => {
                           placeholder="Enter amount"
                           type="number"
                           value={offerAmount}
-                          onChange={(e) => setOfferAmount(e.target.value)}
+                          onChange={(e) => setOfferAmount(Number(e.target.value))}
                         />
                       </div>
                       <Button onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}>
