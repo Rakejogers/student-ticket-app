@@ -64,11 +64,10 @@ const EventPage: React.FC = () => {
       const event = await pb.collection('events').getOne(eventId, {});
 
       const tickets = await pb.collection('tickets').getList(1, 10, {
-        filter: `event_id="${eventId}"`,
+        filter: `event_id="${eventId}" && seller_id!="${pb.authStore.model?.id}" && status!="Sold"`,
         sort: '-created',
         expand: 'seller_id'
       });
-      console.log(tickets.items);
       
       const data: EventType = {
         id: event.id,
@@ -117,9 +116,11 @@ const EventPage: React.FC = () => {
         sender: pb.authStore.model?.id,
         receiver: sellerId,
         amount: offerAmount,
+        status: "Pending"
       };
 
       await pb.collection('offers').create(data);
+      await pb.collection('tickets').update(ticketId,{status:"Pending"});
       //show toast to confirm offer sent
       const sellerName = event?.tickets.find(ticket => ticket.id === ticketId)?.expand.seller_id.name;
       toast({

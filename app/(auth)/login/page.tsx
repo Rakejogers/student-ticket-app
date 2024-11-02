@@ -14,16 +14,29 @@ import pb from '@/app/pocketbase'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 
+const LoadingSpinner = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-100 to-white">
+    <motion.div
+      className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+    />
+  </div>
+);
+
 export default function Component() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isView, setIsView] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const router = useRouter();
 
   // Function to handle login logic
   const login = async (email: string, password: string) => {
+    setIsLoading(true)
     try {
       const authData = await pb.collection('users').authWithPassword(
         email,
@@ -32,7 +45,9 @@ export default function Component() {
       const params = new URLSearchParams(window.location.search);
       const redirectPath = params.get('redirect') || '/browse/events';
       router.push(redirectPath);
+      setIsLoading(false)
     } catch (error) {
+      setIsLoading(false)
       setError('Invalid email or password');
       console.error('Login failed:', error);
     }
@@ -59,6 +74,10 @@ export default function Component() {
 
     // login
     login(email, password)
+  }
+
+  if (isLoading) {
+    return <LoadingSpinner />;
   }
 
   return (

@@ -11,6 +11,7 @@ import LogoutButton from "../components/logoutButton";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
+import pb from "@/app/pocketbase"
 
 
 export default function RootLayout({
@@ -18,6 +19,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const isLoggedIn = pb.authStore.isValid;
+
   return (
     <html>
         <body>
@@ -26,7 +29,7 @@ export default function RootLayout({
                 <div className="container mx-auto px-4">
                   <nav className="flex items-center justify-between h-16">
                     <div className="text-xl font-bold">
-                      <Link href="/">Student Ticket Marketplace</Link>
+                      <Link href="/browse/events">Student Ticket Marketplace</Link>
                     </div>
                     <div className="flex items-center space-x-4">
                       <Button variant="ghost" asChild>
@@ -35,9 +38,13 @@ export default function RootLayout({
                       <Button variant="ghost" asChild>
                         <Link href="/browse/events">Buy</Link>
                       </Button>
-                      <Button variant="ghost" asChild>
-                        <Link href="/login">Login</Link>
-                      </Button>
+                      {isLoggedIn ? (
+                        <LogoutButton />
+                      ) : (
+                        <Button variant="ghost" asChild>
+                          <Link href="/login">Login</Link>
+                        </Button>
+                      )}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="flex items-center">
@@ -52,7 +59,7 @@ export default function RootLayout({
                             <Link href="/account/my-tickets">My Tickets</Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
-                            <Link href="/account/settings">Settings</Link>
+                            <Link href="/account/sent-offers">Sent Offers</Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <LogoutButton />

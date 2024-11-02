@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import pb from "@/app/pocketbase";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "lucide-react";
 
 const LogoutButton = () => {
     const router = useRouter();

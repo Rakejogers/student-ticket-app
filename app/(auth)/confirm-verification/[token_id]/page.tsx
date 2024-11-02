@@ -32,7 +32,7 @@ export default function VerifyEmailPage({ params }: { params: Params }) {
     }
 
     confirmVerification()
-  }, [token_id, router])
+  }, [])
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-100 to-white">
