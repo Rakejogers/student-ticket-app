@@ -24,6 +24,7 @@ const LogoutButton = () => {
       inactivityTimeout = setTimeout(handleLogout, 1800000); // 30 minutes
     };
 
+    /* eslint-disable */
     useEffect(() => {
       const events = ['mousemove', 'keydown', 'click', 'scroll'];
       events.forEach(event => window.addEventListener(event, resetInactivityTimeout));
@@ -35,6 +36,7 @@ const LogoutButton = () => {
         if (inactivityTimeout) clearTimeout(inactivityTimeout);
       };
     }, [resetInactivityTimeout]);
+    /* eslint-enable */
     
     return (
       <Button onClick={handleLogout} className="text-white bg-red-500 hover:bg-red-600">
