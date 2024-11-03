@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import pb from '@/app/pocketbase'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { toast } from "@/hooks/use-toast"
 import { ToastAction } from '@/components/ui/toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -186,88 +186,90 @@ const EventPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white">
-      <div className="container mx-auto p-4">
-        <h1 className="text-3xl font-bold mb-6">{event.name}</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Event Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p><strong>Date:</strong> {formatDate(event.date)}</p>
-              <p><strong>Venue:</strong> {event.venue}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Ticket Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Select from available tickets below. Make an offer to the seller.</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <h2 className="text-2xl font-semibold mb-4">Available Tickets</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {event.tickets.map((ticket) => (
-            <Card key={ticket.id}>
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white">
+        <div className="container mx-auto p-4">
+          <h1 className="text-3xl font-bold mb-6">{event.name}</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <Card>
               <CardHeader>
-                <CardTitle>{ticket.expand.seller_id.name}</CardTitle>
-                <CardDescription className="flex items-center">
-                  <CalendarIcon className="mr-2 h-4 w-4" /> {formatDate(event.date)}
-                </CardDescription>
+                <CardTitle>Event Details</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="flex items-center text-md font-regular">
-                  <Armchair className="mr-2 h-4 w-4" /> {ticket.ticket_type}
-                </p>
-                <p className="flex items-center text-lg font-semibold">
-                  <TagIcon className="mr-2 h-4 w-4" /> ${ticket.price}
-                </p>
-                <p className={`mt-2 ${ticket.status === "Available" ? "text-green-600" : "text-yellow-600"}`}>
-                  {ticket.status}
-                </p>
-            
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button className="mt-4 w-full">Make an Offer</Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80">
-                    <div className="grid gap-4">
-                      <div className="space-y-2">
-                        <h4 className="font-medium leading-none">Make an Offer</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Enter your offer amount for this ticket.
-                        </p>
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="amount">Offer Amount</Label>
-                        <Input
-                          id="amount"
-                          placeholder="Enter amount"
-                          type="number"
-                          value={offerAmount}
-                          onChange={(e) => setOfferAmount(Number(e.target.value))}
-                        />
-                      </div>
-                      <Button onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}>
-                        Send Offer
-                      </Button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                <p><strong>Date:</strong> {formatDate(event.date)}</p>
+                <p><strong>Venue:</strong> {event.venue}</p>
               </CardContent>
             </Card>
-          ))}
-        </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Ticket Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Select from available tickets below. Make an offer to the seller.</p>
+              </CardContent>
+            </Card>
+          </div>
 
-        {event.tickets.length === 0 && (
-          <p className="text-center text-gray-500 mt-4">No tickets available for this event.</p>
-        )}
+          <h2 className="text-2xl font-semibold mb-4">Available Tickets</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {event.tickets.map((ticket) => (
+              <Card key={ticket.id}>
+                <CardHeader>
+                  <CardTitle>{ticket.expand.seller_id.name}</CardTitle>
+                  <CardDescription className="flex items-center">
+                    <CalendarIcon className="mr-2 h-4 w-4" /> {formatDate(event.date)}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="flex items-center text-md font-regular">
+                    <Armchair className="mr-2 h-4 w-4" /> {ticket.ticket_type}
+                  </p>
+                  <p className="flex items-center text-lg font-semibold">
+                    <TagIcon className="mr-2 h-4 w-4" /> ${ticket.price}
+                  </p>
+                  <p className={`mt-2 ${ticket.status === "Available" ? "text-green-600" : "text-yellow-600"}`}>
+                    {ticket.status}
+                  </p>
+
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button className="mt-4 w-full">Make an Offer</Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80">
+                      <div className="grid gap-4">
+                        <div className="space-y-2">
+                          <h4 className="font-medium leading-none">Make an Offer</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Enter your offer amount for this ticket.
+                          </p>
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="amount">Offer Amount</Label>
+                          <Input
+                            id="amount"
+                            placeholder="Enter amount"
+                            type="number"
+                            value={offerAmount}
+                            onChange={(e) => setOfferAmount(Number(e.target.value))}
+                          />
+                        </div>
+                        <Button onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}>
+                          Send Offer
+                        </Button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {event.tickets.length === 0 && (
+            <p className="text-center text-gray-500 mt-4">No tickets available for this event.</p>
+          )}
+        </div>
       </div>
-    </div>
+    </Suspense>
   )
 }
 
