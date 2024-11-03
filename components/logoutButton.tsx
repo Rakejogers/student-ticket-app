@@ -34,7 +34,7 @@ const LogoutButton = () => {
         events.forEach(event => window.removeEventListener(event, resetInactivityTimeout));
         if (inactivityTimeout) clearTimeout(inactivityTimeout);
       };
-    }, []);
+    }, [resetInactivityTimeout]);
     
     return (
       <Button onClick={handleLogout} className="text-white bg-red-500 hover:bg-red-600">

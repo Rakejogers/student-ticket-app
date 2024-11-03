@@ -61,7 +61,7 @@ export default function Component() {
               </AlertDescription>
             </Alert>
             <p className="text-center text-sm text-muted-foreground">
-              If you don't see the email, check your spam folder or click the button below to resend.
+              If you don&apos;t see the email, check your spam folder or click the button below to resend.
             </p>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">

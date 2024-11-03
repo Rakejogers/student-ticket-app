@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
 import { CiAt, CiCircleAlert, CiLock } from "react-icons/ci";
-import { Eye, EyeClosed, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation'
 import pb from '@/app/pocketbase'
 import Link from 'next/link'
@@ -38,7 +38,7 @@ export default function Component() {
   const login = async (email: string, password: string) => {
     setIsLoading(true)
     try {
-      const authData = await pb.collection('users').authWithPassword(
+      await pb.collection('users').authWithPassword(
         email,
         password
       );

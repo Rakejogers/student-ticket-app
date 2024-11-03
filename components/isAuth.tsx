@@ -15,8 +15,8 @@ const LoadingSpinner = () => (
   </div>
 );
 
-export default function isAuth(Component: React.ComponentType<any>) {
-  return function IsAuth(props: any) {
+export default function isAuth<P extends object>(Component: React.ComponentType<P>) {
+  return function IsAuth(props: P) {
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
     pb.autoCancellation(false);
@@ -24,7 +24,6 @@ export default function isAuth(Component: React.ComponentType<any>) {
     useEffect(() => {
       const checkAuth = async () => {
         try {
-          await pb.collection('users').authRefresh();
           if (pb.authStore.isValid) {
             setIsLoading(false);
           } else {
@@ -44,6 +43,6 @@ export default function isAuth(Component: React.ComponentType<any>) {
       return <LoadingSpinner />;
     }
 
-    return <Component {...props} />;
+    return <Component {...props as P} />;
   };
 }

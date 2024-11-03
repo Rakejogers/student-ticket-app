@@ -11,6 +11,16 @@ import { useRouter } from 'next/navigation'
 import pb from '@/app/pocketbase'
 import { motion } from 'framer-motion'
 
+const LoadingSpinner = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-100 to-white">
+    <motion.div
+      className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+    />
+  </div>
+);
+
 export default function Component() {
   const [isLoading, setIsLoading] = useState(false)
   const [name, setName] = useState('')
@@ -24,7 +34,7 @@ export default function Component() {
 
   const login = async (email: string, password: string) => {
     try {
-      const session = await pb.collection('users').authWithPassword(email, password);
+      await pb.collection('users').authWithPassword(email, password);
       await pb.collection('users').requestVerification(email);
       setIsLoading(false)
       router.push('/signup/verify'); // Ensure this is called after successful login
@@ -47,7 +57,7 @@ export default function Component() {
       };
 
       //create a new user record
-      const record = await pb.collection('users').create(data);
+      await pb.collection('users').create(data);
       await login(email, password); // Ensure login is called after registration
     } catch (error) {
       console.error('Registration failed:', error);
@@ -84,6 +94,10 @@ export default function Component() {
     }
 
     register()
+  }
+
+  if (isLoading) {
+    return <LoadingSpinner />;
   }
 
   return (

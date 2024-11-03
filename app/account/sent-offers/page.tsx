@@ -1,6 +1,5 @@
 "use client"
 
-import { notFound, useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,32 +7,11 @@ import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CalendarIcon, TagIcon, TicketIcon, UserIcon } from "lucide-react"
+import { CalendarIcon, TagIcon, TicketIcon } from "lucide-react"
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import { toast } from "@/hooks/use-toast"
-import { ToastAction } from '@/components/ui/toast';
-import { Skeleton } from '@/components/ui/skeleton';
-
-type EventType = {
-  id: string;
-  name: string;
-  date: string;
-  sport: string;
-  venue: string;
-  tickets: Array<{
-    id: string;
-    price: number;
-    ticket_type: string;
-    seller_id: string;
-    status: string;
-    expand: {
-      seller_id: {
-        name: string;
-      };
-    };
-  }>;
-};
+import isAuth from "@/components/isAuth"
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -47,11 +25,9 @@ const formatDate = (dateString: string) => {
   }).format(date);
 };
 
-export default function MySentOffersPage() {
+const SentOffersPage: React.FC = () => {
   const [sentOffers, setSentOffers] = useState<RecordModel[]>([])
-  const [loading, setLoading] = useState(true)
   const [offerAmount, setOfferAmount] = useState(0);
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     async function fetchOffers() {
@@ -65,9 +41,7 @@ export default function MySentOffersPage() {
           expand: 'ticket.event_id'
         });
         
-        console.log(userOffers)
         setSentOffers(userOffers.items)
-        setLoading(false)
       } catch (error) {
         console.error('No tickets found', error);
       }
@@ -130,7 +104,7 @@ export default function MySentOffersPage() {
         <h1 className="text-2xl font-bold mb-6">My Sent Offers</h1>
         
         {sentOffers.length === 0 ? (
-          <p>You haven't sent any offers yet.</p>
+          <p>You haven&apos;t sent any offers yet.</p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {sentOffers.map((offer) => (
@@ -209,3 +183,5 @@ export default function MySentOffersPage() {
     </div>
   )
 }
+
+export default isAuth(SentOffersPage);

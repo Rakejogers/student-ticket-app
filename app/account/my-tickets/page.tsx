@@ -17,6 +17,7 @@ import { RecordModel } from 'pocketbase'
 import Link from 'next/link'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Badge } from '@/components/ui/badge'
+import isAuth from '@/components/isAuth'
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -40,7 +41,7 @@ const getStatusColor = (status: string) => {
   }
 }
 
-export default function UserTicketsPage() {
+const UserTicketsPage: React.FC = () => {
   const [tickets, setTickets] = useState<RecordModel[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedTicket, setSelectedTicket] = useState<RecordModel | null>(null)
@@ -128,7 +129,7 @@ export default function UserTicketsPage() {
         </header>
 
         {tickets.length === 0 ? (
-          <p>You don't have any tickets for sale.</p>
+          <p>You don&apos;t have any tickets for sale.</p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tickets.map((ticket) => (
@@ -213,3 +214,5 @@ export default function UserTicketsPage() {
     </div>
   )
 }
+
+export default isAuth(UserTicketsPage);

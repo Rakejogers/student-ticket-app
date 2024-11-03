@@ -94,7 +94,7 @@ const EventPage: React.FC = () => {
     };
 
     fetchEvent();
-  }, []);
+  }, [eventId]);
 
   const handleOfferSubmit = async (ticketId: string, sellerId: string) => {
     try {
