@@ -108,7 +108,7 @@ const BrowseEventsPage: React.FC = () => {
             </>
           ) : (
             filteredEvents.map(event => (
-              <Link href={`/browse/events/event?eventId=${event.id}`} key={event.id}>
+              <Link href={`/browse/events/${event.id}`} key={event.id}>
                 <Card className="cursor-pointer hover:shadow-lg transition-shadow border border-gray-200 rounded-lg">
                   <CardHeader className="bg-gray-100 p-4">
                     <CardTitle className="text-xl font-semibold">{event.name}</CardTitle>

@@ -1,6 +1,6 @@
 "use client";
 
-import { notFound, useSearchParams, useRouter } from 'next/navigation'
+import { notFound, useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -45,12 +45,15 @@ const formatDate = (dateString: string) => {
   }).format(date);
 };
 
-const EventPage: React.FC = () => {
+interface Params {
+  eventId: string;
+}
+
+export default function EventPage({ params }: { params: Params }) {
   const [event, setEvent] = useState<EventType | null>(null);
   const [offerAmount, setOfferAmount] = useState(0);
 
-  const searchParams = useSearchParams();
-  const eventId = searchParams.get('eventId');
+  const { eventId } = params
   const router = useRouter();
 
   if (eventId == null) {
@@ -272,5 +275,3 @@ const EventPage: React.FC = () => {
     </Suspense>
   )
 }
-
-export default EventPage;
