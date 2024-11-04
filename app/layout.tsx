@@ -14,7 +14,6 @@ import LogoutButton from "../components/logoutButton";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
-import pb from "@/app/pocketbase"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
