@@ -15,6 +15,9 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
 import pb from "@/app/pocketbase"
+import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from '@vercel/speed-insights/next';
+
 
 export default function RootLayout({
   children,
@@ -131,6 +134,8 @@ export default function RootLayout({
             >
               {children}
               <Toaster />
+              <Analytics />
+              <SpeedInsights />
             </ThemeProvider>
           </main>
         </div>
