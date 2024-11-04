@@ -19,6 +19,11 @@ import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
 
+/// This is the layout for the entire app. It includes the header and the main content.
+/// The header includes the navigation links and the user account dropdown.
+/// The main content includes the children components passed to this layout.
+/// The layout also includes the theme provider, analytics, and speed insights components.
+
 export default function RootLayout({
   children,
 }: {
@@ -48,13 +53,9 @@ export default function RootLayout({
                   <Button variant="ghost" asChild>
                     <Link href="/browse/events">Buy</Link>
                   </Button>
-                  {isLoggedIn ? (
-                    <LogoutButton />
-                  ) : (
-                    <Button variant="ghost" asChild>
-                      <Link href="/login">Login</Link>
-                    </Button>
-                  )}
+                  <Button variant="ghost" asChild>
+                    <Link href="/login">Login</Link>
+                  </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="flex items-center">
@@ -93,13 +94,9 @@ export default function RootLayout({
                   <Button variant="ghost" asChild className="w-full justify-start">
                     <Link href="/browse/events">Buy</Link>
                   </Button>
-                  {isLoggedIn ? (
-                    <LogoutButton/>
-                  ) : (
-                    <Button variant="ghost" asChild className="w-full justify-start">
-                      <Link href="/login">Login</Link>
-                    </Button>
-                  )}
+                  <Button variant="ghost" asChild className="w-full justify-start">
+                    <Link href="/login">Login</Link>
+                  </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="w-full justify-start">

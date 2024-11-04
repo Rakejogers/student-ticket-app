@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation'
 import pb from '@/app/pocketbase'
 import { motion } from 'framer-motion'
 
+// Loading spinner component
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-100 to-white">
     <motion.div
@@ -29,11 +30,14 @@ export default function Component() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [passwordsMatch, setPasswordsMatch] = useState(true)
+  const [inviteCode, setInviteCode] = useState('')
 
-  const router = useRouter(); // Move this outside of the login function
+  const router = useRouter();
 
+  // Function to handle login logic
   const login = async (email: string, password: string) => {
     try {
+      // Login with email and password
       await pb.collection('users').authWithPassword(email, password);
       await pb.collection('users').requestVerification(email);
       setIsLoading(false)
@@ -53,7 +57,8 @@ export default function Component() {
         "password": password,
         "passwordConfirm": password,
         "name": name,
-        "seller_verified": false
+        "seller_verified": false,
+        "details": inviteCode
       };
 
       //create a new user record
@@ -90,6 +95,16 @@ export default function Component() {
 
     if (password !== confirmPassword) {
       setError('Passwords do not match')
+      return
+    }
+
+    if (!inviteCode) {
+      setError('Please enter an invite code')
+      return
+    }
+
+    if (inviteCode !== 'UKY2024-Beta-1') {
+      setError('Invalid invite code')
       return
     }
 
@@ -167,6 +182,16 @@ export default function Component() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="inviteCode">Invite Code</Label>
+                <Input
+                  id="inviteCode"
+                  type="text"
+                  placeholder="Enter your invite code"
+                  value={inviteCode}
+                  onChange={(e) => setInviteCode(e.target.value)}
+                />
               </div>
               {!passwordsMatch && password && confirmPassword && (
                 <Alert variant="destructive">
