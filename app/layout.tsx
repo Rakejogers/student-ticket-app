@@ -29,7 +29,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const isLoggedIn = pb.authStore.isValid;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {

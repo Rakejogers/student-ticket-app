@@ -39,8 +39,9 @@ const AdminPage = () => {
     return format(localDate, "yyyy-MM-dd'T'HH:mm")
   }
 
+  const router = useRouter();
+
   if (!pb.authStore.isAdmin) {
-    const router = useRouter();
     router.push('/browse/events')
   }
 
