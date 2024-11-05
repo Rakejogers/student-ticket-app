@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CalendarIcon, TagIcon, TicketIcon } from "lucide-react"
+import { CalendarIcon, TagIcon, TicketIcon, UserIcon, PhoneIcon, MailIcon, ArrowLeftIcon, Wallet } from "lucide-react"
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import { toast } from "@/hooks/use-toast"
@@ -28,6 +28,8 @@ const formatDate = (dateString: string) => {
 const SentOffersPage: React.FC = () => {
   const [sentOffers, setSentOffers] = useState<RecordModel[]>([])
   const [offerAmount, setOfferAmount] = useState(0);
+  const [sellerInfo, setSellerInfo] = useState<{ [key: string]: any }>({});
+  const [showSellerInfo, setShowSellerInfo] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     async function fetchOffers() {
@@ -50,9 +52,25 @@ const SentOffersPage: React.FC = () => {
     fetchOffers()
   }, [])
 
-  const handleCancelOffer = async (offerId: string) => {
+  const viewSellerInfo = async (offerId: string, sellerId: string) => {
+    try {
+      const sellerData = await pb.collection('users').getOne(sellerId);
+      setSellerInfo(prevState => ({ ...prevState, [offerId]: sellerData }));
+      setShowSellerInfo(prevState => ({ ...prevState, [offerId]: true }));
+    } catch (error) {
+      console.error('Error fetching seller info:', error);
+      toast({
+        title: "Error",
+        description: "There was an error fetching the seller information. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleCancelOffer = async (offerId: string, ticketId: string) => {
     try {
       await pb.collection('offers').delete(offerId)
+      await pb.collection('tickets').update(ticketId,{'offers-': offerId});
       setSentOffers((prevOffer) => prevOffer.filter(offer => offer.id !== offerId));
     } catch (error) {
       console.error('Error canceling ticket:', error);
@@ -67,11 +85,14 @@ const SentOffersPage: React.FC = () => {
         sender: pb.authStore.model?.id,
         receiver: sellerId,
         amount: offerAmount,
-        status: "Pending"
       };
 
-      await pb.collection('offers').create(data);
+      const newOfferData = await pb.collection('offers').create(data);
       await pb.collection('offers').delete(oldOfferId);
+      await pb.collection('tickets').update(ticketId,{
+        'offers+': newOfferData.id,
+        'offers-': oldOfferId
+      });
       //show toast to confirm offer sent
       toast({
         title: `New Offer Sent`,
@@ -115,36 +136,67 @@ const SentOffersPage: React.FC = () => {
                     <CalendarIcon className="mr-2 h-4 w-4" /> {formatDate(offer.expand?.ticket.expand.event_id?.date)}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <p className="flex items-center">
-                      <TagIcon className="mr-2 h-4 w-4" /> 
-                      Original Price: ${offer.expand?.ticket.price}
-                    </p>
-                    <p className="flex items-center font-semibold">
-                      <TicketIcon className="mr-2 h-4 w-4" /> 
-                      Your Offer: ${offer.amount}
-                    </p>
-                    <Badge className={`${getStatusColor(offer.status)} text-white`}>
-                      {offer.status}
-                    </Badge>
-                  </div>
+                <CardContent className="h-32">
+                  {showSellerInfo[offer.id] ? (
+                    <div className="space-y-2">
+                      <p className="flex items-center">
+                        <UserIcon className="mr-2 h-4 w-4 flex-shrink-0" /> 
+                        Seller: {sellerInfo[offer.id]?.name}
+                      </p>
+                      <p className="flex items-center">
+                        <PhoneIcon className="mr-2 h-4 w-4 flex-shrink-0" /> 
+                        Phone: {sellerInfo[offer.id]?.phone}
+                      </p>
+                      <p className="flex items-center">
+                        <MailIcon className="mr-2 h-4 w-4 flex-shrink-0" /> 
+                        Email: {sellerInfo[offer.id]?.email}
+                      </p>
+                      <p className="flex items-center">
+                        <Wallet className="mr-2 h-4 w-4 flex-shrink-0" /> 
+                        Venmo: {sellerInfo[offer.id]?.venmo}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="flex items-center">
+                        <TagIcon className="mr-2 h-4 w-4 flex-shrink-0" /> 
+                        Original Price: ${offer.expand?.ticket.price}
+                      </p>
+                      <p className="flex items-center font-semibold">
+                        <TicketIcon className="mr-2 h-4 w-4 flex-shrink-0" /> 
+                        Your Offer: ${offer.amount}
+                      </p>
+                      <Badge className={`${getStatusColor(offer.status)} text-white`}>
+                        {offer.status}
+                      </Badge>
+                    </div>
+                  )}
                 </CardContent>
                 <CardFooter className="flex justify-between">
-                  {offer.status === "Pending" && (
-                    <>
-                      <Button onClick={() => handleCancelOffer(offer.id)} variant="outline" className="flex-1 ml-2">
-                        Cancel
-                      </Button>
-                    </>
+                  {offer.status === "Pending" && !showSellerInfo[offer.id] && (
+                    <Button onClick={() => handleCancelOffer(offer.id, offer.expand?.ticket.id)} variant="outline" className="w-full">
+                      Cancel
+                    </Button>
                   )}
                   {offer.status === "Accepted" && (
-                    <Button disabled className="flex-1">Accepted</Button>
+                    <Button 
+                      onClick={() => showSellerInfo[offer.id] 
+                        ? setShowSellerInfo(prevState => ({ ...prevState, [offer.id]: false }))
+                        : viewSellerInfo(offer.id, offer.receiver)
+                      } 
+                      className="w-full"
+                    >
+                      {showSellerInfo[offer.id] ? (
+                        <>Back to Offer</>
+                      ) : (
+                        'Contact Seller'
+                      )}
+                    </Button>
                   )}
-                  {offer.status === "Declined" && (
+                  {offer.status === "Declined" && !showSellerInfo[offer.id] && (
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button className="mt-4 w-full">Make New Offer</Button>
+                        <Button className="w-full">Make New Offer</Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-80">
                         <div className="grid gap-4">
@@ -165,14 +217,14 @@ const SentOffersPage: React.FC = () => {
                             />
                           </div>
                           <Button onClick={() => handleNewOffer(offer.ticket, offer.receiver, offer.id)}>
-                            Send Offer
+                            Send New Offer
                           </Button>
                         </div>
                       </PopoverContent>
                     </Popover>
                   )}
-                  {offer.status === "Cancelled" && (
-                    <Button disabled className="flex-1">Cancelled</Button>
+                  {offer.status === "Cancelled" && !showSellerInfo[offer.id] && (
+                    <Button disabled className="w-full">Cancelled</Button>
                   )}
                 </CardFooter>
               </Card>
@@ -183,5 +235,6 @@ const SentOffersPage: React.FC = () => {
     </div>
   )
 }
+
 
 export default isAuth(SentOffersPage);

@@ -16,6 +16,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import pb from '@/app/pocketbase'
 
 
 /// This is the layout for the entire app. It includes the header and the main content.
@@ -34,11 +35,13 @@ export default function RootLayout({
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const isAuthenticated = pb.authStore.isValid; // Check if the user is authenticated
+
   return (
     <html lang="en">
       <body>
         <div className="min-h-screen flex flex-col">
-          <header className="bg-blue-100">
+          <header className="bg-background">
             <div className="container mx-auto px-4">
               <nav className="flex items-center justify-between h-16">
                 <div className="text-xl font-bold">
@@ -51,9 +54,11 @@ export default function RootLayout({
                   <Button variant="ghost" asChild>
                     <Link href="/browse/events">Buy</Link>
                   </Button>
-                  <Button variant="ghost" asChild>
-                    <Link href="/login">Login</Link>
-                  </Button>
+                  {!isAuthenticated && ( // Conditionally render the Login button
+                    <Button variant="ghost" asChild>
+                      <Link href="/login">Login</Link>
+                    </Button>
+                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="flex items-center">
@@ -71,7 +76,9 @@ export default function RootLayout({
                         <Link href="/account/sent-offers">Sent Offers</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <LogoutButton />
+                        <LogoutButton
+                          className="w-full text-destructive-foreground hover:text-foreground hover:bg-destructive"
+                        />
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -123,7 +130,7 @@ export default function RootLayout({
           <main className="flex-grow">
             <ThemeProvider
               attribute="class"
-              defaultTheme="light"
+              defaultTheme="dark"
               enableSystem
               disableTransitionOnChange
             >

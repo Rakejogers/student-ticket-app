@@ -67,7 +67,7 @@ const BrowseEventsPage: React.FC = () => {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Events</h1>
 
@@ -75,6 +75,7 @@ const BrowseEventsPage: React.FC = () => {
           <Toggle 
             pressed={selectedSport === 'basketball'} 
             onPressedChange={() => setSelectedSport(s => s === 'basketball' ? null : 'basketball')}
+            className="bg-secondary text-secondary-foreground"
           >
             <TbBallBasketball className="mr-2 h-4 w-4" />
             Basketball
@@ -82,6 +83,7 @@ const BrowseEventsPage: React.FC = () => {
           <Toggle 
             pressed={selectedSport === 'football'} 
             onPressedChange={() => setSelectedSport(s => s === 'football' ? null : 'football')}
+            className="bg-secondary text-secondary-foreground"
           >
             <TbBallAmericanFootball className="mr-2 h-4 w-4" />
             Football
@@ -91,7 +93,7 @@ const BrowseEventsPage: React.FC = () => {
         <Input
           type="search"
           placeholder="Search events..."
-          className="mb-4"
+          className="mb-4 bg-input text-foreground"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -109,13 +111,13 @@ const BrowseEventsPage: React.FC = () => {
           ) : (
             filteredEvents.map(event => (
               <Link href={`/browse/events/${event.id}`} key={event.id}>
-                <Card className="cursor-pointer hover:shadow-lg transition-shadow border border-gray-200 rounded-lg">
-                  <CardHeader className="bg-gray-100 p-4">
+                <Card className="cursor-pointer hover:shadow-lg transition-shadow border border-border rounded-lg">
+                  <CardHeader className="bg-muted text-card-foreground p-4">
                     <CardTitle className="text-xl font-semibold">{event.name}</CardTitle>
                   </CardHeader>
-                  <CardContent className="p-4">
-                    <p className="text-gray-600"><strong>Date:</strong> {formatDate(event.date)}</p>
-                    <p className="text-gray-600"><strong>Venue:</strong> {event.venue}</p>
+                  <CardContent className="p-4 bg-card">
+                    <p className="text-muted-foreground"><strong>Date:</strong> {formatDate(event.date)}</p>
+                    <p className="text-muted-foreground"><strong>Venue:</strong> {event.venue}</p>
                   </CardContent>
                 </Card>
               </Link>
@@ -124,7 +126,7 @@ const BrowseEventsPage: React.FC = () => {
         </div>
 
         {!isLoading && filteredEvents.length === 0 && (
-          <p className="text-center text-gray-500 mt-4">No events found.</p>
+          <p className="text-center text-muted-foreground mt-4">No events found.</p>
         )}
       </div>
     </div>

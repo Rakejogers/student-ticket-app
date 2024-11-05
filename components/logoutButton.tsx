@@ -3,15 +3,18 @@
 import { useRouter } from "next/navigation";
 import pb from "@/app/pocketbase";
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
 
-const LogoutButton = () => {
+interface LogoutButtonProps {
+  className?: string;
+}
+
+const LogoutButton: React.FC<LogoutButtonProps> = ({ className }) => {
     const router = useRouter();
     let inactivityTimeout: NodeJS.Timeout;
 
     const handleLogout = async () => {
       try {
-        await pb.authStore.clear();;
+        await pb.authStore.clear();
         // Redirect to login page
         router.push('/login');
       } catch (error) {
@@ -24,7 +27,6 @@ const LogoutButton = () => {
       inactivityTimeout = setTimeout(handleLogout, 1800000); // 30 minutes
     };
 
-    /* eslint-disable */
     useEffect(() => {
       const events = ['mousemove', 'keydown', 'click', 'scroll'];
       events.forEach(event => window.addEventListener(event, resetInactivityTimeout));
@@ -35,13 +37,15 @@ const LogoutButton = () => {
         events.forEach(event => window.removeEventListener(event, resetInactivityTimeout));
         if (inactivityTimeout) clearTimeout(inactivityTimeout);
       };
-    }, [resetInactivityTimeout]);
-    /* eslint-enable */
+    }, []);
     
     return (
-      <Button onClick={handleLogout} className="text-white bg-red-500 hover:bg-red-600">
+      <button
+        onClick={handleLogout}
+        className={`text-red-500 ${className}`}
+      >
         Logout
-      </Button>
+      </button>
     );
   };
 

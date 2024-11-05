@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { CalendarIcon, MoreVerticalIcon, PlusIcon, TagIcon } from "lucide-react"
+import { CalendarIcon, MoreVerticalIcon, PlusIcon, TagIcon, UserIcon, MailIcon, PhoneIcon } from "lucide-react"
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import Link from 'next/link'
@@ -45,8 +45,8 @@ const UserTicketsPage: React.FC = () => {
   const [tickets, setTickets] = useState<RecordModel[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedTicket, setSelectedTicket] = useState<RecordModel | null>(null)
-  const [offers, setOffers] = useState<RecordModel[]>([])
   const [isOffersDialogOpen, setIsOffersDialogOpen] = useState(false)
+  const [showingBuyerInfo, setShowingBuyerInfo] = useState<{ [key: string]: boolean }>({})
 
   const deleteTicket = async (ticketId: string) => {
     try {
@@ -57,58 +57,84 @@ const UserTicketsPage: React.FC = () => {
     }
   }
 
-  const fetchOffers = async (ticketId: string) => {
-    try {
-      const result = await pb.collection('offers').getList(1, 50, {
-        filter: `ticket="${ticketId}"`,
-        sort: '+created',
-      });
-      setOffers(result.items);
-    } catch (error) {
-      console.error('Error fetching offers:', error);
-    }
-  }
-
   const handleOffersClick = (ticket: RecordModel) => {
     setSelectedTicket(ticket);
-    fetchOffers(ticket.id);
     setIsOffersDialogOpen(true);
   }
 
   const handleOfferAction = async (offerId: string, action: 'accept' | 'decline') => {
     try {
       await pb.collection('offers').update(offerId, { status: action === 'accept' ? 'Accepted' : 'Declined' });
+
+      // Update the local state to reflect the offer status change
+      setSelectedTicket((prevSelectedTicket) => {
+        if (!prevSelectedTicket) return null;
+        return {
+          ...prevSelectedTicket,
+          expand: {
+            ...prevSelectedTicket.expand,
+            offers: prevSelectedTicket.expand?.offers?.map((offer: RecordModel) =>
+              offer.id === offerId ? { ...offer, status: action === 'accept' ? 'Accepted' : 'Declined' } : offer
+            ),
+          },
+        };
+      });
+
+      // Update the tickets state to reflect the offer status change
+      setTickets((prevTickets) => prevTickets.map(ticket => 
+        ticket.id === selectedTicket!.id ? {
+          ...ticket,
+          expand: {
+            ...ticket.expand,
+            offers: ticket.expand?.offers?.map((offer: RecordModel) =>
+              offer.id === offerId ? { ...offer, status: action === 'accept' ? 'Accepted' : 'Declined' } : offer
+            ),
+          },
+        } : ticket
+      ));
+
       if (action === 'accept') {
         // Update ticket status to sold
-        await pb.collection('tickets').update(selectedTicket!.id, { status: 'Sold' });
-      }
-      // Refresh offers
-      if (selectedTicket) {
-        fetchOffers(selectedTicket.id);
+        await pb.collection('tickets').update(selectedTicket!.id, { 
+          status: 'Sold',
+          buyer_id: selectedTicket!.expand?.offers?.find((offer: RecordModel) => offer.id === offerId)?.sender 
+        });
+
+        // Immediately update the local state to reflect the ticket as sold
+        setTickets((prevTickets) => prevTickets.map(ticket => 
+          ticket.id === selectedTicket!.id ? { ...ticket, status: 'Sold' } : ticket
+        ));
+
+        // Refetch tickets to get updated data
+        fetchTickets();
       }
     } catch (error) {
       console.error(`Error ${action}ing offer:`, error);
     }
   }
 
-  useEffect(() => {
-    async function fetchTickets() {
-      try {
-        if (!pb.authStore.model) {
-          return
-        }
-        const userTickets = await pb.collection('tickets').getList(1, 10, {
-          filter: `seller_id="${pb.authStore.model.id}"`,
-          sort: '+created',
-          expand: 'event_id',
-        });
-        setTickets(userTickets.items)
-        setLoading(false)
-      } catch (error) {
-        console.error('No tickets found', error);
-      }
-    }
+  const toggleBuyerInfo = (ticketId: string) => {
+    setShowingBuyerInfo(prev => ({ ...prev, [ticketId]: !prev[ticketId] }));
+  }
 
+  const fetchTickets = async () => {
+    try {
+      if (!pb.authStore.model) {
+        return
+      }
+      const userTickets = await pb.collection('tickets').getList(1, 10, {
+        filter: `seller_id="${pb.authStore.model.id}"`,
+        sort: '+created',
+        expand: 'event_id,buyer_id,offers',
+      });
+      setTickets(userTickets.items)
+      setLoading(false)
+    } catch (error) {
+      console.error('No tickets found', error);
+    }
+  }
+
+  useEffect(() => {
     fetchTickets()
   }, [])
 
@@ -140,16 +166,45 @@ const UserTicketsPage: React.FC = () => {
                     <CalendarIcon className="mr-2 h-4 w-4" /> {formatDate(ticket.expand?.event_id?.date)}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <p className="flex items-center text-lg font-semibold">
-                    <TagIcon className="mr-2 h-4 w-4" /> ${ticket.price}
-                  </p>
-                  <Badge className={`${getStatusColor(ticket.status)} text-white`}>
-                    {ticket.status}
-                  </Badge>
+                <CardContent className='h-24'>
+                  {ticket.status === 'Sold' && (
+                    <div>
+                      {showingBuyerInfo[ticket.id] && ticket.expand?.buyer_id && (
+                        <div className="space-y-2">
+                          <p className="flex items-center">
+                            <UserIcon className="mr-2 h-4 w-4" /> {ticket.expand.buyer_id.name}
+                          </p>
+                          <p className="flex items-center">
+                            <MailIcon className="mr-2 h-4 w-4" /> {ticket.expand.buyer_id.email}
+                          </p>
+                          <p className="flex items-center">
+                            <PhoneIcon className="mr-2 h-4 w-4" /> {ticket.expand.buyer_id.phone}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {!showingBuyerInfo[ticket.id] && (
+                    <>
+                      <p className="flex items-center text-lg font-semibold">
+                        <TagIcon className="mr-2 h-4 w-4" /> ${ticket.price}
+                      </p>
+                      <Badge className={`${getStatusColor(ticket.status)} text-white mt-2`}>
+                        {ticket.status}
+                      </Badge>
+                    </>
+                  )}
                 </CardContent>
                 <CardFooter className="flex justify-between">
-                  <Button variant="outline" onClick={() => handleOffersClick(ticket)}>Offers</Button>
+                  {ticket.status === 'Sold' ? (
+                    <Button variant="outline" onClick={() => toggleBuyerInfo(ticket.id)}>
+                      {showingBuyerInfo[ticket.id] ? 'Hide Buyer Info' : 'Contact Buyer'}
+                    </Button>
+                  ) : (
+                    <Button variant="outline" onClick={() => handleOffersClick(ticket)}>
+                      Offers ({ticket.expand?.offers?.filter((offer: RecordModel) => offer.status === 'Pending').length || 0})
+                    </Button>
+                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
@@ -180,11 +235,11 @@ const UserTicketsPage: React.FC = () => {
               Ticket Price: ${selectedTicket?.price}
             </DialogDescription>
           </DialogHeader>
-          {offers.length === 0 ? (
+          {selectedTicket?.expand?.offers?.length === 0 ? (
             <p>No offers yet for this ticket.</p>
           ) : (
             <div className="space-y-4">
-              {offers.map((offer) => (
+              {selectedTicket?.expand?.offers?.map((offer: RecordModel) => (
                 <div key={offer.id} className="flex justify-between items-center">
                   <span>Offer: ${offer.amount}</span>
                   {offer.status === 'Pending' && (

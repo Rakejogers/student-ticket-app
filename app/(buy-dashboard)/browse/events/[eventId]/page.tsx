@@ -52,6 +52,7 @@ interface Params {
 export default function EventPage({ params }: { params: Params }) {
   const [event, setEvent] = useState<EventType | null>(null);
   const [offerAmount, setOfferAmount] = useState(0);
+  const [offerMade, setOfferMade] = useState<string[]>([]); // Track which ticket has an offer made
 
   const { eventId } = params
   const router = useRouter();
@@ -122,8 +123,11 @@ export default function EventPage({ params }: { params: Params }) {
         status: "Pending"
       };
 
-      await pb.collection('offers').create(data);
-      await pb.collection('tickets').update(ticketId,{status:"Pending"});
+      const newOfferData = await pb.collection('offers').create(data);
+      await pb.collection('tickets').update(ticketId,{
+        status:"Pending",
+        'offers+': newOfferData.id
+      });
       //show toast to confirm offer sent
       const sellerName = event?.tickets.find(ticket => ticket.id === ticketId)?.expand.seller_id.name;
       toast({
@@ -131,6 +135,7 @@ export default function EventPage({ params }: { params: Params }) {
         description: `Your offer of $${offerAmount} has been sent to the seller.`,
       })
       setOfferAmount(0);
+      setOfferMade((prevOffers) => [...prevOffers, ticketId]);
     } catch (error) {
       toast({
         title: "Error",
@@ -233,35 +238,40 @@ export default function EventPage({ params }: { params: Params }) {
                   <p className={`mt-2 ${ticket.status === "Available" ? "text-green-600" : "text-yellow-600"}`}>
                     {ticket.status}
                   </p>
-
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button className="mt-4 w-full">Make an Offer</Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80">
-                      <div className="grid gap-4">
-                        <div className="space-y-2">
-                          <h4 className="font-medium leading-none">Make an Offer</h4>
-                          <p className="text-sm text-muted-foreground">
-                            Enter your offer amount for this ticket.
-                          </p>
+                  {offerMade.includes(ticket.id) ? (
+                    <Button className="mt-4 w-full" onClick={() => router.push("/account/sent-offers")}>
+                      View Offer
+                    </Button>
+                  ) : (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button className="mt-4 w-full">Make an Offer</Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80">
+                        <div className="grid gap-4">
+                          <div className="space-y-2">
+                            <h4 className="font-medium leading-none">Make an Offer</h4>
+                            <p className="text-sm text-muted-foreground">
+                              Enter your offer amount for this ticket.
+                            </p>
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="amount">Offer Amount</Label>
+                            <Input
+                              id="amount"
+                              placeholder="Enter amount"
+                              type="number"
+                              value={offerAmount}
+                              onChange={(e) => setOfferAmount(Number(e.target.value))}
+                            />
+                          </div>
+                          <Button onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}>
+                            Send Offer
+                          </Button>
                         </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="amount">Offer Amount</Label>
-                          <Input
-                            id="amount"
-                            placeholder="Enter amount"
-                            type="number"
-                            value={offerAmount}
-                            onChange={(e) => setOfferAmount(Number(e.target.value))}
-                          />
-                        </div>
-                        <Button onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}>
-                          Send Offer
-                        </Button>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                      </PopoverContent>
+                    </Popover>
+                  )}
                 </CardContent>
               </Card>
             ))}
