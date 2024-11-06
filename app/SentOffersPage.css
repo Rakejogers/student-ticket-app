@@ -1,0 +1,42 @@
+.flip-card {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+  }
+  
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+  }
+  
+  .flip-card.flipped .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+  
+  .flip-card-front,
+  .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border: none;
+      /* Remove border if it's causing the line */
+    margin: 0;
+      /* Remove margin if it's causing the line */
+    padding: 0;
+      /* Adjust padding if necessary */
+  }
+  
+  .flip-card-back {
+    transform: rotateY(180deg);
+  }
+
+  .outline-card {
+    outline: 2px solid #333; /* Adjust color and width */
+    outline-offset: 4px;     /* Optional: space between outline and card */
+    border-radius: 8px;      /* Optional: matches card's rounded corners */
+}

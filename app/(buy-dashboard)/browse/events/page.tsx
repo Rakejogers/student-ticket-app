@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input"
 import { Toggle } from "@/components/ui/toggle"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { TbBallBasketball, TbBallAmericanFootball } from "react-icons/tb"
+import { TbBallBasketball, TbBallAmericanFootball, TbTicket, TbBuildingStadium, TbList } from "react-icons/tb"
 import isAuth from '@/components/isAuth'
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
+import { Calendar } from 'lucide-react'
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -25,7 +26,7 @@ const formatDate = (dateString: string) => {
 
 const BrowseEventsPage: React.FC = () => {
   const [events, setEvents] = useState<RecordModel[]>([]);
-  const [selectedSport, setSelectedSport] = useState<'basketball' | 'football' | null>(null)
+  const [selectedSport, setSelectedSport] = useState<'basketball' | 'football' | 'all' | null>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [isLoading, setIsLoading] = useState(true)
 
@@ -50,13 +51,13 @@ const BrowseEventsPage: React.FC = () => {
   }, []);
 
   const filteredEvents = events.filter(event => 
-    (selectedSport ? event.sport === selectedSport : true) &&
+    (selectedSport === 'all' || event.sport === selectedSport) &&
     event.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const SkeletonCard = () => (
-    <Card className="cursor-pointer hover:shadow-lg transition-shadow border border-gray-200 rounded-lg">
-      <CardHeader className="bg-gray-100 p-4">
+    <Card className="cursor-pointer hover:shadow-lg transition-shadow border border-border rounded-lg">
+      <CardHeader className="bg-muted text-card-foreground p-4">
         <Skeleton className="h-6 w-3/4" />
       </CardHeader>
       <CardContent className="p-4">
@@ -67,14 +68,22 @@ const BrowseEventsPage: React.FC = () => {
   )
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary text-foreground">
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Events</h1>
 
         <div className="flex space-x-4 mb-4">
           <Toggle 
+            pressed={selectedSport === 'all'} 
+            onPressedChange={() => setSelectedSport('all')}
+            className="bg-secondary text-secondary-foreground"
+          >
+            <TbList className="mr-2 h-4 w-4" />
+            All Events
+          </Toggle>
+          <Toggle 
             pressed={selectedSport === 'basketball'} 
-            onPressedChange={() => setSelectedSport(s => s === 'basketball' ? null : 'basketball')}
+            onPressedChange={() => setSelectedSport('basketball')}
             className="bg-secondary text-secondary-foreground"
           >
             <TbBallBasketball className="mr-2 h-4 w-4" />
@@ -82,7 +91,7 @@ const BrowseEventsPage: React.FC = () => {
           </Toggle>
           <Toggle 
             pressed={selectedSport === 'football'} 
-            onPressedChange={() => setSelectedSport(s => s === 'football' ? null : 'football')}
+            onPressedChange={() => setSelectedSport('football')}
             className="bg-secondary text-secondary-foreground"
           >
             <TbBallAmericanFootball className="mr-2 h-4 w-4" />
@@ -112,12 +121,13 @@ const BrowseEventsPage: React.FC = () => {
             filteredEvents.map(event => (
               <Link href={`/browse/events/${event.id}`} key={event.id}>
                 <Card className="cursor-pointer hover:shadow-lg transition-shadow border border-border rounded-lg">
-                  <CardHeader className="bg-muted text-card-foreground p-4">
+                  <CardHeader className="bg-muted text-card-foreground p-4 border border-border rounded-t-lg">
                     <CardTitle className="text-xl font-semibold">{event.name}</CardTitle>
                   </CardHeader>
-                  <CardContent className="p-4 bg-card">
-                    <p className="text-muted-foreground"><strong>Date:</strong> {formatDate(event.date)}</p>
-                    <p className="text-muted-foreground"><strong>Venue:</strong> {event.venue}</p>
+                  <CardContent className="p-4 bg-card border border-border rounded-b-lg">
+                    <p className="text-muted-foreground mt-2 flex items-center"><Calendar className="mr-2 h-4 w-4" /> {formatDate(event.date)}</p>
+                    <p className="text-muted-foreground mt-2 flex items-center"><TbBuildingStadium className='mr-2 h-4 w-4' />{event.venue}</p>
+                    <p className="text-muted-foreground mt-2 flex items-center"><TbTicket className="mr-2 h-4 w-4" /> {event.tickets.length}</p>
                   </CardContent>
                 </Card>
               </Link>

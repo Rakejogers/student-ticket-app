@@ -18,6 +18,8 @@ import Link from 'next/link'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Badge } from '@/components/ui/badge'
 import isAuth from '@/components/isAuth'
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -35,9 +37,9 @@ const getStatusColor = (status: string) => {
   switch (status) {
     case "Pending": return "bg-yellow-500"
     case "Sold": return "bg-green-500"
-    case "Removed": return "bg-red-500"
-    case "Available": return "bg-gray-500"
-    default: return "bg-gray-500"
+    case "Removed": return "bg-destructive"
+    case "Available": return "bg-muted-foreground"
+    default: return "bg-muted-foreground"
   }
 }
 
@@ -47,7 +49,35 @@ const UserTicketsPage: React.FC = () => {
   const [selectedTicket, setSelectedTicket] = useState<RecordModel | null>(null)
   const [isOffersDialogOpen, setIsOffersDialogOpen] = useState(false)
   const [showingBuyerInfo, setShowingBuyerInfo] = useState<{ [key: string]: boolean }>({})
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [editingTicket, setEditingTicket] = useState<RecordModel | null>(null)
+  const [editedPrice, setEditedPrice] = useState('')
 
+  const handleEditClick = (ticket: RecordModel) => {
+    setEditingTicket(ticket)
+    setEditedPrice(ticket.price.toString())
+    setIsEditDialogOpen(true)
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingTicket) return
+
+    try {
+      const updatedTicket = await pb.collection('tickets').update(editingTicket.id, { 
+        price: parseFloat(editedPrice)
+      })
+
+      setTickets((prevTickets) => prevTickets.map(ticket => 
+        ticket.id === updatedTicket.id ? { ...ticket, price: updatedTicket.price } : ticket
+      ))
+
+      setIsEditDialogOpen(false)
+    } catch (error) {
+      console.error('Error updating ticket:', error)
+    }
+  }
+  
   const deleteTicket = async (ticketId: string) => {
     try {
       await pb.collection('tickets').delete(ticketId);
@@ -105,6 +135,10 @@ const UserTicketsPage: React.FC = () => {
           ticket.id === selectedTicket!.id ? { ...ticket, status: 'Sold' } : ticket
         ));
 
+        //update events collection to remove ticket from relation
+        await pb.collection('events').update(selectedTicket!.expand?.event_id?.id, {'tickets-': selectedTicket!.id});
+        await pb.collection('users').update(pb.authStore.model!.id,{"tickets_sold+": 1})
+
         // Refetch tickets to get updated data
         fetchTickets();
       }
@@ -143,7 +177,7 @@ const UserTicketsPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
       <div className="container mx-auto p-4">
         <header className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">My Tickets</h1>
@@ -189,7 +223,7 @@ const UserTicketsPage: React.FC = () => {
                       <p className="flex items-center text-lg font-semibold">
                         <TagIcon className="mr-2 h-4 w-4" /> ${ticket.price}
                       </p>
-                      <Badge className={`${getStatusColor(ticket.status)} text-white mt-2`}>
+                      <Badge className={`${getStatusColor(ticket.status)} text-foreground mt-2`}>
                         {ticket.status}
                       </Badge>
                     </>
@@ -213,11 +247,10 @@ const UserTicketsPage: React.FC = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem>View Details</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handleEditClick(ticket)}>Edit Price</DropdownMenuItem>
                       <DropdownMenuItem>Share Listing</DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600" onClick={() => deleteTicket(ticket.id)}>Remove Listing</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive" onSelect={() => deleteTicket(ticket.id)}>Remove Listing</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </CardFooter>
@@ -253,7 +286,7 @@ const UserTicketsPage: React.FC = () => {
                     </div>
                   )}
                   {offer.status !== 'Pending' && (
-                    <span className={offer.status === 'Accepted' ? 'text-green-600' : 'text-red-600'}>
+                    <span className={offer.status === 'Accepted' ? 'text-green-600' : 'text-destructive'}>
                       {offer.status}
                     </span>
                   )}
@@ -264,6 +297,36 @@ const UserTicketsPage: React.FC = () => {
           <DialogFooter>
             <Button onClick={() => setIsOffersDialogOpen(false)}>Close</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Ticket</DialogTitle>
+            <DialogDescription>
+              Update the price for {editingTicket?.expand?.event_id?.name}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit}>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="price" className="text-right">
+                  Price
+                </Label>
+                <Input
+                  id="price"
+                  type="number"
+                  value={editedPrice}
+                  onChange={(e) => setEditedPrice(e.target.value)}
+                  className="col-span-3"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit">Save changes</Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

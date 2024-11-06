@@ -15,9 +15,9 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 
 const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-100 to-white">
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary">
     <motion.div
-      className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full"
+      className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full"
       animate={{ rotate: 360 }}
       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
     />
@@ -38,6 +38,9 @@ export default function Component() {
   const login = async (email: string, password: string) => {
     setIsLoading(true)
     try {
+      if (pb.authStore.isValid){
+        await pb.authStore.clear();
+      }
       await pb.collection('users').authWithPassword(
         email,
         password
@@ -81,7 +84,7 @@ export default function Component() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-100 to-white">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-secondary">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -116,7 +116,7 @@ export default function Component() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-100 to-white">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-secondary">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -164,7 +164,7 @@ export default function Component() {
                   <Input
                     id="password"
                     type="password"
-                    className={`pl-8 ${!passwordsMatch && password ? 'border-red-500' : ''}`}
+                    className={`pl-8 ${!passwordsMatch && password ? 'border-destructive' : ''}`}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
@@ -177,7 +177,7 @@ export default function Component() {
                   <Input
                     id="confirm-password"
                     type="password"
-                    className={`pl-8 ${!passwordsMatch && confirmPassword ? 'border-red-500' : ''}`}
+                    className={`pl-8 ${!passwordsMatch && confirmPassword ? 'border-destructive' : ''}`}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />

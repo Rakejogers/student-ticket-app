@@ -130,7 +130,7 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-100 to-white">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-secondary">
       <Card className="w-full max-w-2xl mx-auto transform -translate-y-1/4">
         <CardHeader>
           <CardTitle className="text-2xl">User Profile</CardTitle>
@@ -138,23 +138,23 @@ const ProfilePage: React.FC = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center space-x-4">
-            <User className="h-6 w-6 text-gray-500" />
+            <User className="h-6 w-6 text-muted-foreground" />
             <div>
               <p className="font-medium">{user?.name}</p>
-              <p className="text-sm text-gray-500">Name</p>
+              <p className="text-sm text-muted-foreground">Name</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <AtSign className="h-6 w-6 text-gray-500" />
+            <AtSign className="h-6 w-6 text-muted-foreground" />
             <div>
               <p className="font-medium">{user?.email}</p>
-              <p className="text-sm text-gray-500">Email</p>
+              <p className="text-sm text-muted-foreground">Email</p>
             </div>
             {user?.verified ? (
               <BadgeCheck className="h-6 w-6 text-green-500" />
             ) : (
               <>
-                <BadgeX className="h-6 w-6 text-red-500" />
+                <BadgeX className="h-6 w-6 text-destructive" />
                 <Button 
                   variant="outline" 
                   onClick={handleSendVerificationEmail}
@@ -169,10 +169,10 @@ const ProfilePage: React.FC = () => {
             )}
           </div>
           <div className="flex items-center space-x-4">
-            <DollarSign className="h-6 w-6 text-gray-500" />
+            <DollarSign className="h-6 w-6 text-muted-foreground" />
             <div>
               <p className="font-medium">{user?.venmo}</p>
-              <p className="text-sm text-gray-500">Venmo Account</p>
+              <p className="text-sm text-muted-foreground">Venmo Account</p>
             </div>
             <Button variant="outline" onClick={() => setIsVenmoDialogOpen(true)}>
               Update

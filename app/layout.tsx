@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -30,12 +30,16 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const isAuthenticated = pb.authStore.isValid; // Check if the user is authenticated
+  useEffect(() => {
+    setIsAuthenticated(pb.authStore.isValid); // Update authentication state on client-side
+  }, []);
+
 
   return (
     <html lang="en">

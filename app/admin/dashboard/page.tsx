@@ -109,7 +109,7 @@ const AdminPage = () => {
   }
 
   return (
-    <div className='bg-gradient-to-b from-blue-100 to-white min-h-screen'>
+    <div className='bg-gradient-to-b from-background to-secondary min-h-screen'>
         <div className="container mx-auto p-4 ">
           <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
           <Tabs defaultValue="events">

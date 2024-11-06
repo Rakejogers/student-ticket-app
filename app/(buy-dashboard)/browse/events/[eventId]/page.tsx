@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import pb from '@/app/pocketbase'
 import { Suspense, useEffect, useState } from 'react'
 import { toast } from "@/hooks/use-toast"
 import { ToastAction } from '@/components/ui/toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CalendarIcon, TagIcon, Armchair } from "lucide-react"
+import { CalendarIcon, TagIcon, Armchair, Star, Ticket, Search } from "lucide-react"
 
 type EventType = {
   id: string;
@@ -28,6 +29,8 @@ type EventType = {
     expand: {
       seller_id: {
         name: string;
+        seller_rating: number;
+        tickets_sold: number;
       };
     };
   }>;
@@ -53,6 +56,8 @@ export default function EventPage({ params }: { params: Params }) {
   const [event, setEvent] = useState<EventType | null>(null);
   const [offerAmount, setOfferAmount] = useState(0);
   const [offerMade, setOfferMade] = useState<string[]>([]); // Track which ticket has an offer made
+  const [sortBy, setSortBy] = useState<string>("price");
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const { eventId } = params
   const router = useRouter();
@@ -67,12 +72,12 @@ export default function EventPage({ params }: { params: Params }) {
 
       const event = await pb.collection('events').getOne(eventId, {});
 
-      const tickets = await pb.collection('tickets').getList(1, 10, {
+      const tickets = await pb.collection('tickets').getList(1, 50, {
         filter: `event_id="${eventId}" && seller_id!="${pb.authStore.model?.id}" && status!="Sold"`,
         sort: '-created',
         expand: 'seller_id'
       });
-      
+
       const data: EventType = {
         id: event.id,
         name: event.name,
@@ -88,11 +93,12 @@ export default function EventPage({ params }: { params: Params }) {
           expand: {
             seller_id: {
               name: ticket.expand?.seller_id.name,
+              seller_rating: ticket.expand?.seller_id.seller_rating,
+              tickets_sold: ticket.expand?.seller_id.tickets_sold,
             },
           },
         }))
       };
-      
 
       setEvent(data);
     };
@@ -109,7 +115,7 @@ export default function EventPage({ params }: { params: Params }) {
           description: `Verify your account before sending an offer.`,
           variant: "destructive",
           action: (
-            <ToastAction onClick={() => {router.push("/account/profile")}} altText='Verify Account'>Verify Now</ToastAction>
+            <ToastAction onClick={() => { router.push("/account/profile") }} altText='Verify Account'>Verify Now</ToastAction>
           ),
         })
         return;
@@ -124,8 +130,8 @@ export default function EventPage({ params }: { params: Params }) {
       };
 
       const newOfferData = await pb.collection('offers').create(data);
-      await pb.collection('tickets').update(ticketId,{
-        status:"Pending",
+      await pb.collection('tickets').update(ticketId, {
+        status: "Pending",
         'offers+': newOfferData.id
       });
       //show toast to confirm offer sent
@@ -146,44 +152,44 @@ export default function EventPage({ params }: { params: Params }) {
     }
   };
 
+  const sortedAndFilteredTickets = event?.tickets
+    .filter(ticket =>
+      ticket.expand.seller_id.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.ticket_type.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "price":
+          return a.price - b.price;
+        case "rating":
+          return b.expand.seller_id.seller_rating - a.expand.seller_id.seller_rating;
+        case "sold":
+          return b.expand.seller_id.tickets_sold - a.expand.seller_id.tickets_sold;
+        case "type":
+          return a.ticket_type.localeCompare(b.ticket_type);
+        default:
+          return 0;
+      }
+    });
 
   // Render loading skeleton while fetching event data
   if (event == null) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white">
+      <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
         <div className="container mx-auto p-4">
-          <Skeleton className="h-12 w-3/4 mb-6" /> {/* Event title skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <Card>
-              <CardHeader>
-                <Skeleton className="h-6 w-1/2" /> {/* Card title skeleton */}
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-4 w-full mb-2" />
-                <Skeleton className="h-4 w-3/4" />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <Skeleton className="h-6 w-1/2" /> {/* Card title skeleton */}
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-4 w-full" />
-              </CardContent>
-            </Card>
-          </div>
-
-          <Skeleton className="h-8 w-1/2 mb-4" /> {/* Available Tickets heading skeleton */}
+          <Skeleton className="h-12 w-3/4 mb-6" />
+          <Skeleton className="h-10 w-full mb-4" />
+          <Skeleton className="h-10 w-full mb-6" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(3)].map((_, index) => (
+            {[...Array(6)].map((_, index) => (
               <Card key={index}>
                 <CardHeader>
-                  <Skeleton className="h-6 w-3/4" /> {/* Ticket title skeleton */}
+                  <Skeleton className="h-6 w-3/4" />
                 </CardHeader>
                 <CardContent>
                   <Skeleton className="h-4 w-1/2 mb-2" />
                   <Skeleton className="h-4 w-1/3 mb-4" />
-                  <Skeleton className="h-10 w-full" /> {/* Button skeleton */}
+                  <Skeleton className="h-10 w-full" />
                 </CardContent>
               </Card>
             ))}
@@ -195,37 +201,47 @@ export default function EventPage({ params }: { params: Params }) {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white">
+      <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
         <div className="container mx-auto p-4">
           <h1 className="text-3xl font-bold mb-6">{event.name}</h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Event Details</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p><strong>Date:</strong> {formatDate(event.date)}</p>
-                <p><strong>Venue:</strong> {event.venue}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Ticket Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>Select from available tickets below. Make an offer to the seller.</p>
-              </CardContent>
-            </Card>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <Label htmlFor="search" className="sr-only">Search tickets</Label>
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="search"
+                  placeholder="Search tickets or sellers"
+                  className="pl-8"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="price">Price: Low to High</SelectItem>
+                <SelectItem value="type">Ticket Type</SelectItem>
+                <SelectItem value="rating">Seller Rating</SelectItem>
+                <SelectItem value="sold">Seller Tickets Sold</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <h2 className="text-2xl font-semibold mb-4">Available Tickets</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {event.tickets.map((ticket) => (
+            {sortedAndFilteredTickets?.map((ticket) => (
               <Card key={ticket.id}>
                 <CardHeader>
                   <CardTitle>{ticket.expand.seller_id.name}</CardTitle>
                   <CardDescription className="flex items-center">
                     <CalendarIcon className="mr-2 h-4 w-4" /> {formatDate(event.date)}
+                  </CardDescription>
+                  <CardDescription className="flex items-center mt-1">
+                    <Star className="mr-2 h-4 w-4" /> Rating: {ticket.expand.seller_id.seller_rating.toFixed(0)}%
+                    <Ticket className="ml-4 mr-2 h-4 w-4" /> Sold: {ticket.expand.seller_id.tickets_sold}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -277,8 +293,8 @@ export default function EventPage({ params }: { params: Params }) {
             ))}
           </div>
 
-          {event.tickets.length === 0 && (
-            <p className="text-center text-gray-500 mt-4">No tickets available for this event.</p>
+          {sortedAndFilteredTickets?.length === 0 && (
+            <p className="text-center text-muted-foreground mt-4">No tickets available for this event.</p>
           )}
         </div>
       </div>
