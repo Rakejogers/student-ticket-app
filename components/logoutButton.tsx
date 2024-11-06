@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import pb from "@/app/pocketbase";
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 interface LogoutButtonProps {
   className?: string;
@@ -10,34 +10,34 @@ interface LogoutButtonProps {
 
 const LogoutButton: React.FC<LogoutButtonProps> = ({ className }) => {
     const router = useRouter();
-    let inactivityTimeout: NodeJS.Timeout;
+    const inactivityTimeout = useRef<NodeJS.Timeout | null>(null);
 
-    const handleLogout = async () => {
+    const handleLogout = useCallback(async () => {
       try {
-        await pb.authStore.clear();
-        // Redirect to login page
-        router.push('/login');
+          await pb.authStore.clear();
+          // Redirect to login page
+          router.push('/login');
       } catch (error) {
-        console.error('Logout failed', error);
+          console.error('Logout failed', error);
       }
-    };
+  }, [router]);
 
-    const resetInactivityTimeout = () => {
-      if (inactivityTimeout) clearTimeout(inactivityTimeout);
-      inactivityTimeout = setTimeout(handleLogout, 1800000); // 30 minutes
-    };
+    const resetInactivityTimeout = useCallback(() => {
+      if (inactivityTimeout.current) clearTimeout(inactivityTimeout.current);
+      inactivityTimeout.current = setTimeout(handleLogout, 1800000); // 30 minutes
+  }, [handleLogout]);
 
-    useEffect(() => {
+  useEffect(() => {
       const events = ['mousemove', 'keydown', 'click', 'scroll'];
       events.forEach(event => window.addEventListener(event, resetInactivityTimeout));
-    
+  
       resetInactivityTimeout(); // Initialize the timeout
-    
+  
       return () => {
-        events.forEach(event => window.removeEventListener(event, resetInactivityTimeout));
-        if (inactivityTimeout) clearTimeout(inactivityTimeout);
+          events.forEach(event => window.removeEventListener(event, resetInactivityTimeout));
+          if (inactivityTimeout.current) clearTimeout(inactivityTimeout.current);
       };
-    }, []);
+  }, [resetInactivityTimeout]);
     
     return (
       <button

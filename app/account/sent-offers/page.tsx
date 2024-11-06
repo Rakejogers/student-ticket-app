@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CalendarIcon, TagIcon, TicketIcon, UserIcon, PhoneIcon, MailIcon, ArrowLeftIcon, Wallet, StarIcon } from "lucide-react"
+import { CalendarIcon, TagIcon, TicketIcon, UserIcon, PhoneIcon, MailIcon, Wallet, StarIcon } from "lucide-react"
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import { toast } from "@/hooks/use-toast"
@@ -30,7 +30,7 @@ const formatDate = (dateString: string) => {
 const SentOffersPage: React.FC = () => {
   const [sentOffers, setSentOffers] = useState<RecordModel[]>([])
   const [offerAmount, setOfferAmount] = useState(0);
-  const [sellerInfo, setSellerInfo] = useState<{ [key: string]: any }>({});
+  const [sellerInfo, setSellerInfo] = useState<{ [key: string]: RecordModel }>({});
   const [showSellerInfo, setShowSellerInfo] = useState<{ [key: string]: boolean }>({});
   const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false);
   const [rating, setRating] = useState(0);
@@ -123,7 +123,7 @@ const SentOffersPage: React.FC = () => {
     }
   }
 
-  const handleRateSeller = async (offerId: string, sellerId: string) => {
+  const handleRateSeller = async (offerId: string) => {
     // Logic to submit the rating
     try {
       await pb.collection('ratings').create({
@@ -273,7 +273,7 @@ const SentOffersPage: React.FC = () => {
                               />
                             ))}
                           </div>
-                          <Button onClick={() => handleRateSeller(offer.id, offer.reciever)}>Submit Rating</Button>
+                          <Button onClick={() => handleRateSeller(offer.id)}>Submit Rating</Button>
                         </DialogContent>
                       </Dialog>
                     </CardFooter>
