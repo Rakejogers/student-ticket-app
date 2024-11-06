@@ -154,14 +154,15 @@ const SentOffersPage: React.FC = () => {
                 className={`flip-card ${showSellerInfo[offer.id] ? 'flipped' : ''}`}
               >
                 <div className="flip-card-inner">
-                  <Card className="outline-card flip-card-front">
-                    <CardHeader className="bg-card rounded-t-lg">
-                      <CardTitle>{offer.expand?.ticket.expand.event_id?.name}</CardTitle>
+                  {/* Front Side */}
+                  <Card className="flip-card-front">
+                    <CardHeader className="bg-card rounded-t-lg border-t border-border text-left">
+                      <CardTitle className="text-left">{offer.expand?.ticket.expand.event_id?.name}</CardTitle>
                       <CardDescription className="flex items-center">
                         <CalendarIcon className="mr-2 h-4 w-4" /> {formatDate(offer.expand?.ticket.expand.event_id?.date)}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="h-24 bg-card">
+                    <CardContent className="h-24 bg-card border-border border-x">
                       <div className="space-y-2">
                         <p className="flex items-center">
                           <TagIcon className="mr-2 h-4 w-4 flex-shrink-0" /> 
@@ -178,7 +179,7 @@ const SentOffersPage: React.FC = () => {
                         </div>
                       </div>
                     </CardContent>
-                    <CardFooter className="flex justify-between bg-card rounded-b-lg">
+                    <CardFooter className="flex justify-between bg-card rounded-b-lg border-b border-border">
                       {offer.status === "Pending" && (
                         <Button onClick={() => handleCancelOffer(offer.id, offer.expand?.ticket.id)} variant="outline" className="w-full">
                           Cancel
@@ -227,9 +228,11 @@ const SentOffersPage: React.FC = () => {
                       )}
                     </CardFooter>
                   </Card>
+                  
+                  {/* Back Side */}
                   <Card className="flip-card-back">
                     <CardHeader className="bg-card rounded-t-lg">
-                      <CardTitle>Seller Information</CardTitle>
+                      <CardTitle className="text-left">Seller Information</CardTitle>
                     </CardHeader>
                     <CardContent className="h-32 bg-card">
                       <div className="space-y-2">
@@ -251,10 +254,10 @@ const SentOffersPage: React.FC = () => {
                         </p>
                       </div>
                     </CardContent>
-                    <CardFooter className="bg-card rounded-b-lg flex justify-between">
+                    <CardFooter className="bg-card rounded-b-lg flex justify-between space-x-2">
                       <Button
                         onClick={() => setShowSellerInfo(prevState => ({ ...prevState, [offer.id]: false }))}
-                        className="w-full"
+                        className="w-full" variant={"secondary"}
                       >
                         Back to Offer
                       </Button>

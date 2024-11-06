@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge'
 import isAuth from '@/components/isAuth'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import "@/app/SentOffersPage.css" // Make sure to create this CSS file with the flip card styles
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -95,7 +96,6 @@ const UserTicketsPage: React.FC = () => {
     try {
       await pb.collection('offers').update(offerId, { status: action === 'accept' ? 'Accepted' : 'Declined' });
 
-      // Update the local state to reflect the offer status change
       setSelectedTicket((prevSelectedTicket) => {
         if (!prevSelectedTicket) return null;
         return {
@@ -109,7 +109,6 @@ const UserTicketsPage: React.FC = () => {
         };
       });
 
-      // Update the tickets state to reflect the offer status change
       setTickets((prevTickets) => prevTickets.map(ticket => 
         ticket.id === selectedTicket!.id ? {
           ...ticket,
@@ -123,22 +122,18 @@ const UserTicketsPage: React.FC = () => {
       ));
 
       if (action === 'accept') {
-        // Update ticket status to sold
         await pb.collection('tickets').update(selectedTicket!.id, { 
           status: 'Sold',
           buyer_id: selectedTicket!.expand?.offers?.find((offer: RecordModel) => offer.id === offerId)?.sender 
         });
 
-        // Immediately update the local state to reflect the ticket as sold
         setTickets((prevTickets) => prevTickets.map(ticket => 
           ticket.id === selectedTicket!.id ? { ...ticket, status: 'Sold' } : ticket
         ));
 
-        //update events collection to remove ticket from relation
         await pb.collection('events').update(selectedTicket!.expand?.event_id?.id, {'tickets-': selectedTicket!.id});
         await pb.collection('users').update(pb.authStore.model!.id,{"tickets_sold+": 1})
 
-        // Refetch tickets to get updated data
         fetchTickets();
       }
     } catch (error) {
@@ -192,68 +187,86 @@ const UserTicketsPage: React.FC = () => {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tickets.map((ticket) => (
-              <Card key={ticket.id}>
-                <CardHeader>
-                  <CardTitle>{ticket.expand?.event_id?.name}</CardTitle>
-                  <CardDescription className="flex items-center">
-                    <CalendarIcon className="mr-2 h-4 w-4" /> {formatDate(ticket.expand?.event_id?.date)}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className='h-24'>
-                  {ticket.status === 'Sold' && (
-                    <div>
-                      {showingBuyerInfo[ticket.id] && ticket.expand?.buyer_id && (
-                        <div className="space-y-2">
-                          <p className="flex items-center">
-                            <UserIcon className="mr-2 h-4 w-4" /> {ticket.expand.buyer_id.name}
-                          </p>
-                          <p className="flex items-center">
-                            <MailIcon className="mr-2 h-4 w-4" /> {ticket.expand.buyer_id.email}
-                          </p>
-                          <p className="flex items-center">
-                            <PhoneIcon className="mr-2 h-4 w-4" /> {ticket.expand.buyer_id.phone}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {!showingBuyerInfo[ticket.id] && (
-                    <>
+              <div
+                key={ticket.id}
+                className={`flip-card ${showingBuyerInfo[ticket.id] ? 'flipped' : ''}`}
+              >
+                <div className="flip-card-inner">
+                  {/* Front Side */}
+                  <Card className="bg-card rounded-t-lg border-t border-border flip-card-front">
+                    <CardHeader className='bg-card rounded-t-lg border-t border-border'>
+                      <CardTitle className="text-left">{ticket.expand?.event_id?.name}</CardTitle>
+                      <CardDescription className="flex items-center">
+                        <CalendarIcon className="mr-2 h-4 w-4" /> {formatDate(ticket.expand?.event_id?.date)}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="h-15 bg-card">
                       <p className="flex items-center text-lg font-semibold">
                         <TagIcon className="mr-2 h-4 w-4" /> ${ticket.price}
                       </p>
-                      <Badge className={`${getStatusColor(ticket.status)} text-foreground mt-2`}>
-                        {ticket.status}
-                      </Badge>
-                    </>
+                      <div className="mr-2 flex items-center justify-between">
+                        <Badge className={`${getStatusColor(ticket.status)} text-muted mt-2`}>
+                          {ticket.status}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                    <CardFooter className="flex bg-card justify-between rounded-b-lg border-b border-border">
+                      {ticket.status === 'Sold' ? (
+                        <Button variant="default" onClick={() => toggleBuyerInfo(ticket.id)}>
+                          Contact Buyer
+                        </Button>
+                      ) : (
+                        <Button variant="outline" onClick={() => handleOffersClick(ticket)}>
+                          Offers ({ticket.expand?.offers?.filter((offer: RecordModel) => offer.status === 'Pending').length || 0})
+                        </Button>
+                      )}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVerticalIcon className="h-4 w-4" />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onSelect={() => handleEditClick(ticket)}>Edit Price</DropdownMenuItem>
+                          <DropdownMenuItem>Share Listing</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-destructive" onSelect={() => deleteTicket(ticket.id)}>Remove Listing</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </CardFooter>
+                  </Card>
+                  
+                  {/* Back Side (Buyer Info) */}
+                  {ticket.status === 'Sold' && (
+                    <Card className="bg-card rounded-t-lg border-t border-border flip-card-back">
+                      <CardHeader className="bg-card rounded-t-lg text-left">
+                        <CardTitle>Buyer Information</CardTitle>
+                      </CardHeader>
+                      <CardContent className="bg-card h-15">
+                        {ticket.expand?.buyer_id && (
+                          <div className="space-y-2">
+                            <p className="flex items-center">
+                              <UserIcon className="mr-2 h-4 w-4" /> {ticket.expand.buyer_id.name}
+                            </p>
+                            <p className="flex items-center">
+                              <MailIcon className="mr-2 h-4 w-4" /> {ticket.expand.buyer_id.email}
+                            </p>
+                            <p className="flex items-center">
+                              <PhoneIcon className="mr-2 h-4 w-4" /> {ticket.expand.buyer_id.phone}
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                      <CardFooter className="bg-card justify-between rounded-b-lg p-3.5">
+                        <Button variant="outline" onClick={() => toggleBuyerInfo(ticket.id)} className="w-full">
+                          Back to Ticket
+                        </Button>
+                      </CardFooter>
+                    </Card>
                   )}
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                  {ticket.status === 'Sold' ? (
-                    <Button variant="outline" onClick={() => toggleBuyerInfo(ticket.id)}>
-                      {showingBuyerInfo[ticket.id] ? 'Hide Buyer Info' : 'Contact Buyer'}
-                    </Button>
-                  ) : (
-                    <Button variant="outline" onClick={() => handleOffersClick(ticket)}>
-                      Offers ({ticket.expand?.offers?.filter((offer: RecordModel) => offer.status === 'Pending').length || 0})
-                    </Button>
-                  )}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVerticalIcon className="h-4 w-4" />
-                        <span className="sr-only">Open menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onSelect={() => handleEditClick(ticket)}>Edit Price</DropdownMenuItem>
-                      <DropdownMenuItem>Share Listing</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive" onSelect={() => deleteTicket(ticket.id)}>Remove Listing</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </CardFooter>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         )}
