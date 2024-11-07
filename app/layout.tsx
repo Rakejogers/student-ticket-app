@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -14,28 +14,38 @@ import LogoutButton from "../components/logoutButton";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
-import pb from "@/app/pocketbase"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import pb from '@/app/pocketbase'
 
+
+/// This is the layout for the entire app. It includes the header and the main content.
+/// The header includes the navigation links and the user account dropdown.
+/// The main content includes the children components passed to this layout.
+/// The layout also includes the theme provider, analytics, and speed insights components.
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const isLoggedIn = pb.authStore.isValid;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  useEffect(() => {
+    setIsAuthenticated(pb.authStore.isValid); // Update authentication state on client-side
+  }, []);
+
+
   return (
     <html lang="en">
       <body>
         <div className="min-h-screen flex flex-col">
-          <header className="bg-blue-100">
+          <header className="bg-background">
             <div className="container mx-auto px-4">
               <nav className="flex items-center justify-between h-16">
                 <div className="text-xl font-bold">
@@ -48,9 +58,7 @@ export default function RootLayout({
                   <Button variant="ghost" asChild>
                     <Link href="/browse/events">Buy</Link>
                   </Button>
-                  {isLoggedIn ? (
-                    <LogoutButton />
-                  ) : (
+                  {!isAuthenticated && ( // Conditionally render the Login button
                     <Button variant="ghost" asChild>
                       <Link href="/login">Login</Link>
                     </Button>
@@ -72,7 +80,9 @@ export default function RootLayout({
                         <Link href="/account/sent-offers">Sent Offers</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <LogoutButton />
+                        <LogoutButton
+                          className="w-full text-destructive-foreground hover:text-foreground hover:bg-destructive"
+                        />
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -93,13 +103,9 @@ export default function RootLayout({
                   <Button variant="ghost" asChild className="w-full justify-start">
                     <Link href="/browse/events">Buy</Link>
                   </Button>
-                  {isLoggedIn ? (
-                    <LogoutButton/>
-                  ) : (
-                    <Button variant="ghost" asChild className="w-full justify-start">
-                      <Link href="/login">Login</Link>
-                    </Button>
-                  )}
+                  <Button variant="ghost" asChild className="w-full justify-start">
+                    <Link href="/login">Login</Link>
+                  </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="w-full justify-start">
@@ -128,7 +134,7 @@ export default function RootLayout({
           <main className="flex-grow">
             <ThemeProvider
               attribute="class"
-              defaultTheme="light"
+              defaultTheme="dark"
               enableSystem
               disableTransitionOnChange
             >

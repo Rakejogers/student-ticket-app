@@ -10,7 +10,9 @@ import { CiAt, CiCircleAlert, CiLock, CiUser } from "react-icons/ci";
 import { useRouter } from 'next/navigation'
 import pb from '@/app/pocketbase'
 import { motion } from 'framer-motion'
+import Input46 from '@/components/orginui/phoneInput'
 
+// Loading spinner component
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-100 to-white">
     <motion.div
@@ -29,11 +31,15 @@ export default function Component() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [passwordsMatch, setPasswordsMatch] = useState(true)
+  const [inviteCode, setInviteCode] = useState('')
+  const [phone, setPhone] = useState('')
 
-  const router = useRouter(); // Move this outside of the login function
+  const router = useRouter();
 
+  // Function to handle login logic
   const login = async (email: string, password: string) => {
     try {
+      // Login with email and password
       await pb.collection('users').authWithPassword(email, password);
       await pb.collection('users').requestVerification(email);
       setIsLoading(false)
@@ -53,7 +59,9 @@ export default function Component() {
         "password": password,
         "passwordConfirm": password,
         "name": name,
-        "seller_verified": false
+        "seller_verified": false,
+        "details": inviteCode,
+        "phone": phone
       };
 
       //create a new user record
@@ -93,6 +101,21 @@ export default function Component() {
       return
     }
 
+    if (!inviteCode) {
+      setError('Please enter an invite code')
+      return
+    }
+
+    if (inviteCode !== 'UKY2024-Beta-1') {
+      setError('Invalid invite code')
+      return
+    }
+
+    if (!phone) {
+      setError('Please enter a phone number')
+      return
+    }
+
     register()
   }
 
@@ -101,7 +124,7 @@ export default function Component() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-100 to-white">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-secondary">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -143,13 +166,17 @@ export default function Component() {
                 </div>
               </div>
               <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input46 value={phone} onChange={setPhone} /> {/* Pass state and handler */}
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <CiLock className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
                     type="password"
-                    className={`pl-8 ${!passwordsMatch && password ? 'border-red-500' : ''}`}
+                    className={`pl-8 ${!passwordsMatch && password ? 'border-destructive' : ''}`}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
@@ -162,11 +189,21 @@ export default function Component() {
                   <Input
                     id="confirm-password"
                     type="password"
-                    className={`pl-8 ${!passwordsMatch && confirmPassword ? 'border-red-500' : ''}`}
+                    className={`pl-8 ${!passwordsMatch && confirmPassword ? 'border-destructive' : ''}`}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="inviteCode">Invite Code</Label>
+                <Input
+                  id="inviteCode"
+                  type="text"
+                  placeholder="Enter your invite code"
+                  value={inviteCode}
+                  onChange={(e) => setInviteCode(e.target.value)}
+                />
               </div>
               {!passwordsMatch && password && confirmPassword && (
                 <Alert variant="destructive">

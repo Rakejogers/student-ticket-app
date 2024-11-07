@@ -41,7 +41,7 @@ export default function Component() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-100 to-white">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-secondary">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

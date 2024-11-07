@@ -6,16 +6,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Separator } from "@/components/ui/separator"
 import { CiAt, CiCircleAlert, CiLock } from "react-icons/ci";
 import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation'
 import pb from '@/app/pocketbase'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
 
 const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary">
+  <div className="min-h-screen flex items-center justify-center bg-background">
     <motion.div
       className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full"
       animate={{ rotate: 360 }}
@@ -24,7 +22,7 @@ const LoadingSpinner = () => (
   </div>
 );
 
-export default function Component() {
+export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -38,16 +36,11 @@ export default function Component() {
   const login = async (email: string, password: string) => {
     setIsLoading(true)
     try {
-      if (pb.authStore.isValid){
-        await pb.authStore.clear();
-      }
-      await pb.collection('users').authWithPassword(
+      await pb.admins.authWithPassword(
         email,
         password
       );
-      const params = new URLSearchParams(window.location.search);
-      const redirectPath = params.get('redirect') || '/browse/events';
-      router.push(redirectPath);
+      router.push("/admin/dashboard");
       setIsLoading(false)
     } catch (error) {
       setIsLoading(false)
@@ -92,7 +85,7 @@ export default function Component() {
       >
         <Card className="w-full max-w-md mx-auto">
           <CardHeader>
-            <CardTitle className="text-2xl">Login</CardTitle>
+            <CardTitle className="text-2xl">Admin Login</CardTitle>
             <CardDescription>Enter your credentials to access your account</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
@@ -124,14 +117,14 @@ export default function Component() {
                   />
                   {isView ? (
                         <Eye
-                          className="absolute right-4 top-2 z-10 cursor-pointer text-gray-500"
+                          className="absolute right-4 top-2 z-10 cursor-pointer text-muted-foreground"
                           onClick={() => {
                             setIsView(!isView)
                           }}
                         />
                       ) : (
                         <EyeOff
-                          className="absolute right-4 top-2 z-10 cursor-pointer text-gray-500"
+                          className="absolute right-4 top-2 z-10 cursor-pointer text-muted-foreground"
                           onClick={() => setIsView(!isView)}
                         />
                   )}
@@ -146,14 +139,6 @@ export default function Component() {
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <Button type="submit" className="w-full">Login</Button>
-              <div className="flex items-center justify-center w-full">
-                <Separator className="flex-grow" />
-              </div>
-              <Link href="/signup" className="block w-full">
-                <Button variant="outline" className="w-full" type="button">
-                  Create Account
-                </Button>
-              </Link>
             </CardFooter>
           </form>
         </Card>
