@@ -10,6 +10,7 @@ import { CiAt, CiCircleAlert, CiLock, CiUser } from "react-icons/ci";
 import { useRouter } from 'next/navigation'
 import pb from '@/app/pocketbase'
 import { motion } from 'framer-motion'
+import Input46 from '@/components/orginui/phoneInput'
 
 // Loading spinner component
 const LoadingSpinner = () => (
@@ -31,6 +32,7 @@ export default function Component() {
   const [error, setError] = useState('')
   const [passwordsMatch, setPasswordsMatch] = useState(true)
   const [inviteCode, setInviteCode] = useState('')
+  const [phone, setPhone] = useState('')
 
   const router = useRouter();
 
@@ -58,7 +60,8 @@ export default function Component() {
         "passwordConfirm": password,
         "name": name,
         "seller_verified": false,
-        "details": inviteCode
+        "details": inviteCode,
+        "phone": phone
       };
 
       //create a new user record
@@ -105,6 +108,11 @@ export default function Component() {
 
     if (inviteCode !== 'UKY2024-Beta-1') {
       setError('Invalid invite code')
+      return
+    }
+
+    if (!phone) {
+      setError('Please enter a phone number')
       return
     }
 
@@ -156,6 +164,10 @@ export default function Component() {
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input46 value={phone} onChange={setPhone} /> {/* Pass state and handler */}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
