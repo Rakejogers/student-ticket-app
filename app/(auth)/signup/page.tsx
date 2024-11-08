@@ -59,7 +59,7 @@ export default function Component() {
         "password": password,
         "passwordConfirm": password,
         "name": name,
-        "seller_verified": false,
+        "seller_rating": 100,
         "details": inviteCode,
         "phone": phone
       };

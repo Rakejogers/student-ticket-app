@@ -9,143 +9,150 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { FaChevronDown, FaBars, FaTimes } from "react-icons/fa";
-import LogoutButton from "../components/logoutButton";
-import "./globals.css";
+import { ChevronDown, Menu, MoonStar, Sun, X } from "lucide-react"
+import LogoutButton from "../components/logoutButton"
+import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Analytics } from "@vercel/analytics/react"
-import { SpeedInsights } from '@vercel/speed-insights/next';
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import pb from '@/app/pocketbase'
-
-
-/// This is the layout for the entire app. It includes the header and the main content.
-/// The header includes the navigation links and the user account dropdown.
-/// The main content includes the children components passed to this layout.
-/// The layout also includes the theme provider, analytics, and speed insights components.
+import PageTheme from '@/components/layout-theme'
+import Cookies from 'js-cookie';
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [currentTheme, setThemeState] = useState(Cookies.get('theme') || 'dark')
 
   const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+    setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
 
   useEffect(() => {
-    setIsAuthenticated(pb.authStore.isValid); // Update authentication state on client-side
-  }, []);
+    setIsAuthenticated(pb.authStore.isValid)
+  }, [])
 
+  const toggleTheme = () => {
+    console.log('current theme', currentTheme);
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    setThemeState(newTheme);
+    console.log('toggle theme', newTheme);
+  }
 
   return (
     <html lang="en">
       <body>
-        <div className="min-h-screen flex flex-col">
-          <header className="bg-background">
-            <div className="container mx-auto px-4">
-              <nav className="flex items-center justify-between h-16">
-                <div className="text-xl font-bold">
-                  <Link href="/browse/events">Student Ticket Marketplace</Link>
-                </div>
-                <div className="hidden md:flex items-center space-x-4">
-                  <Button variant="ghost" asChild>
-                    <Link href="/list-ticket">Sell</Link>
-                  </Button>
-                  <Button variant="ghost" asChild>
-                    <Link href="/browse/events">Buy</Link>
-                  </Button>
-                  {!isAuthenticated && ( // Conditionally render the Login button
-                    <Button variant="ghost" asChild>
-                      <Link href="/login">Login</Link>
-                    </Button>
-                  )}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="flex items-center">
-                        Account <FaChevronDown className="ml-1 h-4 w-4" />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <PageTheme theme={currentTheme}>
+            <div className="min-h-screen flex flex-col">
+              <header className="bg-background">
+                <div className="container mx-auto px-4">
+                  <nav className="flex items-center justify-between h-16">
+                    <Link href="/" className="text-2xl font-bold text-primary">
+                      Scholar Seats
+                    </Link>
+                    <div className="hidden md:flex items-center space-x-4">
+                      <Button variant="ghost" asChild>
+                        <Link href="/list-ticket">Sell</Link>
                       </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem asChild>
-                        <Link href="/account/profile">Profile</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/account/my-tickets">My Tickets</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/account/sent-offers">Sent Offers</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <LogoutButton
-                          className="w-full text-destructive-foreground hover:text-foreground hover:bg-destructive"
-                        />
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                      <Button variant="ghost" asChild>
+                        <Link href="/browse/events">Buy</Link>
+                      </Button>
+                      {!isAuthenticated ? (
+                        <Button variant="default" asChild>
+                          <Link href="/signup">Sign Up</Link>
+                        </Button>
+                      ) : (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="flex items-center">
+                              Account <ChevronDown className="ml-1 h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem asChild>
+                              <Link href="/account/profile">Profile</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link href="/account/my-tickets">My Tickets</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link href="/account/sent-offers">Sent Offers</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <LogoutButton
+                                className="w-full text-destructive-foreground hover:text-foreground hover:bg-destructive"
+                              />
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                      <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme" suppressHydrationWarning>
+                        {currentTheme === 'dark' ? <Sun className="h-5 w-5" /> : <MoonStar className="h-5 w-5" />}
+                      </Button>
+                    </div>
+                    <div className="md:hidden">
+                      <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme" suppressHydrationWarning>
+                        {currentTheme === 'dark' ? <Sun className="h-5 w-5" /> : <MoonStar className="h-5 w-5" />}
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={toggleMobileMenu}>
+                        {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                      </Button>
+                    </div>
+                  </nav>
                 </div>
-                <div className="md:hidden">
-                  <Button variant="ghost" onClick={toggleMobileMenu}>
-                    {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
-                  </Button>
-                </div>
-              </nav>
+                {isMobileMenuOpen && (
+                  <div className="md:hidden bg-background py-2">
+                    <div className="container mx-auto px-4 space-y-2">
+                      <Button variant="ghost" asChild className="w-full justify-start">
+                        <Link href="/list-ticket">Sell</Link>
+                      </Button>
+                      <Button variant="ghost" asChild className="w-full justify-start">
+                        <Link href="/browse/events">Buy</Link>
+                      </Button>
+                      {!isAuthenticated ? (
+                        <Button variant="default" asChild className="w-full justify-start">
+                          <Link href="/signup">Sign Up</Link>
+                        </Button>
+                      ) : (
+                        <>
+                          <Button variant="ghost" asChild className="w-full justify-start">
+                            <Link href="/account/profile">Profile</Link>
+                          </Button>
+                          <Button variant="ghost" asChild className="w-full justify-start">
+                            <Link href="/account/my-tickets">My Tickets</Link>
+                          </Button>
+                          <Button variant="ghost" asChild className="w-full justify-start">
+                            <Link href="/account/sent-offers">Sent Offers</Link>
+                          </Button>
+                          <LogoutButton className="w-full justify-start" />
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </header>
+              <main className="flex-grow">
+                  {children}
+                  <Toaster />
+                  <Analytics />
+                  <SpeedInsights />
+
+              </main>
             </div>
-            {isMobileMenuOpen && (
-              <div className="md:hidden bg-blue-50 py-2">
-                <div className="container mx-auto px-4 space-y-2">
-                  <Button variant="ghost" asChild className="w-full justify-start">
-                    <Link href="/list-ticket">Sell</Link>
-                  </Button>
-                  <Button variant="ghost" asChild className="w-full justify-start">
-                    <Link href="/browse/events">Buy</Link>
-                  </Button>
-                  <Button variant="ghost" asChild className="w-full justify-start">
-                    <Link href="/login">Login</Link>
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="w-full justify-start">
-                        Account <FaChevronDown className="ml-1 h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem asChild>
-                        <Link href="/account/profile">Profile</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/account/my-tickets">My Tickets</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/account/sent-offers">Sent Offers</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <LogoutButton />
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            )}
-          </header>
-          <main className="flex-grow">
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem
-              disableTransitionOnChange
-            >
-              {children}
-              <Toaster />
-              <Analytics />
-              <SpeedInsights />
-            </ThemeProvider>
-          </main>
-        </div>
+          </PageTheme>
+        </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }
