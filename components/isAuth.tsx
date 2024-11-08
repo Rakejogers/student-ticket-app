@@ -25,6 +25,7 @@ export default function isAuth<P extends object>(Component: React.ComponentType<
       const checkAuth = async () => {
         try {
           if (pb.authStore.isValid) {
+            await pb.collection('users').authRefresh();
             setIsLoading(false);
           } else {
             const currentPath = window.location.pathname;

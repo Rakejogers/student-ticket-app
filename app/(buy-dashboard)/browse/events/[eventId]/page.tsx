@@ -109,7 +109,7 @@ export default function EventPage({ params }: { params: Params }) {
   const handleOfferSubmit = async (ticketId: string, sellerId: string) => {
     try {
       //make sure buyer is verified
-      if (pb.authStore.model?.verified == false) {
+      if (pb.authStore.model!.verified == false) {
         toast({
           title: `Verification Required`,
           description: `Verify your account before sending an offer.`,
@@ -120,6 +120,20 @@ export default function EventPage({ params }: { params: Params }) {
         })
         return;
       }
+
+      console.log(pb.authStore.model!.phone)
+      if (pb.authStore.model!.phone == null) {
+        toast({
+          title: `Phone Number Required`,
+          description: `Add a phone number before sending an offer.`,
+          variant: "destructive",
+          action: (
+            <ToastAction onClick={() => { router.push("/account/profile") }} altText='Add Number'>Add Now</ToastAction>
+          ),
+        })
+        return;
+      }
+
       // Send offer to seller
       const data = {
         ticket: ticketId,
