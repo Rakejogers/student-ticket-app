@@ -12,12 +12,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { AlertTriangle, AtSign, BadgeCheck, DollarSign, KeyRound, Trash2, User, BadgeX } from "lucide-react"
+import { AlertTriangle, AtSign, BadgeCheck, DollarSign, KeyRound, Trash2, User, BadgeX, Sun, MoonStar } from "lucide-react"
 import { useEffect, useState } from "react"
 import isAuth from "../../../components/isAuth"
 import pb from "@/app/pocketbase"
 import { RecordModel } from "pocketbase"
 import { useRouter } from "next/navigation"
+import { useTheme } from "next-themes"
 
 const ProfilePage: React.FC = () => {
   const [user, setUser] = useState<RecordModel | null>(null)
@@ -30,6 +31,11 @@ const ProfilePage: React.FC = () => {
   const [isVerificationButtonDisabled, setIsVerificationButtonDisabled] = useState(false)
   const [verificationCooldown, setVerificationCooldown] = useState(0)
   const [oldPassword, setOldPassword] = useState("")
+  const { setTheme, theme } = useTheme()
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark')
+  }
 
   const router = useRouter()
 
@@ -132,9 +138,14 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-secondary">
       <Card className="w-full max-w-2xl mx-auto transform -translate-y-1/4">
-        <CardHeader>
-          <CardTitle className="text-2xl">User Profile</CardTitle>
-          <CardDescription>Manage your account settings and preferences.</CardDescription>
+        <CardHeader className="flex items-left justify-between">
+          <div className="flex-1">
+            <CardTitle className="text-2xl">User Profile</CardTitle>
+            <CardDescription>Manage your account settings and preferences.</CardDescription>
+          </div>
+          <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme" className="ml-auto">
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <MoonStar className="h-5 w-5" />}
+          </Button>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center space-x-4">
