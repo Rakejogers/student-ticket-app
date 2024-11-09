@@ -37,7 +37,8 @@ const BrowseEventsPage: React.FC = () => {
       setIsLoading(true);
       try {
         const records = await pb.collection('events').getList(1, 10, {
-          sort: '+date'
+          sort: '+date',
+          expand: 'tickets'
         });
         setEvents(records.items);
       } catch (error) {
@@ -118,20 +119,24 @@ const BrowseEventsPage: React.FC = () => {
               <SkeletonCard />
             </>
           ) : (
-            filteredEvents.map(event => (
-              <Link href={`/browse/events/${event.id}`} key={event.id}>
-                <Card className="cursor-pointer hover:shadow-lg transition-shadow border border-border rounded-lg">
-                  <CardHeader className="bg-muted text-card-foreground p-4 border border-border rounded-t-lg">
-                    <CardTitle className="text-xl font-semibold">{event.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-4 bg-card border border-border rounded-b-lg">
-                    <p className="text-muted-foreground mt-2 flex items-center"><Calendar className="mr-2 h-4 w-4" /> {formatDate(event.date)}</p>
-                    <p className="text-muted-foreground mt-2 flex items-center"><TbBuildingStadium className='mr-2 h-4 w-4' />{event.venue}</p>
-                    <p className="text-muted-foreground mt-2 flex items-center"><TbTicket className="mr-2 h-4 w-4" /> {event.tickets.length}</p>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))
+            filteredEvents.map(event => {
+              // Filter out tickets from the current user
+              const availableTickets = event.expand?.tickets.filter((ticket: { seller_id: string }) => ticket.seller_id !== pb.authStore.model?.id) || [];
+              return (
+                <Link href={`/browse/events/${event.id}`} key={event.id}>
+                  <Card className="cursor-pointer hover:shadow-lg transition-shadow border border-border rounded-lg">
+                    <CardHeader className="bg-muted text-card-foreground p-4 border border-border rounded-t-lg">
+                      <CardTitle className="text-xl font-semibold">{event.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 bg-card border border-border rounded-b-lg">
+                      <p className="text-muted-foreground mt-2 flex items-center"><Calendar className="mr-2 h-4 w-4" /> {formatDate(event.date)}</p>
+                      <p className="text-muted-foreground mt-2 flex items-center"><TbBuildingStadium className='mr-2 h-4 w-4' />{event.venue}</p>
+                      <p className="text-muted-foreground mt-2 flex items-center"><TbTicket className="mr-2 h-4 w-4" /> {availableTickets.length}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })
           )}
         </div>
 

@@ -248,14 +248,14 @@ const SentOffersPage: React.FC = () => {
               >
                 <div className="flip-card-inner">
                   {/* Front Side */}
-                  <Card className="flip-card-front">
-                    <CardHeader className="bg-card rounded-t-lg border-t border-border text-left">
+                  <Card className="border bg-card rounded-t-lg border-t border-border flip-card-front">
+                    <CardHeader className="p-4 bg-muted border border-border rounded-t-lg">
                       <CardTitle className="text-left">{offer.expand?.ticket.expand.event_id?.name}</CardTitle>
                       <CardDescription className="flex items-center">
                         <CalendarIcon className="mr-2 h-4 w-4" /> {formatDate(offer.expand?.ticket.expand.event_id?.date)}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="h-24 bg-card border-border border-x">
+                    <CardContent className="h-15 bg-card p-5 border border-border border-b-transparent">
                       <div className="space-y-2">
                         <p className="flex items-center">
                           <TagIcon className="mr-2 h-4 w-4 flex-shrink-0" /> 
@@ -272,7 +272,7 @@ const SentOffersPage: React.FC = () => {
                         </div>
                       </div>
                     </CardContent>
-                    <CardFooter className="flex justify-between bg-card rounded-b-lg border-b border-border">
+                    <CardFooter className="flex justify-between items-center bg-card rounded-b-lg border border-border border-t-transparent">
                       {offer.status === "Pending" && (
                         <Button onClick={() => handleCancelOffer(offer.id, offer.expand?.ticket.id)} variant="outline" className="w-full">
                           Cancel
@@ -285,7 +285,7 @@ const SentOffersPage: React.FC = () => {
                             className="w-full mr-2"
                             variant={"secondary"}
                           >
-                            Contact Seller
+                            Seller Details
                           </Button>
                           <Button 
                             onClick={() => openChatDialog(offer.id)}

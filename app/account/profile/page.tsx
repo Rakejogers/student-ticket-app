@@ -207,7 +207,7 @@ const ProfilePage: React.FC = () => {
             <Phone className="h-6 w-6 text-muted-foreground" />
             <div>
               <p className="font-medium">{user?.phone}</p>
-              <p className="text-sm text-muted-foreground">Phone</p>
+              <p className="text-sm text-muted-foreground">Phone (Optional)</p>
             </div>
             <Button variant="outline" onClick={() => setIsPhoneDialogOpen(true)}>
               Update

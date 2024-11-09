@@ -13,6 +13,7 @@ import { toast } from "@/hooks/use-toast"
 import { ToastAction } from '@/components/ui/toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CalendarIcon, TagIcon, Armchair, Star, Ticket, Search } from "lucide-react"
+import isAuth from '@/components/isAuth';
 
 type EventType = {
   id: string;
@@ -48,11 +49,15 @@ const formatDate = (dateString: string) => {
   }).format(date);
 };
 
-interface Params {
+type Params = {
   eventId: string;
+};
+
+interface BrowseTicketsPageProps {
+  params: Params;
 }
 
-export default function EventPage({ params }: { params: Params }) {
+const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   const [event, setEvent] = useState<EventType | null>(null);
   const [offerAmount, setOfferAmount] = useState(0);
   const [offerMade, setOfferMade] = useState<string[]>([]); // Track which ticket has an offer made
@@ -247,19 +252,19 @@ export default function EventPage({ params }: { params: Params }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {sortedAndFilteredTickets?.map((ticket) => (
-              <Card key={ticket.id}>
-                <CardHeader>
+              <Card key={ticket.id} className='cursor-pointer hover:shadow-lg transition-shadow border border-border rounded-lg'>
+                <CardHeader className='bg-muted text-card-foreground p-4 border border-border rounded-t-lg'>
                   <CardTitle>{ticket.expand.seller_id.name}</CardTitle>
                   <CardDescription className="flex items-center">
                     <CalendarIcon className="mr-2 h-4 w-4" /> {formatDate(event.date)}
                   </CardDescription>
                   <CardDescription className="flex items-center mt-1">
                     <Star className="mr-2 h-4 w-4" /> Rating: {ticket.expand.seller_id.seller_rating.toFixed(0)}%
-                    <Ticket className="ml-4 mr-2 h-4 w-4" /> Sold: {ticket.expand.seller_id.tickets_sold}
+                    <Ticket className="ml-4 mr-2 h-4 w-4" /> Tickets Sold: {ticket.expand.seller_id.tickets_sold}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <p className="flex items-center text-md font-regular">
+                <CardContent className='border border-border rounded-b-lg'>
+                  <p className="flex mt-4 items-center text-md font-regular">
                     <Armchair className="mr-2 h-4 w-4" /> {ticket.ticket_type}
                   </p>
                   <p className="flex items-center text-lg font-semibold">
@@ -315,3 +320,5 @@ export default function EventPage({ params }: { params: Params }) {
     </Suspense>
   )
 }
+
+export default isAuth(BrowseTicketsPage);

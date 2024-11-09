@@ -193,13 +193,6 @@ const UserTicketsPage: React.FC = () => {
     };
   }, [currentTicketId, tickets]);
 
-  // const scrollToBottom = () => {
-  //   scrollAreaRef.current?.scrollIntoView(false);
-  // }
-
-  // useEffect(() => {
-  //   scrollToBottom();
-  // }, [messages]);
   useEffect(() => {
     if (scrollAreaRef.current) {
       const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
@@ -273,14 +266,14 @@ const UserTicketsPage: React.FC = () => {
               >
                 <div className="flip-card-inner">
                   {/* Front Side */}
-                  <Card className="bg-card rounded-t-lg border-t border-border flip-card-front">
-                    <CardHeader className='bg-card rounded-t-lg border-t border-border'>
+                  <Card className="border bg-card rounded-t-lg border-t border-border flip-card-front">
+                    <CardHeader className='p-4 bg-muted border border-border rounded-t-lg'>
                       <CardTitle className="text-left">{ticket.expand?.event_id?.name}</CardTitle>
                       <CardDescription className="flex items-center">
                         <CalendarIcon className="mr-2 h-4 w-4" /> {formatDate(ticket.expand?.event_id?.date)}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="h-15 bg-card">
+                    <CardContent className="h-15 bg-card p-5 border border-border border-b-transparent">
                       <p className="flex items-center text-lg font-semibold">
                         <TagIcon className="mr-2 h-4 w-4" /> ${ticket.price}
                       </p>
@@ -290,16 +283,30 @@ const UserTicketsPage: React.FC = () => {
                         </Badge>
                       </div>
                     </CardContent>
-                    <CardFooter className="flex bg-card justify-between rounded-b-lg border-b border-border">
-                      {ticket.status === 'Sold' ? (
-                        <Button variant="default" onClick={() => openChatDialog(ticket.id)}>
-                          Chat with Buyer
-                        </Button>
-                      ) : (
-                        <Button variant="outline" onClick={() => handleOffersClick(ticket)}>
-                          Offers ({ticket.expand?.offers?.filter((offer: RecordModel) => offer.status === 'Pending').length || 0})
-                        </Button>
-                      )}
+                    <CardFooter className="flex justify-between items-center bg-card rounded-b-lg border border-border border-t-transparent">
+                      <div className="flex">
+                        {ticket.status === 'Sold' ? (
+                          <>
+                            <Button 
+                              onClick={() => toggleBuyerInfo(ticket.id)}
+                              className="w-half mr-2"
+                              variant={"secondary"}
+                            >
+                              Buyer Details
+                            </Button>
+                            <Button 
+                              onClick={() => openChatDialog(ticket.id)}
+                              className="w-half"
+                            >
+                              Chat with Buyer
+                            </Button>
+                          </>
+                        ) : (
+                          <Button variant="outline" onClick={() => handleOffersClick(ticket)}>
+                            Offers ({ticket.expand?.offers?.filter((offer: RecordModel) => offer.status === 'Pending').length || 0})
+                          </Button>
+                        )}
+                      </div>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -319,11 +326,11 @@ const UserTicketsPage: React.FC = () => {
                   
                   {/* Back Side (Buyer Info) */}
                   {ticket.status === 'Sold' && (
-                    <Card className="bg-card rounded-t-lg border-t border-border flip-card-back">
-                      <CardHeader className="bg-card rounded-t-lg text-left">
+                    <Card className="border bg-card rounded-t-lg border-t border-border flip-card-back">
+                      <CardHeader className="p-4 bg-muted border border-border rounded-t-lg text-left">
                         <CardTitle>Buyer Information</CardTitle>
                       </CardHeader>
-                      <CardContent className="bg-card h-15">
+                      <CardContent className="h-15 bg-card p-5 border border-border border-b-transparent">
                         {ticket.expand?.buyer_id && (
                           <div className="space-y-2">
                             <p className="flex items-center">
@@ -338,7 +345,7 @@ const UserTicketsPage: React.FC = () => {
                           </div>
                         )}
                       </CardContent>
-                      <CardFooter className="bg-card justify-between rounded-b-lg p-3.5">
+                      <CardFooter className="flex justify-between items-center bg-card rounded-b-lg border border-border border-t-transparent p-3.5">
                         <Button variant="outline" onClick={() => toggleBuyerInfo(ticket.id)} className="w-full">
                           Back to Ticket
                         </Button>
