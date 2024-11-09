@@ -1,19 +1,21 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CalendarIcon, TagIcon, TicketIcon, UserIcon, PhoneIcon, MailIcon, Wallet, StarIcon } from "lucide-react"
+import { CalendarIcon, TagIcon, TicketIcon, UserIcon, PhoneIcon, MailIcon, Wallet, StarIcon, SendIcon } from "lucide-react"
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import { toast } from "@/hooks/use-toast"
 import isAuth from "@/components/isAuth"
 import "@/app/SentOffersPage.css"
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Textarea } from "@/components/ui/textarea"
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -35,6 +37,22 @@ const SentOffersPage: React.FC = () => {
   const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [loading, setLoading] = useState(true)
+  const [isChatDialogOpen, setIsChatDialogOpen] = useState(false);
+  const [currentOfferId, setCurrentOfferId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<RecordModel[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    const scrollArea = document.getElementById('messageScrollArea');
+    if (scrollArea) {
+      scrollArea.scrollTop = scrollArea.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     async function fetchOffers() {
@@ -57,6 +75,67 @@ const SentOffersPage: React.FC = () => {
 
     fetchOffers()
   }, [])
+
+  useEffect(() => {
+    if (currentOfferId) {
+      // Subscribe to changes in the messages collection for the current offer
+      pb.collection('messages').subscribe('*', function (e) {
+        if (e.record.offer !== currentOfferId) return;
+        setMessages(prevMessages => [...prevMessages, e.record]);
+      });
+
+      // Fetch existing messages
+      fetchMessages(currentOfferId);
+    }
+
+    return () => {
+      // Unsubscribe when the component unmounts or the offer changes
+      pb.collection('messages').unsubscribe("*");
+    };
+  }, [currentOfferId]);
+
+  const fetchMessages = async (offerId: string) => {
+    try {
+      const messagesList = await pb.collection('messages').getList(1, 50, {
+        filter: `offer="${offerId}"`,
+        sort: '+created',
+      });
+      setMessages(messagesList.items);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  };
+
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !currentOfferId) return;
+
+    try {
+      await pb.collection('messages').create({
+        offer: currentOfferId,
+        sender: pb.authStore.model?.id,
+        content: newMessage,
+        receiver: sentOffers.find(offer => offer.id === currentOfferId)?.receiver,
+      });
+
+      setNewMessage("");
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Error",
+        description: "There was an error sending your message. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+  }, [messages]);
 
   const viewSellerInfo = async (offerId: string, sellerId: string) => {
     try {
@@ -124,15 +203,29 @@ const SentOffersPage: React.FC = () => {
   }
 
   const handleRateSeller = async (offerId: string) => {
-    // Logic to submit the rating
     try {
       await pb.collection('ratings').create({
         ratedUserID: sellerInfo[offerId].id,
         rating: rating,
-      }); setIsRatingDialogOpen(false);
+      });
+      setIsRatingDialogOpen(false);
+      toast({
+        title: "Rating Submitted",
+        description: "Thank you for rating the seller.",
+      });
     } catch (error) {
       console.error(error)
+      toast({
+        title: "Error",
+        description: "There was an error submitting your rating. Please try again.",
+        variant: "destructive",
+      });
     }
+  };
+
+  const openChatDialog = (offerId: string) => {
+    setCurrentOfferId(offerId);
+    setIsChatDialogOpen(true);
   };
 
   if (loading) {
@@ -186,12 +279,21 @@ const SentOffersPage: React.FC = () => {
                         </Button>
                       )}
                       {offer.status === "Accepted" && (
-                        <Button 
-                          onClick={() => viewSellerInfo(offer.id, offer.receiver)}
-                          className="w-full"
-                        >
-                          Contact Seller
-                        </Button>
+                        <>
+                          <Button 
+                            onClick={() => viewSellerInfo(offer.id, offer.receiver)}
+                            className="w-full mr-2"
+                            variant={"secondary"}
+                          >
+                            Contact Seller
+                          </Button>
+                          <Button 
+                            onClick={() => openChatDialog(offer.id)}
+                            className="w-full"
+                          >
+                            Chat with Seller
+                          </Button>
+                        </>
                       )}
                       {offer.status === "Declined" && (
                         <Popover>
@@ -287,6 +389,44 @@ const SentOffersPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      <Dialog open={isChatDialogOpen} onOpenChange={setIsChatDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Chat with Seller</DialogTitle>
+            <DialogDescription>
+              Discuss the details of your offer with the seller.
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea id="messageScrollArea" className="h-[300px] w-full rounded-md border p-4" ref={scrollAreaRef}>
+            {messages.map((message, index) => (
+              <div key={index} className={`mb-4 ${message.sender === pb.authStore.model?.id ? 'text-right' : 'text-left'}`}>
+              <p className="inline-block bg-primary text-primary-foreground rounded-lg py-2 px-4 max-w-[70%] break-words">
+                {message.content}
+              </p>
+            </div>
+            ))}
+          </ScrollArea>
+          <div className="flex items-center space-x-2">
+            <Textarea
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type your message..."
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
+              className="flex-grow max-h-32"
+              rows={2}
+            />
+            <Button onClick={sendMessage} size="icon">
+              <SendIcon className="h-4 w-4" />
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

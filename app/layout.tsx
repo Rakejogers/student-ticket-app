@@ -39,10 +39,8 @@ export default function RootLayout({
   }, [])
 
   const toggleTheme = () => {
-    console.log('current theme', currentTheme);
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     setThemeState(newTheme);
-    console.log('toggle theme', newTheme);
   }
 
   return (
@@ -59,7 +57,7 @@ export default function RootLayout({
               <header className="bg-background">
                 <div className="container mx-auto px-4">
                   <nav className="flex items-center justify-between h-16">
-                    <Logo isAuthenticated />
+                    <Logo/>
                     <div className="hidden md:flex items-center space-x-4">
                       <Button variant="ghost" asChild>
                         <Link href="/list-ticket">Sell</Link>

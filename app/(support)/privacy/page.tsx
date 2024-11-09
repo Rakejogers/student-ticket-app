@@ -15,7 +15,7 @@ export default function PrivacyPage() {
                             <section>
                                 <h2 className="text-2xl font-semibold mb-2">1. Introduction</h2>
                                 <p>
-                                    Scholar Seats ("we", "us", "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our application. Please read this policy carefully to understand our views and practices regarding your data.
+                                    Scholar Seats (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our application. Please read this policy carefully to understand our views and practices regarding your data.
                                 </p>
                             </section>
 
@@ -45,7 +45,7 @@ export default function PrivacyPage() {
                                 <p>You have the right to:</p>
                                 <ul className="list-disc pl-6 space-y-1">
                                     <li>Access, update, or delete your personal information.</li>
-                                    <li>Request a copy of your data or ask questions about how it's used.</li>
+                                    <li>Request a copy of your data or ask questions about how it&apos;s used.</li>
                                 </ul>
                             </section>
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import pb from "@/app/pocketbase";
 
-export function Logo({ isAuthenticated }: { isAuthenticated: boolean }) {
+export function Logo() {
     const [logoLink, setLogoLink] = useState("")
 
     useEffect (() => {
