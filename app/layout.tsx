@@ -19,7 +19,6 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import pb from '@/app/pocketbase'
 import PageTheme from '@/components/layout-theme'
 import Cookies from 'js-cookie';
-import { Logo } from '@/components/logo'
 import { usePathname } from 'next/navigation'
 
 export default function RootLayout({
@@ -30,7 +29,7 @@ export default function RootLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [currentTheme, setThemeState] = useState(Cookies.get('theme') || 'dark')
-  const [routeChangeTrigger, setRouteChangeTrigger] = useState(0); // New state for triggering re-renders
+  // const [routeChangeTrigger, setRouteChangeTrigger] = useState(0); // New state for triggering re-renders
   const pathname = usePathname(); // Get the current pathname
 
   useEffect(() => {
@@ -41,7 +40,7 @@ export default function RootLayout({
   useEffect(() => {
     setIsAuthenticated(pb.authStore.isValid); // Check if user is authenticated
     setIsMobileMenuOpen(false); // Example: close mobile menu on route change
-    setRouteChangeTrigger(prev => prev + 1); // Increment to trigger re-render
+    // setRouteChangeTrigger(prev => prev + 1); // Increment to trigger re-render
   }, [pathname]); // Dependency array includes pathname
 
   const toggleMobileMenu = () => {
