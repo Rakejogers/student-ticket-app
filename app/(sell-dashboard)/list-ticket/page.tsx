@@ -13,6 +13,8 @@ import { RecordModel } from 'pocketbase';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CiCircleAlert } from "react-icons/ci";
+import { toast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 
 const SellTicketsPage: React.FC = () => {
   const [sport, setSport] = useState('');
@@ -48,7 +50,34 @@ const SellTicketsPage: React.FC = () => {
       throw new Error("User not found");
     }
     if (pb.authStore.model.verified == false) {
-      setError("Please verify your account before selling tickets. Go to Account->Profile to send a verification email.");
+      // setError("Please verify your account before selling tickets. Go to Account->Profile to send a verification email.");
+      toast({
+        title: `Verification Required`,
+        description: `Verify your account before sending an offer.`,
+        variant: "destructive",
+        action: (
+          <ToastAction onClick={() => { router.push("/account/profile") }} altText='Verify Account'>Verify Now</ToastAction>
+        ),
+      })
+      return;
+    }
+    if (!sport || !event || !ticketType || !price) {
+      toast({
+        title: `Fill in all fields`,
+        description: `Please fill in all fields before submitting.`,
+        variant: "destructive",
+      })
+      return;
+    }
+    if (pb.authStore.model.venmo == ""){
+      toast({
+        title: `Must have a Venmo in Profile`,
+        description: `Please add a Venmo account to your profile before selling tickets.`,
+        variant: "destructive",
+        action: (
+          <ToastAction onClick={() => { router.push("/account/profile") }} altText='Add Venmo'>Add Now</ToastAction>
+        ),
+      })
       return;
     }
     const data = {
@@ -85,7 +114,7 @@ const SellTicketsPage: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="sport">Sport</Label>
-                <Select onValueChange={setSport} required>
+                <Select onValueChange={setSport}>
                   <SelectTrigger id="sport">
                     <SelectValue placeholder="Select a sport" />
                   </SelectTrigger>
@@ -98,7 +127,7 @@ const SellTicketsPage: React.FC = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="event">Event</Label>
-                <Select onValueChange={setEvent} required>
+                <Select onValueChange={setEvent}>
                   <SelectTrigger id="event">
                     <SelectValue placeholder="Select an event" />
                   </SelectTrigger>
@@ -114,7 +143,7 @@ const SellTicketsPage: React.FC = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="ticket-type">Ticket Type</Label>
-                <Select onValueChange={setTicketType} required>
+                <Select onValueChange={setTicketType}>
                   <SelectTrigger id="ticket-type">
                     <SelectValue placeholder="Select a ticket type" />
                   </SelectTrigger>
@@ -135,7 +164,6 @@ const SellTicketsPage: React.FC = () => {
                   placeholder="Enter price"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  required
                   min="0"
                   step="0.01"
                 />

@@ -14,9 +14,9 @@ import Input46 from '@/components/orginui/phoneInput'
 
 // Loading spinner component
 const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-100 to-white">
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary">
     <motion.div
-      className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full"
+      className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full"
       animate={{ rotate: 360 }}
       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
     />
@@ -80,6 +80,7 @@ export default function Component() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    const phoneRegex = /^\+?1?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/
 
     if (!name || !email || !password || !confirmPassword) {
       setError('Please fill in all fields')
@@ -113,6 +114,12 @@ export default function Component() {
 
     if (!phone) {
       setError('Please enter a phone number')
+      return
+    }
+    
+    if (phoneRegex.test(phone) == false || phone.length < 12)
+    {
+      setError("Please enter a valid phone number.")
       return
     }
 

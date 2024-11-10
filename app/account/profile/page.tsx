@@ -12,30 +12,29 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { AlertTriangle, AtSign, BadgeCheck, DollarSign, KeyRound, Trash2, User, BadgeX, Sun, MoonStar } from "lucide-react"
+import { AlertTriangle, AlertCircle, AtSign, BadgeCheck, DollarSign, KeyRound, Trash2, User, BadgeX, Phone } from "lucide-react"
 import { useEffect, useState } from "react"
 import isAuth from "../../../components/isAuth"
 import pb from "@/app/pocketbase"
 import { RecordModel } from "pocketbase"
 import { useRouter } from "next/navigation"
-import { useTheme } from "next-themes"
+import Input46 from '@/components/orginui/phoneInput'
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 const ProfilePage: React.FC = () => {
   const [user, setUser] = useState<RecordModel | null>(null)
   const [isVenmoDialogOpen, setIsVenmoDialogOpen] = useState(false)
+  const [isPhoneDialogOpen, setIsPhoneDialogOpen] = useState(false)
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [newVenmo, setNewVenmo] = useState("")
+  const [newPhone, setNewPhone] = useState("")
   const [newPassword, setNewPassword] = useState("")
+  const [error, setError] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isVerificationButtonDisabled, setIsVerificationButtonDisabled] = useState(false)
   const [verificationCooldown, setVerificationCooldown] = useState(0)
   const [oldPassword, setOldPassword] = useState("")
-  const { setTheme, theme } = useTheme()
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark')
-  }
 
   const router = useRouter()
 
@@ -82,6 +81,34 @@ const ProfilePage: React.FC = () => {
       setIsVenmoDialogOpen(false)
     } catch (error) {
       console.error('Failed to update Venmo', error)
+    }
+  }
+
+  const handleUpdatePhone = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError("")
+    const phoneRegex = /^\+?1?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/
+
+    if (!newPhone) {
+      setError("Please enter a phone number.")
+      return
+    } 
+    else if (phoneRegex.test(newPhone) == false || newPhone.length < 12)
+    {
+      setError("Please enter a valid phone number.")
+      return
+    }
+
+    try {
+      if (user == null) {
+        throw new Error("User not found")
+      }
+      await pb.collection('users').update(user.id, { phone: newPhone })
+      console.log("Phone updated successfully!")
+      setUser(prev => (prev ? { ...prev, phone: newPhone } : prev))
+      setIsPhoneDialogOpen(false)
+    } catch (error) {
+      console.error('Failed to update Phone', error)
     }
   }
 
@@ -143,9 +170,6 @@ const ProfilePage: React.FC = () => {
             <CardTitle className="text-2xl">User Profile</CardTitle>
             <CardDescription>Manage your account settings and preferences.</CardDescription>
           </div>
-          <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme" className="ml-auto">
-            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <MoonStar className="h-5 w-5" />}
-          </Button>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center space-x-4">
@@ -178,6 +202,16 @@ const ProfilePage: React.FC = () => {
                 </Button>
               </>
             )}
+          </div>
+          <div className="flex items-center space-x-4">
+            <Phone className="h-6 w-6 text-muted-foreground" />
+            <div>
+              <p className="font-medium">{user?.phone}</p>
+              <p className="text-sm text-muted-foreground">Phone (Optional)</p>
+            </div>
+            <Button variant="outline" onClick={() => setIsPhoneDialogOpen(true)}>
+              Update
+            </Button>
           </div>
           <div className="flex items-center space-x-4">
             <DollarSign className="h-6 w-6 text-muted-foreground" />
@@ -223,6 +257,28 @@ const ProfilePage: React.FC = () => {
           </div>
           <DialogFooter>
             <Button onClick={handleUpdateVenmo}>Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isPhoneDialogOpen} onOpenChange={setIsPhoneDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update Phone Number</DialogTitle>
+            <DialogDescription>Enter your new phone number below.</DialogDescription>
+          </DialogHeader>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input46 value={newPhone} onChange={setNewPhone}/> {/* Pass state and handler */}
+            </div>
+            {error && (
+            <Alert variant="destructive" className="mt-2">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          <DialogFooter>
+            <Button onClick={handleUpdatePhone}>Save changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
