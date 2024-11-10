@@ -20,6 +20,7 @@ import pb from '@/app/pocketbase'
 import PageTheme from '@/components/layout-theme'
 import Cookies from 'js-cookie';
 import { Logo } from '@/components/logo'
+import { usePathname } from 'next/navigation'
 
 export default function RootLayout({
   children,
@@ -29,14 +30,23 @@ export default function RootLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [currentTheme, setThemeState] = useState(Cookies.get('theme') || 'dark')
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen)
-  }
+  const [routeChangeTrigger, setRouteChangeTrigger] = useState(0); // New state for triggering re-renders
+  const pathname = usePathname(); // Get the current pathname
 
   useEffect(() => {
     setIsAuthenticated(pb.authStore.isValid)
   }, [])
+
+  // Use useEffect to detect pathname changes
+  useEffect(() => {
+    setIsAuthenticated(pb.authStore.isValid); // Check if user is authenticated
+    setIsMobileMenuOpen(false); // Example: close mobile menu on route change
+    setRouteChangeTrigger(prev => prev + 1); // Increment to trigger re-render
+  }, [pathname]); // Dependency array includes pathname
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
 
   const toggleTheme = () => {
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -57,7 +67,15 @@ export default function RootLayout({
               <header className="bg-background">
                 <div className="container mx-auto px-4">
                   <nav className="flex items-center justify-between h-16">
-                    <Logo/>
+                  {!isAuthenticated ? (
+                        <Link href="/" className="text-2xl font-bold text-primary">
+                          Scholar Seats
+                        </Link>
+                      ) : (
+                        <Link href="/browse/events" className="text-2xl font-bold text-primary">
+                          Scholar Seats
+                        </Link>
+                      )}
                     <div className="hidden md:flex items-center space-x-4">
                       <Button variant="ghost" asChild>
                         <Link href="/list-ticket">Sell</Link>
