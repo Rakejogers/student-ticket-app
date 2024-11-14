@@ -163,73 +163,76 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-secondary">
-      <Card className="w-full max-w-2xl mx-auto transform -translate-y-1/4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-secondary p-4 md:p-0">
+      <Card className="w-full max-w-2xl mx-auto md:transform md:-translate-y-1/4">
         <CardHeader className="flex items-left justify-between">
           <div className="flex-1">
             <CardTitle className="text-2xl">User Profile</CardTitle>
             <CardDescription>Manage your account settings and preferences.</CardDescription>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center space-x-4">
-            <User className="h-6 w-6 text-muted-foreground" />
-            <div>
-              <p className="font-medium">{user?.name}</p>
-              <p className="text-sm text-muted-foreground">Name</p>
+        <CardContent className="space-y-6 md:space-y-4">
+          <div className="space-y-4 md:space-y-0">
+            <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
+              <User className="h-6 w-6 text-muted-foreground" />
+              <div>
+                <p className="font-medium">{user?.name}</p>
+                <p className="text-sm text-muted-foreground">Name</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <AtSign className="h-6 w-6 text-muted-foreground" />
-            <div>
-              <p className="font-medium">{user?.email}</p>
-              <p className="text-sm text-muted-foreground">Email</p>
+            <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
+              <AtSign className="h-6 w-6 text-muted-foreground" />
+              <div className="flex-grow">
+                <p className="font-medium">{user?.email}</p>
+                <p className="text-sm text-muted-foreground">Email</p>
+              </div>
+              {user?.verified ? (
+                <BadgeCheck className="h-6 w-6 text-green-500" />
+              ) : (
+                <div className="flex items-center space-x-2 mt-2 md:mt-0">
+                  <BadgeX className="h-6 w-6 text-destructive" />
+                  <Button 
+                    variant="secondary" 
+                    onClick={handleSendVerificationEmail}
+                    disabled={isVerificationButtonDisabled}
+                    className="w-full md:w-auto"
+                  >
+                    {isVerificationButtonDisabled 
+                      ? `Resend in ${verificationCooldown}s` 
+                      : 'Verify Email'
+                    }
+                  </Button>
+                </div>
+              )}
             </div>
-            {user?.verified ? (
-              <BadgeCheck className="h-6 w-6 text-green-500" />
-            ) : (
-              <>
-                <BadgeX className="h-6 w-6 text-destructive" />
-                <Button 
-                  variant="outline" 
-                  onClick={handleSendVerificationEmail}
-                  disabled={isVerificationButtonDisabled}
-                >
-                  {isVerificationButtonDisabled 
-                    ? `Resend in ${verificationCooldown}s` 
-                    : 'Send Verification Email'
-                  }
-                </Button>
-              </>
-            )}
-          </div>
-          <div className="flex items-center space-x-4">
-            <Phone className="h-6 w-6 text-muted-foreground" />
-            <div>
-              <p className="font-medium">{user?.phone}</p>
-              <p className="text-sm text-muted-foreground">Phone (Optional)</p>
+            <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
+              <Phone className="h-6 w-6 text-muted-foreground" />
+              <div className="flex-grow">
+                <p className="font-medium">{user?.phone}</p>
+                <p className="text-sm text-muted-foreground">Phone (Optional)</p>
+              </div>
+              <Button variant="secondary" onClick={() => setIsPhoneDialogOpen(true)} className="w-full md:w-auto mt-2 md:mt-0">
+                Update
+              </Button>
             </div>
-            <Button variant="outline" onClick={() => setIsPhoneDialogOpen(true)}>
-              Update
-            </Button>
-          </div>
-          <div className="flex items-center space-x-4">
-            <DollarSign className="h-6 w-6 text-muted-foreground" />
-            <div>
-              <p className="font-medium">{user?.venmo}</p>
-              <p className="text-sm text-muted-foreground">Venmo Account</p>
+            <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
+              <DollarSign className="h-6 w-6 text-muted-foreground" />
+              <div className="flex-grow">
+                <p className="font-medium">{user?.venmo}</p>
+                <p className="text-sm text-muted-foreground">Venmo Account</p>
+              </div>
+              <Button variant="secondary" onClick={() => setIsVenmoDialogOpen(true)} className="w-full md:w-auto mt-2 md:mt-0">
+                Update
+              </Button>
             </div>
-            <Button variant="outline" onClick={() => setIsVenmoDialogOpen(true)}>
-              Update
-            </Button>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button variant="outline" onClick={() => setIsPasswordDialogOpen(true)}>
+        <CardFooter className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+          <Button variant="secondary" onClick={() => setIsPasswordDialogOpen(true)} className="w-full md:w-auto">
             <KeyRound className="mr-2 h-4 w-4" />
             Change Password
           </Button>
-          <Button variant="destructive" onClick={() => setIsDeleteDialogOpen(true)}>
+          <Button variant="destructive" onClick={() => setIsDeleteDialogOpen(true)} className="w-full md:w-auto">
             <Trash2 className="mr-2 h-4 w-4" />
             Delete Account
           </Button>
@@ -343,7 +346,7 @@ const ProfilePage: React.FC = () => {
             <AlertTriangle className="h-16 w-16 text-yellow-500" />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button variant="secondary" onClick={() => setIsDeleteDialogOpen(false)}>
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDeleteAccount}>

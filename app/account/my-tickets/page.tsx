@@ -14,7 +14,7 @@ import { CalendarIcon, MoreVerticalIcon, PlusIcon, TagIcon, UserIcon, MailIcon, 
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import Link from 'next/link'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog"
 import { Badge } from '@/components/ui/badge'
 import isAuth from '@/components/isAuth'
 import { Input } from "@/components/ui/input"
@@ -59,6 +59,8 @@ const UserTicketsPage: React.FC = () => {
   const [messages, setMessages] = useState<RecordModel[]>([])
   const [newMessage, setNewMessage] = useState("")
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
+  const [reportReason, setReportReason] = useState('')
 
   const handleEditClick = (ticket: RecordModel) => {
     setEditingTicket(ticket)
@@ -82,6 +84,23 @@ const UserTicketsPage: React.FC = () => {
       setIsEditDialogOpen(false)
     } catch (error) {
       console.error('Error updating ticket:', error)
+    }
+  }
+
+  const handleSubmitReport = async (buyer: RecordModel) => {
+    try {
+      await pb.collection('support').create({
+        type: 'report',
+        message: reportReason,
+        sender: pb.authStore.model?.id,
+        reportedUser: buyer.id,
+      });
+
+      setIsReportDialogOpen(false);
+      setReportReason('');
+      console.log('Report submitted');
+    } catch (error) {
+      console.error('Error submitting report:', error);
     }
   }
   
@@ -262,7 +281,7 @@ const UserTicketsPage: React.FC = () => {
             {tickets.map((ticket) => (
               <div
                 key={ticket.id}
-                className={`flip-card ${showingBuyerInfo[ticket.id] ? 'flipped' : ''}`}
+                className={`flip-card-my-tickets mb-250 ${showingBuyerInfo[ticket.id] ? 'flipped' : ''}`}
               >
                 <div className="flip-card-inner">
                   {/* Front Side */}
@@ -273,7 +292,7 @@ const UserTicketsPage: React.FC = () => {
                         <CalendarIcon className="mr-2 h-4 w-4" /> {formatDate(ticket.expand?.event_id?.date)}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="h-15 bg-card p-5 border border-border border-b-transparent">
+                    <CardContent className="h-15 bg-card p-5 border border-border border-b-0 border-t-0">
                       <p className="flex items-center text-lg font-semibold">
                         <TagIcon className="mr-2 h-4 w-4" /> ${ticket.price}
                       </p>
@@ -283,7 +302,7 @@ const UserTicketsPage: React.FC = () => {
                         </Badge>
                       </div>
                     </CardContent>
-                    <CardFooter className="flex justify-between items-center bg-card rounded-b-lg border border-border border-t-transparent">
+                    <CardFooter className="flex justify-between items-center bg-card rounded-b-lg border border-border border-t-0">
                       <div className="flex">
                         {ticket.status === 'Sold' ? (
                           <>
@@ -302,7 +321,7 @@ const UserTicketsPage: React.FC = () => {
                             </Button>
                           </>
                         ) : (
-                          <Button variant="outline" onClick={() => handleOffersClick(ticket)}>
+                          <Button variant="secondary" onClick={() => handleOffersClick(ticket)}>
                             Offers ({ticket.expand?.offers?.filter((offer: RecordModel) => offer.status === 'Pending').length || 0})
                           </Button>
                         )}
@@ -316,7 +335,6 @@ const UserTicketsPage: React.FC = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onSelect={() => handleEditClick(ticket)}>Edit Price</DropdownMenuItem>
-                          <DropdownMenuItem>Share Listing</DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem className="text-destructive" onSelect={() => deleteTicket(ticket.id)}>Remove Listing</DropdownMenuItem>
                         </DropdownMenuContent>
@@ -330,7 +348,7 @@ const UserTicketsPage: React.FC = () => {
                       <CardHeader className="p-4 bg-muted border border-border rounded-t-lg text-left">
                         <CardTitle>Buyer Information</CardTitle>
                       </CardHeader>
-                      <CardContent className="h-15 bg-card p-5 border border-border border-b-transparent">
+                      <CardContent className="h-15 bg-card p-5 border border-border border-b-0 border-t-0">
                         {ticket.expand?.buyer_id && (
                           <div className="space-y-2">
                             <p className="flex items-center">
@@ -345,10 +363,23 @@ const UserTicketsPage: React.FC = () => {
                           </div>
                         )}
                       </CardContent>
-                      <CardFooter className="flex justify-between items-center bg-card rounded-b-lg border border-border border-t-transparent p-3.5">
-                        <Button variant="outline" onClick={() => toggleBuyerInfo(ticket.id)} className="w-full">
+                      <CardFooter className="flex justify-between items-center bg-card rounded-b-lg border border-border border-t-0">
+                        <Button variant="secondary" onClick={() => toggleBuyerInfo(ticket.id)} className="w-full mr-2">
                           Back to Ticket
                         </Button>
+                        <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button className="w-full" variant={"destructive"}>Report Buyer</Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <h4 className="font-medium leading-none">Report Buyer</h4>
+                            <div className="flex justify-center my-4">
+                              <Label htmlFor="report">Reason for reporting</Label>
+                              <Textarea id="report" value={reportReason} onChange={(e) => setReportReason(e.target.value)} />
+                            </div>
+                            <Button variant="destructive" onClick={() => handleSubmitReport(ticket.expand?.buyer_id)}>Report</Button>
+                          </DialogContent>
+                        </Dialog>
                       </CardFooter>
                     </Card>
                   )}

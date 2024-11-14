@@ -138,7 +138,7 @@ export default function Component() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        <Card className="w-full mx-auto">
+        <Card className="mx-auto">
           <CardHeader>
             <CardTitle className="text-2xl">Sign Up</CardTitle>
             <CardDescription>Create your student ticket account</CardDescription>
