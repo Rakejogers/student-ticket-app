@@ -7,9 +7,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown, Menu, MoonStar, Sun, X } from "lucide-react"
+import { ChevronDown, Menu, MoonStar, Sun, X } from 'lucide-react'
 import LogoutButton from "../components/logoutButton"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
@@ -18,8 +19,9 @@ import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import pb from '@/app/pocketbase'
 import PageTheme from '@/components/layout-theme'
-import Cookies from 'js-cookie';
+import Cookies from 'js-cookie'
 import { usePathname } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export default function RootLayout({
   children,
@@ -29,27 +31,24 @@ export default function RootLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [currentTheme, setThemeState] = useState(Cookies.get('theme') || 'dark')
-  // const [routeChangeTrigger, setRouteChangeTrigger] = useState(0); // New state for triggering re-renders
-  const pathname = usePathname(); // Get the current pathname
+  const pathname = usePathname()
 
   useEffect(() => {
     setIsAuthenticated(pb.authStore.isValid)
   }, [])
 
-  // Use useEffect to detect pathname changes
   useEffect(() => {
-    setIsAuthenticated(pb.authStore.isValid); // Check if user is authenticated
-    setIsMobileMenuOpen(false); // Example: close mobile menu on route change
-    // setRouteChangeTrigger(prev => prev + 1); // Increment to trigger re-render
-  }, [pathname]); // Dependency array includes pathname
+    setIsAuthenticated(pb.authStore.isValid)
+    setIsMobileMenuOpen(false)
+  }, [pathname])
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
   }
 
   const toggleTheme = () => {
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    setThemeState(newTheme);
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark'
+    setThemeState(newTheme)
   }
 
   return (
@@ -63,33 +62,38 @@ export default function RootLayout({
         >
           <PageTheme theme={currentTheme}>
             <div className="min-h-screen flex flex-col">
-              <header className="bg-background">
+              <header className="bg-background sticky top-0 z-50 shadow-sm">
                 <div className="container mx-auto px-4">
                   <nav className="flex items-center justify-between h-16">
-                  {!isAuthenticated ? (
-                        <Link href="/" className="text-2xl font-bold text-primary">
-                          Scholar Seats
-                        </Link>
-                      ) : (
-                        <Link href="/browse/events" className="text-2xl font-bold text-primary">
-                          Scholar Seats
-                        </Link>
-                      )}
-                    <div className="hidden md:flex items-center space-x-4">
-                      <Button variant="ghost" asChild>
+                    {!isAuthenticated ? (
+                      <Link href="/" className="text-2xl font-bold text-primary">
+                        Scholar Seats
+                      </Link>
+                    ) : (
+                      <Link href="/browse/events" className="text-2xl font-bold text-primary">
+                        Scholar Seats
+                      </Link>
+                    )}
+                    <div className="hidden md:flex items-center space-x-2">
+                      <Button variant="ghost" size="sm" asChild>
                         <Link href="/list-ticket">Sell</Link>
                       </Button>
-                      <Button variant="ghost" asChild>
+                      <Button variant="ghost" size="sm" asChild>
                         <Link href="/browse/events">Buy</Link>
                       </Button>
                       {!isAuthenticated ? (
-                        <Button variant="default" asChild>
-                          <Link href="/signup">Sign Up</Link>
-                        </Button>
+                        <>
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link href="/login">Login</Link>
+                          </Button>
+                          <Button variant="default" size="sm" asChild>
+                            <Link href="/signup">Sign Up</Link>
+                          </Button>
+                        </>
                       ) : (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="flex items-center">
+                            <Button variant="ghost" size="sm" className="flex items-center">
                               Account <ChevronDown className="ml-1 h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -104,64 +108,86 @@ export default function RootLayout({
                               <Link href="/account/sent-offers">Sent Offers</Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
+                              <Link href="/contact">Help</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild>
                               <LogoutButton
-                                className="w-full text-destructive-foreground hover:text-foreground hover:bg-destructive"
+                                className="w-full text-destructive hover:text-destructive-foreground hover:bg-destructive"
                               />
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       )}
                       <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme" suppressHydrationWarning>
-                        {currentTheme === 'dark' ? <Sun className="h-5 w-5" /> : <MoonStar className="h-5 w-5" />}
+                        {currentTheme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
                       </Button>
                     </div>
-                    <div className="md:hidden">
+                    <div className="md:hidden flex items-center space-x-2">
                       <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme" suppressHydrationWarning>
-                        {currentTheme === 'dark' ? <Sun className="h-5 w-5" /> : <MoonStar className="h-5 w-5" />}
+                        {currentTheme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
                       </Button>
                       <Button variant="ghost" size="icon" onClick={toggleMobileMenu}>
-                        {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                        {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                       </Button>
                     </div>
                   </nav>
                 </div>
-                {isMobileMenuOpen && (
-                  <div className="md:hidden bg-background py-2">
-                    <div className="container mx-auto px-4 space-y-2">
-                      <Button variant="ghost" asChild className="w-full justify-start">
-                        <Link href="/list-ticket">Sell</Link>
-                      </Button>
-                      <Button variant="ghost" asChild className="w-full justify-start">
-                        <Link href="/browse/events">Buy</Link>
-                      </Button>
-                      {!isAuthenticated ? (
-                        <Button variant="default" asChild className="w-full justify-start">
-                          <Link href="/signup">Sign Up</Link>
+                <AnimatePresence>
+                  {isMobileMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3, ease: 'easeInOut' }}
+                      className="md:hidden bg-background border-t overflow-hidden"
+                    >
+                      <div className="container mx-auto px-4 py-4 space-y-2">
+                        <Button variant="ghost" size="sm" asChild className="w-full justify-start">
+                          <Link href="/list-ticket">Sell</Link>
                         </Button>
-                      ) : (
-                        <>
-                          <Button variant="ghost" asChild className="w-full justify-start">
-                            <Link href="/account/profile">Profile</Link>
-                          </Button>
-                          <Button variant="ghost" asChild className="w-full justify-start">
-                            <Link href="/account/my-tickets">My Tickets</Link>
-                          </Button>
-                          <Button variant="ghost" asChild className="w-full justify-start">
-                            <Link href="/account/sent-offers">Sent Offers</Link>
-                          </Button>
-                          <LogoutButton className="w-full justify-start" />
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )}
+                        <Button variant="ghost" size="sm" asChild className="w-full justify-start">
+                          <Link href="/browse/events">Buy</Link>
+                        </Button>
+                        {!isAuthenticated ? (
+                          <>
+                            <Button variant="ghost" size="sm" asChild className="w-full justify-start">
+                              <Link href="/login">Login</Link>
+                            </Button>
+                            <Button variant="default" size="sm" asChild className="w-full justify-start">
+                              <Link href="/signup">Sign Up</Link>
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button variant="ghost" size="sm" asChild className="w-full justify-start">
+                              <Link href="/account/profile">Profile</Link>
+                            </Button>
+                            <Button variant="ghost" size="sm" asChild className="w-full justify-start">
+                              <Link href="/account/my-tickets">My Tickets</Link>
+                            </Button>
+                            <Button variant="ghost" size="sm" asChild className="w-full justify-start">
+                              <Link href="/account/sent-offers">Sent Offers</Link>
+                            </Button>
+                            <Button variant="ghost" size="sm" asChild className="w-full justify-start">
+                              <Link href="/contact">Help</Link>
+                            </Button>
+                            <DropdownMenuSeparator />
+                            <Button variant="ghost" size="sm" asChild className="w-full justify-start">
+                              <LogoutButton />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </header>
               <main className="flex-grow">
-                  {children}
-                  <Toaster />
-                  <Analytics />
-                  <SpeedInsights />
-
+                {children}
+                <Toaster />
+                <Analytics />
+                <SpeedInsights />
               </main>
             </div>
           </PageTheme>

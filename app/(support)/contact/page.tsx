@@ -7,22 +7,46 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/hooks/use-toast"
+import pb from '@/app/pocketbase'
 
 export default function ContactPage() {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [message, setMessage] = useState('')
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        // Here you would typically send the form data to your backend
+        if (!name || !email || !message) {
+            toast({
+                title: "Error",
+                description: "Please fill out all fields.",
+                variant: "destructive",
+            })
+            return
+        }
 
 
-        console.log('Form submitted:', { name, email, message })
-        toast({
+        try {
+         //submit form
+         await pb.collection('support').create({
+            name,
+            email,
+            message,
+            type: 'contact',
+         })
+         toast({
             title: "Message Sent",
             description: "We've received your message and will get back to you soon.",
-        })
+            })
+        } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            console.error('Error submitting form:', (error as any).response)
+            toast({
+                title: "Error",
+                description: "An error occurred. Please try again.",
+                variant: "destructive",
+               })
+        }
         // Reset form fields
         setName('')
         setEmail('')

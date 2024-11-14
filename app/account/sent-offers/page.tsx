@@ -42,6 +42,8 @@ const SentOffersPage: React.FC = () => {
   const [messages, setMessages] = useState<RecordModel[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
 
   const scrollToBottom = () => {
     const scrollArea = document.getElementById('messageScrollArea');
@@ -202,10 +204,12 @@ const SentOffersPage: React.FC = () => {
     }
   }
 
-  const handleRateSeller = async (offerId: string) => {
+  const handleRateSeller = async (sellerId: string) => {
+    // FIXME: for some reason this always sends rating to test user
+    console.log(sellerId)
     try {
       await pb.collection('ratings').create({
-        ratedUserID: sellerInfo[offerId].id,
+        ratedUserID: sellerId,
         rating: rating,
       });
       setIsRatingDialogOpen(false);
@@ -218,6 +222,30 @@ const SentOffersPage: React.FC = () => {
       toast({
         title: "Error",
         description: "There was an error submitting your rating. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleReportSeller = async (sellerId: string) => {
+    try {
+      await pb.collection('support').create({
+        sender: pb.authStore.model?.id,
+        reportedUser: sellerId,
+        message: reportReason,
+        type: "report"
+      });
+      setIsReportDialogOpen(false);
+      setReportReason("");
+      toast({
+        title: "Seller Reported",
+        description: "Thank you for reporting the seller. We will investigate this matter.",
+      });
+    } catch (error) {
+      console.error(error)
+      toast({
+        title: "Error",
+        description: "There was an error submitting your report. Please try again.",
         variant: "destructive",
       });
     }
@@ -244,7 +272,7 @@ const SentOffersPage: React.FC = () => {
             {sentOffers.map((offer) => (
               <div
                 key={offer.id}
-                className={`flip-card ${showSellerInfo[offer.id] ? 'flipped' : ''}`}
+                className={`flip-card-sent-offers ${showSellerInfo[offer.id] ? 'flipped' : ''}`}
               >
                 <div className="flip-card-inner">
                   {/* Front Side */}
@@ -255,7 +283,7 @@ const SentOffersPage: React.FC = () => {
                         <CalendarIcon className="mr-2 h-4 w-4" /> {formatDate(offer.expand?.ticket.expand.event_id?.date)}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="h-15 bg-card p-5 border border-border border-b-transparent">
+                    <CardContent className="h-15 bg-card p-5 border border-border border-b-0 border-t-0">
                       <div className="space-y-2">
                         <p className="flex items-center">
                           <TagIcon className="mr-2 h-4 w-4 flex-shrink-0" /> 
@@ -272,9 +300,9 @@ const SentOffersPage: React.FC = () => {
                         </div>
                       </div>
                     </CardContent>
-                    <CardFooter className="flex justify-between items-center bg-card rounded-b-lg border border-border border-t-transparent">
+                    <CardFooter className="flex justify-between items-center bg-card rounded-b-lg border border-border border-t-0">
                       {offer.status === "Pending" && (
-                        <Button onClick={() => handleCancelOffer(offer.id, offer.expand?.ticket.id)} variant="outline" className="w-full">
+                        <Button onClick={() => handleCancelOffer(offer.id, offer.expand?.ticket.id)} variant="secondary" className="w-full">
                           Cancel
                         </Button>
                       )}
@@ -332,11 +360,11 @@ const SentOffersPage: React.FC = () => {
                   </Card>
                   
                   {/* Back Side */}
-                  <Card className="flip-card-back">
-                    <CardHeader className="bg-card rounded-t-lg">
-                      <CardTitle className="text-left">Seller Information</CardTitle>
+                  <Card className="flip-card-back border bg-card rounded-t-lg border-t border-border">
+                    <CardHeader className="p-3 bg-muted border border-border rounded-t-lg text-left ">
+                      <CardTitle className="text-left">Seller Details</CardTitle>
                     </CardHeader>
-                    <CardContent className="h-32 bg-card">
+                    <CardContent className="h-15 bg-card p-5 border border-border border-b-0 border-t-0 border-b-transparent">
                       <div className="space-y-2">
                         <p className="flex items-center">
                           <UserIcon className="mr-2 h-4 w-4 flex-shrink-0" /> 
@@ -356,10 +384,10 @@ const SentOffersPage: React.FC = () => {
                         </p>
                       </div>
                     </CardContent>
-                    <CardFooter className="bg-card rounded-b-lg flex justify-between space-x-2">
+                    <CardFooter className="flex justify-between items-center bg-card rounded-b-lg border border-border border-t-0 border-t-transparent">
                       <Button
                         onClick={() => setShowSellerInfo(prevState => ({ ...prevState, [offer.id]: false }))}
-                        className="w-full" variant={"secondary"}
+                        className="w-full mr-2" variant={"secondary"}
                       >
                         Back to Offer
                       </Button>
@@ -378,7 +406,20 @@ const SentOffersPage: React.FC = () => {
                               />
                             ))}
                           </div>
-                          <Button onClick={() => handleRateSeller(offer.id)}>Submit Rating</Button>
+                          <Button onClick={() => handleRateSeller(offer.receiver)}>Submit Rating</Button>
+                        </DialogContent>
+                      </Dialog>
+                      <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
+                        <DialogTrigger asChild>
+                          <Button className="w-full ml-2" variant={"destructive"}>Report Seller</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <h4 className="font-medium leading-none">Report Seller</h4>
+                          <div className="flex justify-center my-4">
+                            <Label htmlFor="report">Reason for reporting</Label>
+                            <Textarea id="report" value={reportReason} onChange={(e) => setReportReason(e.target.value)} />
+                          </div>
+                          <Button variant={"destructive"} onClick={() => handleReportSeller(offer.receiver)}>Submit Report</Button>
                         </DialogContent>
                       </Dialog>
                     </CardFooter>

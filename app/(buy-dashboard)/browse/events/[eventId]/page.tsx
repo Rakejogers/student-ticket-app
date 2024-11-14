@@ -161,13 +161,30 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
       })
       setOfferAmount(0);
       setOfferMade((prevOffers) => [...prevOffers, ticketId]);
+
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "There was an error sending your offer. Please try again.",
-        variant: "destructive",
-      })
-      console.error('Error sending offer:', error);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((error as any).response.data.amount) {
+        toast({
+          title: "Error",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          description: (error as any).response.data.amount.message,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: "An error occurred while sending the offer.",
+          variant: "destructive",
+        })
+      }
+      // toast({
+      //   title: "Error",
+      //   description: (error as any).response.data.amount.message || "An error occurred while sending the offer.",
+      //   variant: "destructive",
+      // })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      console.error('Error sending offer:', (error as any).response);
     }
   };
 
