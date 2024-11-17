@@ -45,6 +45,7 @@ const SentOffersPage: React.FC = () => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [reportReason, setReportReason] = useState("");
   const [isReportDrawerOpen, setIsReportDrawerOpen] = useState(false);
+  const [isRatingDrawerOpen, setIsRatingDrawerOpen] = useState(false);
 
   const scrollToBottom = () => {
     const scrollArea = document.getElementById('messageScrollArea');
@@ -213,6 +214,7 @@ const SentOffersPage: React.FC = () => {
         title: "Rating Submitted",
         description: "Thank you for rating the seller.",
       });
+      setIsRatingDrawerOpen(false);
     } catch (error) {
       console.error(error)
       toast({
@@ -385,7 +387,7 @@ const SentOffersPage: React.FC = () => {
                       </div>
                     </CardContent>
                     <CardFooter className="flex justify-between items-center bg-card rounded-b-lg border border-border border-t-0 border-t-transparent">
-                      <Drawer>
+                      <Drawer open={isRatingDrawerOpen} onOpenChange={setIsRatingDrawerOpen}>
                         <DrawerTrigger asChild>
                           <Button className="w-full">Rate Seller</Button>
                         </DrawerTrigger>
