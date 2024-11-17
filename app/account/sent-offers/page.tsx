@@ -13,7 +13,7 @@ import { RecordModel } from 'pocketbase'
 import { toast } from "@/hooks/use-toast"
 import isAuth from "@/components/isAuth"
 import "@/app/SentOffersPage.css"
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
 import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from "@/components/ui/drawer"
@@ -45,7 +45,6 @@ const SentOffersPage: React.FC = () => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [reportReason, setReportReason] = useState("");
   const [isReportDrawerOpen, setIsReportDrawerOpen] = useState(false);
-  const [scrollPosition, setScrollPosition] = useState(0);
 
   const scrollToBottom = () => {
     const scrollArea = document.getElementById('messageScrollArea');
