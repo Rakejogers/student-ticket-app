@@ -40,9 +40,9 @@ export default function isAuth<P extends object>(Component: React.ComponentType<
       checkAuth();
     }, [router]);
 
-    if (isLoading) {
-      return <LoadingSpinner />;
-    }
+    // if (isLoading) {
+    //   return <LoadingSpinner />;
+    // }
 
     return <Component {...props as P} />;
   };

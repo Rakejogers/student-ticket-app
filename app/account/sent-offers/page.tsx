@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CalendarIcon, TagIcon, TicketIcon, UserIcon, PhoneIcon, MailIcon, Wallet, StarIcon, SendIcon } from "lucide-react"
+import { CalendarIcon, TagIcon, TicketIcon, UserIcon, PhoneIcon, MailIcon, Wallet, StarIcon, SendIcon, Undo2 } from "lucide-react"
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import { toast } from "@/hooks/use-toast"
@@ -16,6 +16,8 @@ import "@/app/SentOffersPage.css"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
+import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from "@/components/ui/drawer"
+import LoadingSkeleton from "@/components/loading-skeleton"
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -34,7 +36,6 @@ const SentOffersPage: React.FC = () => {
   const [offerAmount, setOfferAmount] = useState(0);
   const [sellerInfo, setSellerInfo] = useState<{ [key: string]: RecordModel }>({});
   const [showSellerInfo, setShowSellerInfo] = useState<{ [key: string]: boolean }>({});
-  const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [loading, setLoading] = useState(true)
   const [isChatDialogOpen, setIsChatDialogOpen] = useState(false);
@@ -42,8 +43,9 @@ const SentOffersPage: React.FC = () => {
   const [messages, setMessages] = useState<RecordModel[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
+  const [isReportDrawerOpen, setIsReportDrawerOpen] = useState(false);
+  const [scrollPosition, setScrollPosition] = useState(0);
 
   const scrollToBottom = () => {
     const scrollArea = document.getElementById('messageScrollArea');
@@ -72,6 +74,7 @@ const SentOffersPage: React.FC = () => {
         setLoading(false)
       } catch (error) {
         console.error('No tickets found', error);
+        setLoading(false)
       }
     }
 
@@ -80,18 +83,15 @@ const SentOffersPage: React.FC = () => {
 
   useEffect(() => {
     if (currentOfferId) {
-      // Subscribe to changes in the messages collection for the current offer
       pb.collection('messages').subscribe('*', function (e) {
         if (e.record.offer !== currentOfferId) return;
         setMessages(prevMessages => [...prevMessages, e.record]);
       });
 
-      // Fetch existing messages
       fetchMessages(currentOfferId);
     }
 
     return () => {
-      // Unsubscribe when the component unmounts or the offer changes
       pb.collection('messages').unsubscribe("*");
     };
   }, [currentOfferId]);
@@ -196,8 +196,8 @@ const SentOffersPage: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Pending": return "bg-yellow-500"
-      case "Accepted": return "bg-green-500"
+      case "Pending": return "bg-yellow-700"
+      case "Accepted": return "bg-green-700"
       case "Declined": return "bg-destructive"
       case "Cancelled": return "bg-muted-foreground"
       default: return "bg-muted-foreground"
@@ -205,14 +205,11 @@ const SentOffersPage: React.FC = () => {
   }
 
   const handleRateSeller = async (sellerId: string) => {
-    // FIXME: for some reason this always sends rating to test user
-    console.log(sellerId)
     try {
       await pb.collection('ratings').create({
         ratedUserID: sellerId,
         rating: rating,
       });
-      setIsRatingDialogOpen(false);
       toast({
         title: "Rating Submitted",
         description: "Thank you for rating the seller.",
@@ -235,12 +232,12 @@ const SentOffersPage: React.FC = () => {
         message: reportReason,
         type: "report"
       });
-      setIsReportDialogOpen(false);
       setReportReason("");
       toast({
         title: "Seller Reported",
         description: "Thank you for reporting the seller. We will investigate this matter.",
       });
+      setIsReportDrawerOpen(false);
     } catch (error) {
       console.error(error)
       toast({
@@ -256,8 +253,9 @@ const SentOffersPage: React.FC = () => {
     setIsChatDialogOpen(true);
   };
 
+
   if (loading) {
-    return <div className="container mx-auto p-4">Loading...</div>
+    return <LoadingSkeleton />
   }
   
   return (
@@ -275,7 +273,6 @@ const SentOffersPage: React.FC = () => {
                 className={`flip-card-sent-offers ${showSellerInfo[offer.id] ? 'flipped' : ''}`}
               >
                 <div className="flip-card-inner">
-                  {/* Front Side */}
                   <Card className="border bg-card rounded-t-lg border-t border-border flip-card-front">
                     <CardHeader className="p-4 bg-muted border border-border rounded-t-lg">
                       <CardTitle className="text-left">{offer.expand?.ticket.expand.event_id?.name}</CardTitle>
@@ -359,10 +356,14 @@ const SentOffersPage: React.FC = () => {
                     </CardFooter>
                   </Card>
                   
-                  {/* Back Side */}
                   <Card className="flip-card-back border bg-card rounded-t-lg border-t border-border">
-                    <CardHeader className="p-3 bg-muted border border-border rounded-t-lg text-left ">
-                      <CardTitle className="text-left">Seller Details</CardTitle>
+                    <CardHeader className="p-3 pt-1 pb-1 bg-muted border border-border rounded-t-lg text-left ">
+                      <div className="flex justify-between items-center">
+                        <CardTitle>Seller Details</CardTitle>
+                        <Button variant={"ghost"} size={"icon"} onClick={() => setShowSellerInfo(prevState => ({ ...prevState, [offer.id]: false }))}>
+                          <Undo2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </CardHeader>
                     <CardContent className="h-15 bg-card p-5 border border-border border-b-0 border-t-0 border-b-transparent">
                       <div className="space-y-2">
@@ -385,18 +386,19 @@ const SentOffersPage: React.FC = () => {
                       </div>
                     </CardContent>
                     <CardFooter className="flex justify-between items-center bg-card rounded-b-lg border border-border border-t-0 border-t-transparent">
-                      <Button
-                        onClick={() => setShowSellerInfo(prevState => ({ ...prevState, [offer.id]: false }))}
-                        className="w-full mr-2" variant={"secondary"}
-                      >
-                        Back to Offer
-                      </Button>
-                      <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
-                        <DialogTrigger asChild>
+                      <Drawer>
+                        <DrawerTrigger asChild>
                           <Button className="w-full">Rate Seller</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <h4 className="font-medium leading-none">Rate Seller</h4>
+                        </DrawerTrigger>
+                        <DrawerContent
+                          onCloseAutoFocus={(event) => {
+                            event.preventDefault();
+                          }}
+                        >
+                          <DrawerHeader>
+                            <DrawerTitle>Rate Seller</DrawerTitle>
+                            <DrawerDescription>How was your experience with this seller?</DrawerDescription>
+                          </DrawerHeader>
                           <div className="flex justify-center my-4">
                             {[1, 2, 3, 4, 5].map((star) => (
                               <StarIcon
@@ -406,22 +408,44 @@ const SentOffersPage: React.FC = () => {
                               />
                             ))}
                           </div>
-                          <Button onClick={() => handleRateSeller(offer.receiver)}>Submit Rating</Button>
-                        </DialogContent>
-                      </Dialog>
-                      <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
-                        <DialogTrigger asChild>
+                          <DrawerFooter>
+                            <Button onClick={() => handleRateSeller(offer.receiver)}>Submit Rating</Button>
+                            <DrawerClose asChild>
+                              <Button variant="outline">Cancel</Button>
+                            </DrawerClose>
+                          </DrawerFooter>
+                        </DrawerContent>
+                      </Drawer>
+                      <Drawer open={isReportDrawerOpen} onOpenChange={setIsReportDrawerOpen}>
+                        <DrawerTrigger asChild>
                           <Button className="w-full ml-2" variant={"destructive"}>Report Seller</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <h4 className="font-medium leading-none">Report Seller</h4>
-                          <div className="flex justify-center my-4">
-                            <Label htmlFor="report">Reason for reporting</Label>
-                            <Textarea id="report" value={reportReason} onChange={(e) => setReportReason(e.target.value)} />
+                        </DrawerTrigger>
+                        <DrawerContent
+                          onCloseAutoFocus={(event) => {
+                            event.preventDefault();
+                          }}
+                        >
+                          <DrawerHeader>
+                            <DrawerTitle>Report Seller</DrawerTitle>
+                            <DrawerDescription>Please provide a reason for reporting this seller.</DrawerDescription>
+                          </DrawerHeader>
+                          <div className="p-4">
+                            <Label htmlFor="report" className="text-right">Reason for reporting</Label>
+                            <Textarea 
+                              id="report" 
+                              value={reportReason} 
+                              onChange={(e) => setReportReason(e.target.value)}
+                              className="mt-2"
+                            />
                           </div>
-                          <Button variant={"destructive"} onClick={() => handleReportSeller(offer.receiver)}>Submit Report</Button>
-                        </DialogContent>
-                      </Dialog>
+                          <DrawerFooter>
+                            <Button variant={"destructive"} onClick={() => handleReportSeller(offer.receiver)}>Submit Report</Button>
+                            <DrawerClose asChild>
+                              <Button variant="outline">Cancel</Button>
+                            </DrawerClose>
+                          </DrawerFooter>
+                        </DrawerContent>
+                      </Drawer>
                     </CardFooter>
                   </Card>
                 </div>
@@ -442,10 +466,10 @@ const SentOffersPage: React.FC = () => {
           <ScrollArea id="messageScrollArea" className="h-[300px] w-full rounded-md border p-4" ref={scrollAreaRef}>
             {messages.map((message, index) => (
               <div key={index} className={`mb-4 ${message.sender === pb.authStore.model?.id ? 'text-right' : 'text-left'}`}>
-              <p className="inline-block bg-primary text-primary-foreground rounded-lg py-2 px-4 max-w-[70%] break-words">
-                {message.content}
-              </p>
-            </div>
+                <p className="inline-block bg-primary text-primary-foreground rounded-lg py-2 px-4 max-w-[70%] break-words">
+                  {message.content}
+                </p>
+              </div>
             ))}
           </ScrollArea>
           <div className="flex items-center space-x-2">

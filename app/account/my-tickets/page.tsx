@@ -22,6 +22,8 @@ import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import "@/app/SentOffersPage.css"
 import { Textarea } from "@/components/ui/textarea"
+import LoadingSkeleton from '@/components/loading-skeleton'
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -59,7 +61,7 @@ const UserTicketsPage: React.FC = () => {
   const [messages, setMessages] = useState<RecordModel[]>([])
   const [newMessage, setNewMessage] = useState("")
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
+  const [isReportDrawerOpen, setIsReportDrawerOpen] = useState(false)
   const [reportReason, setReportReason] = useState('')
 
   const handleEditClick = (ticket: RecordModel) => {
@@ -87,16 +89,16 @@ const UserTicketsPage: React.FC = () => {
     }
   }
 
-  const handleSubmitReport = async (buyer: RecordModel) => {
+  const handleSubmitReport = async (buyer: string) => {
     try {
       await pb.collection('support').create({
         type: 'report',
         message: reportReason,
         sender: pb.authStore.model?.id,
-        reportedUser: buyer.id,
+        reportedUser: buyer
       });
 
-      setIsReportDialogOpen(false);
+      setIsReportDrawerOpen(false);
       setReportReason('');
       console.log('Report submitted');
     } catch (error) {
@@ -185,6 +187,7 @@ const UserTicketsPage: React.FC = () => {
       setTickets(userTickets.items)
       setLoading(false)
     } catch (error) {
+      setLoading(false)
       console.error('No tickets found', error);
     }
   }
@@ -258,8 +261,9 @@ const UserTicketsPage: React.FC = () => {
     setIsChatDialogOpen(true);
   };
 
+
   if (loading) {
-    return <div className="container mx-auto p-4">Loading...</div>
+    return <LoadingSkeleton />
   }
 
   return (
@@ -367,19 +371,32 @@ const UserTicketsPage: React.FC = () => {
                         <Button variant="secondary" onClick={() => toggleBuyerInfo(ticket.id)} className="w-full mr-2">
                           Back to Ticket
                         </Button>
-                        <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
-                          <DialogTrigger asChild>
-                            <Button className="w-full" variant={"destructive"}>Report Buyer</Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <h4 className="font-medium leading-none">Report Buyer</h4>
-                            <div className="flex justify-center my-4">
-                              <Label htmlFor="report">Reason for reporting</Label>
-                              <Textarea id="report" value={reportReason} onChange={(e) => setReportReason(e.target.value)} />
-                            </div>
-                            <Button variant="destructive" onClick={() => handleSubmitReport(ticket.expand?.buyer_id)}>Report</Button>
-                          </DialogContent>
-                        </Dialog>
+                        <Drawer open={isReportDrawerOpen} onOpenChange={setIsReportDrawerOpen}>
+                        <DrawerTrigger asChild>
+                          <Button className="w-full ml-2" variant={"destructive"}>Report Buyer</Button>
+                        </DrawerTrigger>
+                        <DrawerContent>
+                          <DrawerHeader>
+                            <DrawerTitle>Report Buyer</DrawerTitle>
+                            <DrawerDescription>Please provide a reason for reporting this buyer.</DrawerDescription>
+                          </DrawerHeader>
+                          <div className="p-4">
+                            <Label htmlFor="report" className="text-right">Reason for reporting</Label>
+                            <Textarea 
+                              id="report" 
+                              value={reportReason} 
+                              onChange={(e) => setReportReason(e.target.value)}
+                              className="mt-2"
+                            />
+                          </div>
+                          <DrawerFooter>
+                            <Button variant={"destructive"} onClick={() => handleSubmitReport(ticket.buyer_id)}>Submit Report</Button>
+                            <DrawerClose asChild>
+                              <Button variant="outline">Cancel</Button>
+                            </DrawerClose>
+                          </DrawerFooter>
+                        </DrawerContent>
+                      </Drawer>
                       </CardFooter>
                     </Card>
                   )}

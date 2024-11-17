@@ -214,8 +214,33 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
         <div className="container mx-auto p-4">
           <Skeleton className="h-12 w-3/4 mb-6" />
-          <Skeleton className="h-10 w-full mb-4" />
-          <Skeleton className="h-10 w-full mb-6" />
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <Label htmlFor="search" className="sr-only">Search tickets</Label>
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="search"
+                  placeholder="Search tickets or sellers"
+                  className="pl-8"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="price">Price: Low to High</SelectItem>
+                <SelectItem value="type">Ticket Type</SelectItem>
+                <SelectItem value="rating">Seller Rating</SelectItem>
+                <SelectItem value="sold">Seller Tickets Sold</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {/* <Skeleton className="h-10 w-full mb-6" /> */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, index) => (
               <Card key={index}>
@@ -276,7 +301,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                     <CalendarIcon className="mr-2 h-4 w-4" /> {formatDate(event.date)}
                   </CardDescription>
                   <CardDescription className="flex items-center mt-1">
-                    <Star className="mr-2 h-4 w-4" /> Rating: {ticket.expand.seller_id.seller_rating.toFixed(0)}%
+                    <Star className="mr-2 h-4 w-4" /> Rating: {ticket.expand.seller_id.tickets_sold < 3 ? 'N/A' : `${ticket.expand.seller_id.seller_rating.toFixed(0)}%`}
                     <Ticket className="ml-4 mr-2 h-4 w-4" /> Tickets Sold: {ticket.expand.seller_id.tickets_sold}
                   </CardDescription>
                 </CardHeader>
