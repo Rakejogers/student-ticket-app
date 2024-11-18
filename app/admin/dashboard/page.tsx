@@ -41,14 +41,15 @@ const AdminPage = () => {
 
   const router = useRouter();
 
-  if (!pb.authStore.isAdmin) {
-    router.push('/browse/events')
-  }
-
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
+      if (!pb.authStore.isAdmin) {
+        router.push('/browse/events')
+        return;
+      }
       try {
+        pb.autoCancellation(false)
         const eventsData = await pb.collection('events').getList(1, 50, { sort: '+date' })
         const usersData = await pb.collection('users').getList(1, 50)
         setEvents(eventsData.items)
@@ -106,6 +107,18 @@ const AdminPage = () => {
         toast({ title: "Error", description: "Failed to remove user", variant: "destructive" })
       }
     }
+  }
+
+  //loading screen
+  if (isLoading) {
+    return (
+      <div className='bg-gradient-to-b from-background to-secondary min-h-screen'>
+        <div className="container mx-auto p-4 ">
+          <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+          <p>Loading...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -256,4 +269,4 @@ const AdminPage = () => {
   )
 }
 
-export default isAuth(AdminPage)
+export default AdminPage
