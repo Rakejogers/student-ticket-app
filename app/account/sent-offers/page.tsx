@@ -1,23 +1,22 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CalendarIcon, TagIcon, TicketIcon, UserIcon, PhoneIcon, MailIcon, Wallet, StarIcon, SendIcon, Undo2 } from "lucide-react"
+import { CalendarIcon, TagIcon, TicketIcon, UserIcon, PhoneIcon, MailIcon, Wallet, StarIcon, Undo2 } from "lucide-react"
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import { toast } from "@/hooks/use-toast"
 import isAuth from "@/components/isAuth"
 import "@/app/SentOffersPage.css"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
 import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from "@/components/ui/drawer"
 import LoadingSkeleton from "@/components/loading-skeleton"
+import Link from "next/link"
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -38,24 +37,9 @@ const SentOffersPage: React.FC = () => {
   const [showSellerInfo, setShowSellerInfo] = useState<{ [key: string]: boolean }>({});
   const [rating, setRating] = useState(0);
   const [loading, setLoading] = useState(true)
-  const [isChatDialogOpen, setIsChatDialogOpen] = useState(false);
-  const [currentOfferId, setCurrentOfferId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<RecordModel[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [reportReason, setReportReason] = useState("");
   const [isReportDrawerOpen, setIsReportDrawerOpen] = useState(false);
-
-  const scrollToBottom = () => {
-    const scrollArea = document.getElementById('messageScrollArea');
-    if (scrollArea) {
-      scrollArea.scrollTop = scrollArea.scrollHeight;
-    }
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  const [isRatingDrawerOpen, setIsRatingDrawerOpen] = useState(false);
 
   useEffect(() => {
     async function fetchOffers() {
@@ -79,64 +63,6 @@ const SentOffersPage: React.FC = () => {
 
     fetchOffers()
   }, [])
-
-  useEffect(() => {
-    if (currentOfferId) {
-      pb.collection('messages').subscribe('*', function (e) {
-        if (e.record.offer !== currentOfferId) return;
-        setMessages(prevMessages => [...prevMessages, e.record]);
-      });
-
-      fetchMessages(currentOfferId);
-    }
-
-    return () => {
-      pb.collection('messages').unsubscribe("*");
-    };
-  }, [currentOfferId]);
-
-  const fetchMessages = async (offerId: string) => {
-    try {
-      const messagesList = await pb.collection('messages').getList(1, 50, {
-        filter: `offer="${offerId}"`,
-        sort: '+created',
-      });
-      setMessages(messagesList.items);
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-    }
-  };
-
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !currentOfferId) return;
-
-    try {
-      await pb.collection('messages').create({
-        offer: currentOfferId,
-        sender: pb.authStore.model?.id,
-        content: newMessage,
-        receiver: sentOffers.find(offer => offer.id === currentOfferId)?.receiver,
-      });
-
-      setNewMessage("");
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast({
-        title: "Error",
-        description: "There was an error sending your message. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight;
-      }
-    }
-  }, [messages]);
 
   const viewSellerInfo = async (offerId: string, sellerId: string) => {
     try {
@@ -213,6 +139,7 @@ const SentOffersPage: React.FC = () => {
         title: "Rating Submitted",
         description: "Thank you for rating the seller.",
       });
+      setIsRatingDrawerOpen(false);
     } catch (error) {
       console.error(error)
       toast({
@@ -247,10 +174,11 @@ const SentOffersPage: React.FC = () => {
     }
   };
 
-  const openChatDialog = (offerId: string) => {
-    setCurrentOfferId(offerId);
-    setIsChatDialogOpen(true);
-  };
+  // const openChatDialog = (offerId: string) => {
+  //   // setCurrentOfferId(offerId);
+  //   // setIsChatDialogOpen(true);
+  //   router.push(`/sent-offers/chat/${offerId}`);
+  // };
 
 
   if (loading) {
@@ -311,12 +239,14 @@ const SentOffersPage: React.FC = () => {
                           >
                             Seller Details
                           </Button>
-                          <Button 
-                            onClick={() => openChatDialog(offer.id)}
-                            className="w-full"
-                          >
-                            Chat with Seller
+                          
+                          
+                          <Button className="w-full">
+                            <Link href={`/account/sent-offers/chat/${offer.id}`} passHref>
+                              Chat with Seller
+                            </Link>
                           </Button>
+                          
                         </>
                       )}
                       {offer.status === "Declined" && (
@@ -385,7 +315,7 @@ const SentOffersPage: React.FC = () => {
                       </div>
                     </CardContent>
                     <CardFooter className="flex justify-between items-center bg-card rounded-b-lg border border-border border-t-0 border-t-transparent">
-                      <Drawer>
+                      <Drawer open={isRatingDrawerOpen} onOpenChange={setIsRatingDrawerOpen}>
                         <DrawerTrigger asChild>
                           <Button className="w-full">Rate Seller</Button>
                         </DrawerTrigger>
@@ -454,7 +384,7 @@ const SentOffersPage: React.FC = () => {
         )}
       </div>
 
-      <Dialog open={isChatDialogOpen} onOpenChange={setIsChatDialogOpen}>
+      {/* <Dialog open={isChatDialogOpen} onOpenChange={setIsChatDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Chat with Seller</DialogTitle>
@@ -490,7 +420,7 @@ const SentOffersPage: React.FC = () => {
             </Button>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   )
 }
