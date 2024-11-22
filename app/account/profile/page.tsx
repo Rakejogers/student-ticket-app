@@ -183,26 +183,28 @@ const ProfilePage: React.FC = () => {
             <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
               <AtSign className="h-6 w-6 text-muted-foreground" />
               <div className="flex-grow">
-                <p className="font-medium">{user?.email}</p>
+                <div className="flex items-center">
+                  <p className="font-medium mr-2">{user?.email}</p>
+                  {user?.verified ? (
+                    <BadgeCheck className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <BadgeX className="h-5 w-5 text-destructive" />
+                  )}
+                </div>
                 <p className="text-sm text-muted-foreground">Email</p>
               </div>
-              {user?.verified ? (
-                <BadgeCheck className="h-6 w-6 text-green-500" />
-              ) : (
-                <div className="flex items-center space-x-2 mt-2 md:mt-0">
-                  <BadgeX className="h-6 w-6 text-destructive" />
-                  <Button 
-                    variant="secondary" 
-                    onClick={handleSendVerificationEmail}
-                    disabled={isVerificationButtonDisabled}
-                    className="w-full md:w-auto"
-                  >
-                    {isVerificationButtonDisabled 
-                      ? `Resend in ${verificationCooldown}s` 
-                      : 'Verify Email'
-                    }
-                  </Button>
-                </div>
+              {!user?.verified && (
+                <Button 
+                  variant="secondary" 
+                  onClick={handleSendVerificationEmail}
+                  disabled={isVerificationButtonDisabled}
+                  className="w-full md:w-auto"
+                >
+                  {isVerificationButtonDisabled 
+                    ? `Resend in ${verificationCooldown}s` 
+                    : 'Verify Email'
+                  }
+                </Button>
               )}
             </div>
             <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">

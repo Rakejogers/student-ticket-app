@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { motion, useAnimation } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
@@ -13,7 +13,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, Users, DollarSign, Shield, Zap, ArrowRight, Star, Ticket, Search, ArrowUpRight, ChevronDown } from 'lucide-react'
+import { CheckCircle, Users, DollarSign, Shield, Zap, ArrowRight, Star } from 'lucide-react'
 
 const features = [
   { icon: DollarSign, title: "No Fees", description: "No fees or inflated prices, ever" },
@@ -40,16 +40,11 @@ const faqs = [
 ]
 
 export default function LandingPage() {
-  const featuresRef = useRef<HTMLElement>(null)
   const controls = useAnimation()
   const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.5,
+    triggerOnce: true, // Ensures the animation triggers only once
+    threshold: 0.5,    // Adjusts how much of the element needs to be visible before triggering
   })
-
-  const scrollToFeatures = () => {
-    featuresRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
 
   useEffect(() => {
     if (inView) {
@@ -82,103 +77,27 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
       <main>
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-          {/* Radial gradient background */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-primary/5 to-transparent animate-pulse" />
-          </div>
-
-          <div className="container mx-auto px-4 relative z-10">
-            <div className="max-w-4xl mx-auto text-center">
-              <motion.div
-                className="mb-8"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
-                  Scholar Seats
-                </h1>
-                <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-                  The Student-First Ticket Marketplace
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.6 }}
-                className="flex flex-col md:flex-row gap-4 justify-center items-center mb-12"
-              >
-                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 group" asChild>
-                  <Link href="/signup" className="flex items-center gap-2">
-                    Get Started
-                    <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" className="group" asChild>
-                  <Link href="/browse/events" className="flex items-center gap-2">
-                    Browse Tickets
-                    <Search className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                  </Link>
-                </Button>
-              </motion.div>
-
-              {/* Stats section */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.6 }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
-              >
-                {[
-                  { label: "Active Users", value: "1,000+" },
-                  { label: "Tickets Exchanged", value: "5,000+" },
-                  { label: "Student Satisfaction", value: "99%" },
-                ].map((stat, index) => (
-                  <motion.div
-                    key={index}
-                    whileHover={{ scale: 1.05 }}
-                    className="p-6 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50"
-                  >
-                    <h3 className="text-3xl font-bold text-primary mb-2">{stat.value}</h3>
-                    <p className="text-muted-foreground">{stat.label}</p>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </div>
-            <motion.div
-              className="flex justify-center mt-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 }}
-            >
-              <Button
-                variant="ghost"
-                size="lg"
-                className="flex flex-col items-center gap-2 group hover:bg-transparent hover:text-primary"
-                onClick={scrollToFeatures}
-              >
-                How it Works
-                <motion.div
-                  animate={{
-                    y: [0, 5, 0],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                >
-                  <ChevronDown className="w-6 h-6 text-primary group-hover:text-primary/80" />
-                </motion.div>
-              </Button>
-            </motion.div>
-          </div>
+        <section className="container mx-auto px-4 py-16 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primary">
+              Scholar Seats
+            </h1>
+            <p className="text-xl mb-8 text-muted-foreground">
+                No Fees, Just Seats – Student to Student
+            </p>
+            <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90" asChild>
+              <Link href="/signup">Get Started</Link>
+            </Button>
+          </motion.div>
         </section>
-        <section ref={featuresRef} className="container mx-auto px-4 py-16">
+
+        <section className="container mx-auto px-4 py-16">
           <motion.h2
             className="text-3xl font-bold mb-8 text-center"
             initial={{ opacity: 0 }}
@@ -210,45 +129,46 @@ export default function LandingPage() {
         </section>
 
         <section ref={ref} className="container mx-auto px-4 py-16">
-          <motion.h2
-            className="text-3xl font-bold mb-8 text-center"
-            initial={{ opacity: 0 }}
-            animate={controls}
-            variants={itemVariants}
-          >
-            How It Works
-          </motion.h2>
-          <motion.div
-            className="flex flex-col md:flex-row justify-center items-center md:items-start space-y-8 md:space-y-0 md:space-x-8"
-            variants={containerVariants}
-            initial="hidden"
-            animate={controls}
-          >
-            {howItWorks.map((step, index) => (
-              <motion.div key={index} className="flex flex-col items-center text-center max-w-xs" variants={itemVariants}>
-                <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4">
-                  {index + 1}
-                </div>
-                <h3 className="text-xl font-semibold mb-2">
-                  {step.title}
-                </h3>
-                <p className="text-muted-foreground">{step.description}</p>
-                {index < howItWorks.length - 1 && (
-                  <ArrowRight className="hidden md:block h-8 w-8 text-primary mt-4" />
-                )}
-              </motion.div>
-            ))}
-          </motion.div>
-        </section>
+        <motion.h2
+          className="text-3xl font-bold mb-8 text-center"
+          initial={{ opacity: 0 }}
+          animate={controls}
+          variants={itemVariants}
+        >
+          How It Works
+        </motion.h2>
+        <motion.div
+          className="flex flex-col md:flex-row justify-center items-center md:items-start space-y-8 md:space-y-0 md:space-x-8"
+          variants={containerVariants}
+          initial="hidden"
+          animate={controls}
+        >
+          {howItWorks.map((step, index) => (
+            <motion.div key={index} className="flex flex-col items-center text-center max-w-xs" variants={itemVariants}>
+              <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4">
+                {index + 1}
+              </div>
+              <h3 className="text-xl font-semibold mb-2">
+                {step.title}
+              </h3>
+              <p className="text-muted-foreground">{step.description}</p>
+              {index < howItWorks.length - 1 && (
+                <ArrowRight className="hidden md:block h-8 w-8 text-primary mt-4" />
+              )}
+              {index === 2 && <CheckCircle className="hidden md:block h-8 w-8 text-primary mt-4" />}
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
 
         <section className="container mx-auto px-4 py-16">
           <h2 className="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
           <Accordion type="single" collapsible className="w-full max-w-2xl mx-auto">
             {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger>{faq.question}</AccordionTrigger>
-                <AccordionContent>{faq.answer}</AccordionContent>
-              </AccordionItem>
+                <AccordionItem key={index} value={`item-${index}`}>
+                  <AccordionTrigger>{faq.question}</AccordionTrigger>
+                  <AccordionContent>{faq.answer}</AccordionContent>
+                </AccordionItem>
             ))}
           </Accordion>
         </section>
