@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { CalendarIcon, MoreVerticalIcon, PlusIcon, TagIcon, UserIcon, MailIcon, PhoneIcon, SendIcon } from "lucide-react"
+import { CalendarIcon, MoreVerticalIcon, PlusIcon, TagIcon, UserIcon, MailIcon, PhoneIcon } from "lucide-react"
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import Link from 'next/link'
@@ -19,11 +19,11 @@ import { Badge } from '@/components/ui/badge'
 import isAuth from '@/components/isAuth'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import "@/app/SentOffersPage.css"
 import { Textarea } from "@/components/ui/textarea"
 import LoadingSkeleton from '@/components/loading-skeleton'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
+import { useRouter } from 'next/navigation'
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -56,11 +56,6 @@ const UserTicketsPage: React.FC = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [editingTicket, setEditingTicket] = useState<RecordModel | null>(null)
   const [editedPrice, setEditedPrice] = useState('')
-  const [isChatDialogOpen, setIsChatDialogOpen] = useState(false)
-  const [currentTicketId, setCurrentTicketId] = useState<string | null>(null)
-  const [messages, setMessages] = useState<RecordModel[]>([])
-  const [newMessage, setNewMessage] = useState("")
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [isReportDrawerOpen, setIsReportDrawerOpen] = useState(false)
   const [reportReason, setReportReason] = useState('')
 
@@ -196,69 +191,12 @@ const UserTicketsPage: React.FC = () => {
     fetchTickets()
   }, [])
 
-  useEffect(() => {
-    if (currentTicketId) {
-      //get offerId from current ticket offers
-      const currentTicket = tickets.find(ticket => ticket.id === currentTicketId);
-      const currentOffer = currentTicket?.expand?.offers[0]?.id;
-      
-      pb.collection('messages').subscribe('*', function (e) {
-        if (e.record.offer !== currentOffer) return;
-        setMessages(prevMessages => [...prevMessages, e.record]);
-      });
-
-      fetchMessages(currentOffer);
-    }
-
-    return () => {
-      pb.collection('messages').unsubscribe('*');
-    };
-  }, [currentTicketId, tickets]);
-
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight;
-      }
-    }
-  }, [messages]);
-
-  const fetchMessages = async (offerId: string) => {
-    try {
-      const messagesList = await pb.collection('messages').getList(1, 50, {
-        filter: `offer="${offerId}"`,
-        sort: '+created',
-      });
-      setMessages(messagesList.items);
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-    }
-  };
-
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !currentTicketId) return;
-    
-    const currentTicket = tickets.find(ticket => ticket.id === currentTicketId);
-    const currentOffer = currentTicket?.expand?.offers[0]?.id;
-
-    try {
-      await pb.collection('messages').create({
-        offer: currentOffer,
-        sender: pb.authStore.model?.id,
-        receiver: currentTicket?.expand?.buyer_id?.id,
-        content: newMessage,
-      });
-
-      setNewMessage("");
-    } catch (error) {
-      console.error('Error sending message:', error);
-    }
-  };
+  const router = useRouter();
 
   const openChatDialog = (ticketId: string) => {
-    setCurrentTicketId(ticketId);
-    setIsChatDialogOpen(true);
+    const currentTicket = tickets.find(ticket => ticket.id === ticketId);
+    const currentOffer = currentTicket?.expand?.offers[0]?.id;
+    router.push(`/account/my-tickets/chat/${currentOffer}`)
   };
 
 
@@ -477,7 +415,7 @@ const UserTicketsPage: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isChatDialogOpen} onOpenChange={setIsChatDialogOpen}>
+      {/* <Dialog open={isChatDialogOpen} onOpenChange={setIsChatDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Chat with Buyer</DialogTitle>
@@ -515,7 +453,7 @@ const UserTicketsPage: React.FC = () => {
             </Button>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   )
 }

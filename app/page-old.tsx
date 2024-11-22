@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { motion, useAnimation } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Accordion,
   AccordionContent,

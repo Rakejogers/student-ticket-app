@@ -11,7 +11,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
-import isAuth from '@/components/isAuth'
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import { format, parseISO, formatISO } from 'date-fns'
@@ -62,7 +61,7 @@ const AdminPage = () => {
       }
     }
     fetchData()
-  }, [])
+  }, [router])
 
   const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault()

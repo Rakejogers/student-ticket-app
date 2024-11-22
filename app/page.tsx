@@ -12,7 +12,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, Users, DollarSign, Shield, Zap, ArrowRight, Star, Ticket, Search, ArrowUpRight, ChevronDown } from 'lucide-react'
+import { CheckCircle, Users, DollarSign, Shield, Zap, ArrowRight, Star, Search, ArrowUpRight, ChevronDown } from 'lucide-react'
 
 const features = [
   { icon: DollarSign, title: "No Fees", description: "No fees or inflated prices, ever" },
@@ -133,9 +133,9 @@ export default function LandingPage() {
                 className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
               >
                 {[
-                  { label: "Active Users", value: "1,000+" },
+                  { label: "Completely Free", value: "$0.00" },
                   { label: "Tickets Exchanged", value: "5,000+" },
-                  { label: "Student Satisfaction", value: "99%" },
+                  { label: "Verified Students", value: "100%" },
                 ].map((stat, index) => (
                   <motion.div
                     key={index}
@@ -149,7 +149,7 @@ export default function LandingPage() {
               </motion.div>
             </div>
             <motion.div
-              className="flex justify-center mt-8"
+              className="flex justify-center mt-24 hidden md:flex"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9 }}
@@ -234,6 +234,9 @@ export default function LandingPage() {
                 <p className="text-muted-foreground">{step.description}</p>
                 {index < howItWorks.length - 1 && (
                   <ArrowRight className="hidden md:block h-8 w-8 text-primary mt-4" />
+                )}
+                {index == howItWorks.length - 1 && (
+                  <CheckCircle className="hidden md:block h-8 w-8 text-primary mt-4" />
                 )}
               </motion.div>
             ))}
