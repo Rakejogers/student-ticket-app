@@ -101,7 +101,7 @@ export default function LandingPage() {
                   Scholar Seats
                 </h1>
                 <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-                  The Student-First Ticket Marketplace
+                  The Free Student-First Ticket Marketplace
                 </p>
               </motion.div>
 
@@ -126,7 +126,7 @@ export default function LandingPage() {
               </motion.div>
 
               {/* Stats section */}
-              <motion.div
+              {/* <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.6 }}
@@ -146,7 +146,7 @@ export default function LandingPage() {
                     <p className="text-muted-foreground">{stat.label}</p>
                   </motion.div>
                 ))}
-              </motion.div>
+              </motion.div> */}
             </div>
             <motion.div
               className="flex justify-center mt-24 hidden md:flex"

@@ -4,13 +4,9 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown, Menu, MoonStar, Sun, X } from 'lucide-react'
+import { MoonStar, Sun} from 'lucide-react'
 import LogoutButton from "../components/logoutButton"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"

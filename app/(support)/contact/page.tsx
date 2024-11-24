@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -49,6 +49,7 @@ export default function ContactPage() {
                 description: "We've received your message and will get back to you soon.",
             })
         } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             console.error('Error submitting form:', (error as any).response)
             toast({
                 title: "Error",
@@ -72,7 +73,7 @@ export default function ContactPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Send us a message</CardTitle>
-                        <CardDescription>We'll get back to you as soon as possible.</CardDescription>
+                        <CardDescription>We&apos;ll get back to you as soon as possible.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit}>
