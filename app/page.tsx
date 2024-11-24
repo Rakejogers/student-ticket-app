@@ -18,7 +18,7 @@ const features = [
   { icon: DollarSign, title: "No Fees", description: "No fees or inflated prices, ever" },
   { icon: Users, title: "Student-to-Student", description: "Connect directly with fellow students" },
   { icon: Shield, title: "Verified Students", description: "All students are verified for authenticity" },
-  { icon: Star, title: "Reputaion and Rating System", description: "Keepings users accountable with seller ratings" },
+  { icon: Star, title: "Reputation and Rating System", description: "Keepings users accountable with seller ratings" },
   { icon: Zap, title: "Instant Transfer", description: "Quick and easy ticket transfers" },
   { icon: CheckCircle, title: "Built for Students, by Students", description: "Designed and built from students from your univeristy" },
 ]
@@ -101,7 +101,7 @@ export default function LandingPage() {
                   Scholar Seats
                 </h1>
                 <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-                  The Student-First Ticket Marketplace
+                  The Free Student-First Ticket Marketplace
                 </p>
               </motion.div>
 
@@ -126,7 +126,7 @@ export default function LandingPage() {
               </motion.div>
 
               {/* Stats section */}
-              <motion.div
+              {/* <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.6 }}
@@ -146,7 +146,7 @@ export default function LandingPage() {
                     <p className="text-muted-foreground">{stat.label}</p>
                   </motion.div>
                 ))}
-              </motion.div>
+              </motion.div> */}
             </div>
             <motion.div
               className="flex justify-center mt-24 hidden md:flex"

@@ -40,6 +40,7 @@ const SentOffersPage: React.FC = () => {
   const [reportReason, setReportReason] = useState("");
   const [isReportDrawerOpen, setIsReportDrawerOpen] = useState(false);
   const [isRatingDrawerOpen, setIsRatingDrawerOpen] = useState(false);
+  const [currentSellerId, setCurrentSellerId] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchOffers() {
@@ -129,10 +130,34 @@ const SentOffersPage: React.FC = () => {
     }
   }
 
-  const handleRateSeller = async (sellerId: string) => {
+  const handleRateSeller = async () => {
+    if (!currentSellerId) {
+      toast({
+        title: "Error",
+        description: "No seller selected.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
+      const existingRating = await pb.collection('ratings').getFullList({
+        filter: `ratedUserID="${currentSellerId}" && createdUserID="${pb.authStore.model?.id}"`,
+      });
+        
+      if (existingRating.length > 0) {
+        toast({
+          title: "Already Rated",
+          description: "You have already rated this seller.",
+          variant: "destructive",
+        });
+        setIsRatingDrawerOpen(false);
+        return;
+      }
+  
       await pb.collection('ratings').create({
-        ratedUserID: sellerId,
+        ratedUserID: currentSellerId,
+        createdUserID: pb.authStore.model?.id,
         rating: rating,
       });
       toast({
@@ -173,13 +198,6 @@ const SentOffersPage: React.FC = () => {
       });
     }
   };
-
-  // const openChatDialog = (offerId: string) => {
-  //   // setCurrentOfferId(offerId);
-  //   // setIsChatDialogOpen(true);
-  //   router.push(`/sent-offers/chat/${offerId}`);
-  // };
-
 
   if (loading) {
     return <LoadingSkeleton />
@@ -315,7 +333,17 @@ const SentOffersPage: React.FC = () => {
                       </div>
                     </CardContent>
                     <CardFooter className="flex justify-between items-center bg-card rounded-b-lg border border-border border-t-0 border-t-transparent">
-                      <Drawer open={isRatingDrawerOpen} onOpenChange={setIsRatingDrawerOpen}>
+                      <Drawer
+                        open={isRatingDrawerOpen}
+                        onOpenChange={(open) => {
+                          setIsRatingDrawerOpen(open);
+                          if (open) {
+                            setCurrentSellerId(offer.receiver); // Set the current seller ID
+                          } else {
+                            setCurrentSellerId(null); // Reset when closing
+                          }
+                        }}
+                      >
                         <DrawerTrigger asChild>
                           <Button className="w-full">Rate Seller</Button>
                         </DrawerTrigger>
@@ -338,7 +366,7 @@ const SentOffersPage: React.FC = () => {
                             ))}
                           </div>
                           <DrawerFooter>
-                            <Button onClick={() => handleRateSeller(offer.receiver)}>Submit Rating</Button>
+                            <Button onClick={handleRateSeller}>Submit Rating</Button>
                             <DrawerClose asChild>
                               <Button variant="outline">Cancel</Button>
                             </DrawerClose>
@@ -383,44 +411,6 @@ const SentOffersPage: React.FC = () => {
           </div>
         )}
       </div>
-
-      {/* <Dialog open={isChatDialogOpen} onOpenChange={setIsChatDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Chat with Seller</DialogTitle>
-            <DialogDescription>
-              Discuss the details of your offer with the seller.
-            </DialogDescription>
-          </DialogHeader>
-          <ScrollArea id="messageScrollArea" className="h-[300px] w-full rounded-md border p-4" ref={scrollAreaRef}>
-            {messages.map((message, index) => (
-              <div key={index} className={`mb-4 ${message.sender === pb.authStore.model?.id ? 'text-right' : 'text-left'}`}>
-                <p className="inline-block bg-primary text-primary-foreground rounded-lg py-2 px-4 max-w-[70%] break-words">
-                  {message.content}
-                </p>
-              </div>
-            ))}
-          </ScrollArea>
-          <div className="flex items-center space-x-2">
-            <Textarea
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type your message..."
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  sendMessage();
-                }
-              }}
-              className="flex-grow max-h-32"
-              rows={2}
-            />
-            <Button onClick={sendMessage} size="icon">
-              <SendIcon className="h-4 w-4" />
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog> */}
     </div>
   )
 }

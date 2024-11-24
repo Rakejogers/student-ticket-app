@@ -80,7 +80,7 @@ const BrowseEventsPage: React.FC = () => {
             className="bg-secondary text-secondary-foreground"
           >
             <TbList className="mr-2 h-4 w-4" />
-            All Events
+            All
           </Toggle>
           <Toggle 
             pressed={selectedSport === 'basketball'} 

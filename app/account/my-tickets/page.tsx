@@ -414,46 +414,6 @@ const UserTicketsPage: React.FC = () => {
           </form>
         </DialogContent>
       </Dialog>
-
-      {/* <Dialog open={isChatDialogOpen} onOpenChange={setIsChatDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Chat with Buyer</DialogTitle>
-            <DialogDescription>
-              Discuss the transaction details with the buyer.
-            </DialogDescription>
-          </DialogHeader>
-          <ScrollArea className="h-[300px] w-full rounded-md border p-4" ref={scrollAreaRef}>
-            <div >
-            {messages.map((message, index) => (
-              <div key={index} className={`mb-4 ${message.sender === pb.authStore.model?.id ? 'text-right' : 'text-left'}`}>
-                <p className="inline-block bg-primary text-primary-foreground rounded-lg py-2 px-4 max-w-[70%] break-words">
-                  {message.content}
-                </p>
-              </div>
-            ))}
-            </div>
-          </ScrollArea>
-          <div className="flex items-center space-x-2">
-            <Textarea
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type your message..."
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  sendMessage();
-                }
-              }}
-              className="flex-grow max-h-32"
-              rows={2}
-            />
-            <Button onClick={sendMessage} size="icon">
-              <SendIcon className="h-4 w-4" />
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog> */}
     </div>
   )
 }
