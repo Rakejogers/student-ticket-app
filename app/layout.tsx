@@ -22,6 +22,8 @@ import PageTheme from '@/components/layout-theme'
 import Cookies from 'js-cookie'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { MenuIcon } from '@/components/icons/menu'
+import { UserNav } from '@/components/user-nav'
 
 export default function RootLayout({
   children,
@@ -91,33 +93,34 @@ export default function RootLayout({
                           </Button>
                         </>
                       ) : (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="flex items-center">
-                              Account <ChevronDown className="ml-1 h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem asChild>
-                              <Link href="/account/profile">Profile</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link href="/account/my-tickets">My Tickets</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link href="/account/sent-offers">Sent Offers</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link href="/contact">Help</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem asChild>
-                              <LogoutButton
-                                className="w-full text-destructive hover:text-destructive-foreground hover:bg-destructive"
-                              />
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <UserNav/>
+                        // <DropdownMenu>
+                        //   <DropdownMenuTrigger asChild>
+                        //     <Button variant="ghost" size="sm" className="flex items-center">
+                        //       Account <ChevronDown className="ml-1 h-4 w-4" />
+                        //     </Button>
+                        //   </DropdownMenuTrigger>
+                        //   <DropdownMenuContent align="end" className="w-48">
+                            // <DropdownMenuItem asChild>
+                            //   <Link href="/account/profile">Profile</Link>
+                            // </DropdownMenuItem>
+                            // <DropdownMenuItem asChild>
+                            //   <Link href="/account/my-tickets">My Tickets</Link>
+                            // </DropdownMenuItem>
+                            // <DropdownMenuItem asChild>
+                            //   <Link href="/account/sent-offers">Sent Offers</Link>
+                            // </DropdownMenuItem>
+                            // <DropdownMenuItem asChild>
+                            //   <Link href="/contact">Help</Link>
+                            // </DropdownMenuItem>
+                        //     <DropdownMenuSeparator />
+                            // <DropdownMenuItem asChild>
+                            //   <LogoutButton
+                            //     className="w-full text-destructive hover:text-destructive-foreground hover:bg-destructive"
+                            //   />
+                            // </DropdownMenuItem>
+                        //   </DropdownMenuContent>
+                        // </DropdownMenu>
                       )}
                       <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme" suppressHydrationWarning>
                         {currentTheme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
@@ -128,7 +131,8 @@ export default function RootLayout({
                         {currentTheme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
                       </Button>
                       <Button variant="ghost" size="icon" onClick={toggleMobileMenu}>
-                        {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                        {/* {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />} */}
+                        <MenuIcon/>
                       </Button>
                     </div>
                   </nav>
@@ -149,6 +153,7 @@ export default function RootLayout({
                         <Button variant="ghost" size="sm" asChild className="w-full justify-start">
                           <Link href="/browse/events">Buy</Link>
                         </Button>
+                        <DropdownMenuSeparator />
                         {!isAuthenticated ? (
                           <>
                             <Button variant="ghost" size="sm" asChild className="w-full justify-start">
