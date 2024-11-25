@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import pb from '@/app/pocketbase'
 import { Suspense, useEffect, useState } from 'react'
 import { toast } from "@/hooks/use-toast"
@@ -63,6 +64,9 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   const [offerMade, setOfferMade] = useState<string[]>([]); // Track which ticket has an offer made
   const [sortBy, setSortBy] = useState<string>("price");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const perPage = 30; // You can adjust this value as needed
 
   const { eventId } = params
   const router = useRouter();
@@ -77,7 +81,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
 
       const event = await pb.collection('events').getOne(eventId, {});
 
-      const tickets = await pb.collection('tickets').getList(1, 50, {
+      const ticketsResponse = await pb.collection('tickets').getList(currentPage, perPage, {
         filter: `event_id="${eventId}" && seller_id!="${pb.authStore.model?.id}" && status!="Sold"`,
         sort: '-created',
         expand: 'seller_id'
@@ -89,7 +93,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
         date: event.date,
         sport: event.sport,
         venue: event.venue,
-        tickets: tickets.items.map(ticket => ({
+        tickets: ticketsResponse.items.map(ticket => ({
           id: ticket.id,
           price: ticket.price,
           ticket_type: ticket.ticket_type,
@@ -106,10 +110,11 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
       };
 
       setEvent(data);
+      setTotalPages(ticketsResponse.totalPages);
     };
 
     fetchEvent();
-  }, [eventId]);
+  }, [eventId, currentPage]);
 
   const handleOfferSubmit = async (ticketId: string, sellerId: string) => {
     try {
@@ -262,7 +267,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto p-4">
           <h1 className="text-3xl font-bold mb-6">{event.name}</h1>
           <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -357,6 +362,34 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
           {sortedAndFilteredTickets?.length === 0 && (
             <p className="text-center text-muted-foreground mt-4">No tickets available for this event.</p>
           )}
+          {/* Add the pagination component */}
+          <div className="mt-8 flex justify-center">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  />
+                </PaginationItem>
+                {[...Array(Math.min(totalPages, 3))].map((_, i) => (
+                  <PaginationItem key={i}>
+                    <PaginationLink 
+                      onClick={() => setCurrentPage(i + 1)}
+                      isActive={currentPage === i + 1}
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                {totalPages > 3 && <PaginationItem><PaginationEllipsis /></PaginationItem>}
+                <PaginationItem>
+                  <PaginationNext 
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         </div>
       </div>
     </Suspense>

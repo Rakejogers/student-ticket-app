@@ -16,6 +16,8 @@ import { RecordModel } from 'pocketbase'
 import { format, parseISO, formatISO } from 'date-fns'
 import { fromZonedTime, toZonedTime } from 'date-fns-tz'
 import { useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
+import { Progress } from '@/components/ui/progress'
 
 const AdminPage = () => {
   const [events, setEvents] = useState<RecordModel[]>([])
@@ -23,6 +25,15 @@ const AdminPage = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [isEventDialogOpen, setIsEventDialogOpen] = useState(false)
   const [newEvent, setNewEvent] = useState({ name: '', date: '', venue: '', sport: '' })
+  const [isSeedDialogOpen, setIsSeedDialogOpen] = useState(false)
+  const [seedOptions, setSeedOptions] = useState({
+    collection: 'tickets',
+    count: 10,
+    eventId: '',
+    sellerId: ''
+  })
+  const [isSeeding, setIsSeeding] = useState(false)
+  const [seedingProgress, setSeedingProgress] = useState(0)
 
   const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
@@ -118,6 +129,43 @@ const AdminPage = () => {
         </div>
       </div>
     )
+  }
+
+  const handleSeedDatabase = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSeeding(true)
+    setSeedingProgress(0)
+    try {
+      for (let i = 0; i < seedOptions.count; i++) {
+        const record = seedOptions.collection === 'tickets' 
+          ? {
+              event_id: seedOptions.eventId,
+              ticket_type: 'Ezone',
+              price: Math.floor(Math.random() * 100) + 50, // Random price between 50 and 150
+              status: 'Available',
+              seller_id: seedOptions.sellerId
+            }
+          : {
+              name: `Seeded Event ${i + 1}`,
+              date: new Date().toISOString(),
+              venue: `Venue ${i + 1}`,
+              sport: ['basketball', 'football'][Math.floor(Math.random() * 2)]
+            };
+
+        const newRecord = await pb.collection(seedOptions.collection).create(record)
+        await pb.collection('events').update(seedOptions.eventId, { 'tickets+': newRecord.id })
+        setSeedingProgress(((i + 1) / seedOptions.count) * 100)
+      }
+
+      toast({ title: "Success", description: `${seedOptions.count} ${seedOptions.collection} records seeded successfully` })
+      setIsSeedDialogOpen(false)
+    } catch (error) {
+      console.error('Error seeding database:', error)
+      toast({ title: "Error", description: "Failed to seed database", variant: "destructive" })
+    } finally {
+      setIsSeeding(false)
+      setSeedingProgress(0)
+    }
   }
 
   return (
@@ -262,6 +310,82 @@ const AdminPage = () => {
               </Card>
             </TabsContent>
           </Tabs>
+            <Dialog open={isSeedDialogOpen} onOpenChange={setIsSeedDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="mt-4">Seed Database</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Seed Database</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSeedDatabase} className="space-y-4">
+                  <div>
+                    <Label htmlFor="collection">Collection</Label>
+                    <Select
+                      value={seedOptions.collection}
+                      onValueChange={(value) => setSeedOptions({ ...seedOptions, collection: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a collection" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="tickets">Tickets</SelectItem>
+                        <SelectItem value="events">Events</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="count">Number of Records</Label>
+                    <Input
+                      id="count"
+                      type="number"
+                      value={seedOptions.count}
+                      onChange={(e) => setSeedOptions({ ...seedOptions, count: parseInt(e.target.value) })}
+                      min="1"
+                      required
+                    />
+                  </div>
+                  {seedOptions.collection === 'tickets' && (
+                    <>
+                      <div>
+                        <Label htmlFor="eventId">Event ID</Label>
+                        <Input
+                          id="eventId"
+                          value={seedOptions.eventId}
+                          onChange={(e) => setSeedOptions({ ...seedOptions, eventId: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="sellerId">Seller ID</Label>
+                        <Input
+                          id="sellerId"
+                          value={seedOptions.sellerId}
+                          onChange={(e) => setSeedOptions({ ...seedOptions, sellerId: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </>
+                  )}
+                  {isSeeding && (
+                    <div className="space-y-2">
+                      <Progress value={seedingProgress} className="w-full" />
+                      <p className="text-sm text-center">{Math.round(seedingProgress)}% Complete</p>
+                    </div>
+                  )}
+                  <Button type="submit" disabled={isSeeding}>
+                    {isSeeding ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Seeding...
+                      </>
+                    ) : (
+                      'Seed Database'
+                    )}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
           <Toaster />
         </div>
     </div>
