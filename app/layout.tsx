@@ -90,33 +90,6 @@ export default function RootLayout({
                         </>
                       ) : (
                         <UserNav/>
-                        // <DropdownMenu>
-                        //   <DropdownMenuTrigger asChild>
-                        //     <Button variant="ghost" size="sm" className="flex items-center">
-                        //       Account <ChevronDown className="ml-1 h-4 w-4" />
-                        //     </Button>
-                        //   </DropdownMenuTrigger>
-                        //   <DropdownMenuContent align="end" className="w-48">
-                            // <DropdownMenuItem asChild>
-                            //   <Link href="/account/profile">Profile</Link>
-                            // </DropdownMenuItem>
-                            // <DropdownMenuItem asChild>
-                            //   <Link href="/account/my-tickets">My Tickets</Link>
-                            // </DropdownMenuItem>
-                            // <DropdownMenuItem asChild>
-                            //   <Link href="/account/sent-offers">Sent Offers</Link>
-                            // </DropdownMenuItem>
-                            // <DropdownMenuItem asChild>
-                            //   <Link href="/contact">Help</Link>
-                            // </DropdownMenuItem>
-                        //     <DropdownMenuSeparator />
-                            // <DropdownMenuItem asChild>
-                            //   <LogoutButton
-                            //     className="w-full text-destructive hover:text-destructive-foreground hover:bg-destructive"
-                            //   />
-                            // </DropdownMenuItem>
-                        //   </DropdownMenuContent>
-                        // </DropdownMenu>
                       )}
                       <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme" suppressHydrationWarning>
                         {currentTheme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
@@ -128,7 +101,7 @@ export default function RootLayout({
                       </Button>
                       <Button variant="ghost" size="icon" onClick={toggleMobileMenu}>
                         {/* {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />} */}
-                        <MenuIcon/>
+                        <MenuIcon isOpen={isMobileMenuOpen} toggleMenu={toggleMobileMenu} />
                       </Button>
                     </div>
                   </nav>

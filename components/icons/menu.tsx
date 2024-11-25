@@ -2,7 +2,7 @@
 
 import type { Variants } from 'framer-motion';
 import { motion, useAnimation } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const lineVariants: Variants = {
   normal: {
@@ -22,19 +22,18 @@ const lineVariants: Variants = {
   }),
 };
 
-const MenuIcon = () => {
+const MenuIcon = ({ isOpen, toggleMenu }: { isOpen: boolean, toggleMenu: () => void }) => {
   const controls = useAnimation();
-  const [isAnimated, setIsAnimated] = useState(false);
+  
+  useEffect(() => {
+    controls.start(isOpen ? 'animate' : 'normal');
+  }, [isOpen, controls]);
 
-  const handleClick = () => {
-    setIsAnimated((prev) => !prev);
-    controls.start(isAnimated ? 'normal' : 'animate');
-  };
 
   return (
     <div
       className="cursor-pointer select-none p-2 hover:bg-accent rounded-md transition-colors duration-200 flex items-center justify-center"
-      onClick={handleClick}
+      onClick={toggleMenu}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
