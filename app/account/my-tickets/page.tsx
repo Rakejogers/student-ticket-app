@@ -176,7 +176,7 @@ const UserTicketsPage: React.FC = () => {
       }
       const userTickets = await pb.collection('tickets').getList(1, 10, {
         filter: `seller_id="${pb.authStore.model.id}"`,
-        sort: '+created',
+        sort: '-status',
         expand: 'event_id,buyer_id,offers',
       });
       setTickets(userTickets.items)
@@ -239,7 +239,7 @@ const UserTicketsPage: React.FC = () => {
                         <TagIcon className="mr-2 h-4 w-4" /> ${ticket.price}
                       </p>
                       <div className="mr-2 flex items-center justify-between">
-                        <Badge className={`${getStatusColor(ticket.status)} text-muted mt-2`}>
+                        <Badge className={`${getStatusColor(ticket.status)} text-foreground mt-2`}>
                           {ticket.status}
                         </Badge>
                       </div>

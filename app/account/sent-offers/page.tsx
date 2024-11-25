@@ -50,7 +50,7 @@ const SentOffersPage: React.FC = () => {
         }
         const userOffers = await pb.collection('offers').getList(1, 10, {
           filter: `sender="${pb.authStore.model.id}"`,
-          sort: '+created',
+          sort: '+status',
           expand: 'ticket.event_id'
         });
         
@@ -122,8 +122,8 @@ const SentOffersPage: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Pending": return "bg-yellow-700"
-      case "Accepted": return "bg-green-700"
+      case "Pending": return "bg-yellow-500"
+      case "Accepted": return "bg-green-500"
       case "Declined": return "bg-destructive"
       case "Cancelled": return "bg-muted-foreground"
       default: return "bg-muted-foreground"

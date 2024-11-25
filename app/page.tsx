@@ -149,7 +149,7 @@ export default function LandingPage() {
               </motion.div> */}
             </div>
             <motion.div
-              className="flex justify-center mt-24 hidden md:flex"
+              className="flex justify-center mt-24"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9 }}
