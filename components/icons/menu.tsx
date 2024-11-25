@@ -2,7 +2,7 @@
 
 import type { Variants } from 'framer-motion';
 import { motion, useAnimation } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 const lineVariants: Variants = {
   normal: {
@@ -24,7 +24,7 @@ const lineVariants: Variants = {
 
 const MenuIcon = ({ isOpen, toggleMenu }: { isOpen: boolean, toggleMenu: () => void }) => {
   const controls = useAnimation();
-  
+
   useEffect(() => {
     controls.start(isOpen ? 'animate' : 'normal');
   }, [isOpen, controls]);
