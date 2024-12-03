@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import isAuth from '@/components/isAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from 'date-fns';
+import { Filter } from 'bad-words';
 
 type Params = {
   offerId: string;
@@ -28,6 +29,8 @@ const SentOffersChatPage: React.FC<SentOffersChatProps> = ({ params }: { params:
   const [receiverId, setReceiverId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [showScrollButton, setShowScrollButton] = useState(false);
+
+  const filter = new Filter();
 
   useEffect(() => {
     if (!offerId) return;
@@ -176,7 +179,7 @@ const SentOffersChatPage: React.FC<SentOffersChatProps> = ({ params }: { params:
         <div className="flex items-center space-x-2">
           <Textarea
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={(e) => setNewMessage(filter.clean(e.target.value))}
             placeholder="Type your message..."
             onKeyPress={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
