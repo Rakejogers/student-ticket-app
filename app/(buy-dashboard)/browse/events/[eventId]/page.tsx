@@ -81,9 +81,26 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
 
       const event = await pb.collection('events').getOne(eventId, {});
 
+      // Determine the sort field and direction based on sortBy value
+      let sortString = '-created';
+      switch (sortBy) {
+        case "price":
+          sortString = '+price';
+          break;
+        case "rating":
+          sortString = '-seller_id.seller_rating';
+          break;
+        case "sold":
+          sortString = '-seller_id.tickets_sold';
+          break;
+        case "type":
+          sortString = '+ticket_type';
+          break;
+      }
+
       const ticketsResponse = await pb.collection('tickets').getList(currentPage, perPage, {
         filter: `event_id="${eventId}" && seller_id!="${pb.authStore.model?.id}" && status!="Sold"`,
-        sort: '-created',
+        sort: sortString,
         expand: 'seller_id'
       });
 
@@ -114,7 +131,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
     };
 
     fetchEvent();
-  }, [eventId, currentPage]);
+  }, [eventId, currentPage, sortBy]);
 
   const handleOfferSubmit = async (ticketId: string, sellerId: string) => {
     try {
@@ -197,21 +214,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
     .filter(ticket =>
       ticket.expand.seller_id.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ticket.ticket_type.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "price":
-          return a.price - b.price;
-        case "rating":
-          return b.expand.seller_id.seller_rating - a.expand.seller_id.seller_rating;
-        case "sold":
-          return b.expand.seller_id.tickets_sold - a.expand.seller_id.tickets_sold;
-        case "type":
-          return a.ticket_type.localeCompare(b.ticket_type);
-        default:
-          return 0;
-      }
-    });
+    );
 
   // Render loading skeleton while fetching event data
   if (event == null) {
