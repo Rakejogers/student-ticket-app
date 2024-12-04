@@ -19,7 +19,6 @@ import { Badge } from '@/components/ui/badge'
 import isAuth from '@/components/isAuth'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import "@/app/SentOffersPage.css"
 import { Textarea } from "@/components/ui/textarea"
 import LoadingSkeleton from '@/components/loading-skeleton'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
