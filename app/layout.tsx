@@ -60,7 +60,7 @@ export default function RootLayout({
         >
           <PageTheme theme={currentTheme}>
             <div className="min-h-screen flex flex-col">
-              <header className="bg-background sticky top-0 z-50 shadow-sm">
+              <header className="bg-background/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
                 <div className="container mx-auto px-4">
                   <nav className="flex items-center justify-between h-16">
                     {!isAuthenticated ? (

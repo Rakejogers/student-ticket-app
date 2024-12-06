@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
+import { useMediaQuery } from "@/hooks/use-media-query"
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import pb from '@/app/pocketbase'
 import { Suspense, useEffect, useState } from 'react'
@@ -66,6 +68,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   const perPage = 30; // You can adjust this value as needed
 
   const { eventId } = params
@@ -327,7 +330,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                     <Button className="mt-4 w-full" onClick={() => router.push("/account/sent-offers")}>
                       View Offer
                     </Button>
-                  ) : (
+                  ) : isDesktop ? (
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button className="mt-4 w-full">Make an Offer</Button>
@@ -356,6 +359,37 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                         </div>
                       </PopoverContent>
                     </Popover>
+                  ) : (
+                    <Drawer>
+                      <DrawerTrigger asChild>
+                        <Button className="mt-4 w-full">Make an Offer</Button>
+                      </DrawerTrigger>
+                      <DrawerContent>
+                        <DrawerHeader>
+                          <DrawerTitle>Make an Offer</DrawerTitle>
+                          <DrawerDescription>
+                            Enter your offer amount for this ticket.
+                          </DrawerDescription>
+                        </DrawerHeader>
+                        <div className="p-4 pb-8">
+                          <div className="grid gap-4">
+                            <div className="grid gap-2">
+                              <Label htmlFor="amount-mobile">Offer Amount</Label>
+                              <Input
+                                id="amount-mobile"
+                                placeholder="Enter amount"
+                                type="number"
+                                value={offerAmount}
+                                onChange={(e) => setOfferAmount(Number(e.target.value))}
+                              />
+                            </div>
+                            <Button onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}>
+                              Send Offer
+                            </Button>
+                          </div>
+                        </div>
+                      </DrawerContent>
+                    </Drawer>
                   )}
                 </CardContent>
               </Card>
