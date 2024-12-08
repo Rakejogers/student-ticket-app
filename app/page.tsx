@@ -40,8 +40,8 @@ const faqs = [
 
 const FeatureCard = ({ feature, index }: { feature: typeof features[0], index: number }) => {
   const [ref, inView] = useInView({
-    threshold: 0.5,
-    triggerOnce: false
+    threshold: 0.1,
+    triggerOnce: true
   });
 
   return (
@@ -52,7 +52,7 @@ const FeatureCard = ({ feature, index }: { feature: typeof features[0], index: n
         opacity: inView ? 1 : 0, 
         y: inView ? 0 : 20 
       }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.5, delay: index * 0.2 }}
     >
       <Card className="h-full hover:shadow-lg transition-shadow duration-300">
         <CardHeader>
@@ -69,8 +69,8 @@ const FeatureCard = ({ feature, index }: { feature: typeof features[0], index: n
 
 const HowItWorksStep = ({ step, index }: { step: typeof howItWorks[0], index: number }) => {
   const [ref, inView] = useInView({
-    threshold: 0.5,
-    triggerOnce: false
+    threshold: 0.1,
+    triggerOnce: true
   });
 
   return (
@@ -82,7 +82,7 @@ const HowItWorksStep = ({ step, index }: { step: typeof howItWorks[0], index: nu
         opacity: inView ? 1 : 0, 
         y: inView ? 0 : 20 
       }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.5, delay: index * 0.2 }}
     >
       <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4">
         {index + 1}
@@ -103,32 +103,6 @@ const HowItWorksStep = ({ step, index }: { step: typeof howItWorks[0], index: nu
 
 export default function LandingPage() {
   const scrollRef = useRef<HTMLDivElement>(null)
-  const featuresControls = useAnimation()
-  const howItWorksControls = useAnimation()
-  
-  const [featuresRef, featuresInView] = useInView({
-    threshold: 0.2,
-  })
-
-  const [howItWorksRef, howItWorksInView] = useInView({
-    threshold: 0.2,
-  })
-
-  useEffect(() => {
-    if (featuresInView) {
-      featuresControls.start('visible')
-    } else {
-      featuresControls.start('hidden')
-    }
-  }, [featuresControls, featuresInView])
-
-  useEffect(() => {
-    if (howItWorksInView) {
-      howItWorksControls.start('visible')
-    } else {
-      howItWorksControls.start('hidden')
-    }
-  }, [howItWorksControls, howItWorksInView])
 
   const containerVariants = {
     hidden: { 
@@ -262,17 +236,15 @@ export default function LandingPage() {
           </div>
         </section>
         <section 
-          ref={node => {
-            if (node) featuresRef(node)
-          }} 
           id="features"
           className="container mx-auto px-4 py-16"
         >
           <motion.h2
             className="text-3xl font-bold mb-8 text-center"
-            variants={itemVariants}
-            initial="hidden"
-            animate={featuresControls}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
           >
             Features
           </motion.h2>
@@ -283,12 +255,13 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section ref={howItWorksRef} className="container mx-auto px-4 py-16">
+        <section className="container mx-auto px-4 py-16">
           <motion.h2
             className="text-3xl font-bold mb-8 text-center"
-            variants={itemVariants}
-            initial="hidden"
-            animate={howItWorksControls}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
           >
             How It Works
           </motion.h2>
