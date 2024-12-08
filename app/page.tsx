@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { motion, useAnimation } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { Button } from "@/components/ui/button"
 import {
@@ -38,46 +37,73 @@ const faqs = [
   { question: "What univeristies are supported?", answer: "Currently we are only supported at the Univerity of Kentucky, but we plan to roll out to other universites soon!" },
 ]
 
-export default function LandingPage() {
-  const featuresRef = useRef<HTMLElement>(null)
-  const controls = useAnimation()
+const FeatureCard = ({ feature, index }: { feature: typeof features[0], index: number }) => {
   const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.5,
-  })
+    threshold: 0.1,
+    triggerOnce: true
+  });
+
+  return (
+    <motion.div 
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ 
+        opacity: inView ? 1 : 0, 
+        y: inView ? 0 : 20 
+      }}
+      transition={{ duration: 0.5, delay: index * 0.2 }}
+    >
+      <Card className="h-full hover:shadow-lg transition-shadow duration-300">
+        <CardHeader>
+          <feature.icon className="h-8 w-8 mb-2 text-primary" />
+          <CardTitle>{feature.title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">{feature.description}</p>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
+
+const HowItWorksStep = ({ step, index }: { step: typeof howItWorks[0], index: number }) => {
+  const [ref, inView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true
+  });
+
+  return (
+    <motion.div 
+      ref={ref}
+      className="flex flex-col items-center text-center max-w-xs" 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ 
+        opacity: inView ? 1 : 0, 
+        y: inView ? 0 : 20 
+      }}
+      transition={{ duration: 0.5, delay: index * 0.2 }}
+    >
+      <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4">
+        {index + 1}
+      </div>
+      <h3 className="text-xl font-semibold mb-2">
+        {step.title}
+      </h3>
+      <p className="text-muted-foreground">{step.description}</p>
+      {index < howItWorks.length - 1 && (
+        <ArrowRight className="hidden md:block h-8 w-8 text-primary mt-4" />
+      )}
+      {index === howItWorks.length - 1 && (
+        <CheckCircle className="hidden md:block h-8 w-8 text-primary mt-4" />
+      )}
+    </motion.div>
+  );
+};
+
+export default function LandingPage() {
 
   const scrollToFeatures = () => {
-    featuresRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
-  useEffect(() => {
-    if (inView) {
-      controls.start('visible')
-    }
-  }, [controls, inView])
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        delayChildren: 0.3,
-        staggerChildren: 0.2
-      }
-    }
-  }
-
-  const itemVariants = {
-    hidden: { x: -50, opacity: 0 },
-    visible: {
-      x: 0,
-      opacity: 1,
-      transition: {
-        type: 'spring',
-        stiffness: 100,
-        damping: 10
-      }
-    }
+    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
@@ -177,70 +203,41 @@ export default function LandingPage() {
             </motion.div>
           </div>
         </section>
-        <section ref={featuresRef} className="container mx-auto px-4 py-16">
+        <section 
+          id="features"
+          className="container mx-auto px-4 py-16"
+        >
           <motion.h2
             className="text-3xl font-bold mb-8 text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
             Features
           </motion.h2>
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <motion.div key={index} variants={itemVariants}>
-                <Card className="h-full hover:shadow-lg transition-shadow duration-300">
-                  <CardHeader>
-                    <feature.icon className="h-8 w-8 mb-2 text-primary" />
-                    <CardTitle>{feature.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">{feature.description}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
+              <FeatureCard key={index} feature={feature} index={index} />
             ))}
-          </motion.div>
+          </div>
         </section>
 
-        <section ref={ref} className="container mx-auto px-4 py-16">
+        <section className="container mx-auto px-4 py-16">
           <motion.h2
             className="text-3xl font-bold mb-8 text-center"
-            initial={{ opacity: 0 }}
-            animate={controls}
-            variants={itemVariants}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
           >
             How It Works
           </motion.h2>
-          <motion.div
-            className="flex flex-col md:flex-row justify-center items-center md:items-start space-y-8 md:space-y-0 md:space-x-8"
-            variants={containerVariants}
-            initial="hidden"
-            animate={controls}
-          >
+          <div className="flex flex-col md:flex-row justify-center items-center md:items-start space-y-8 md:space-y-0 md:space-x-8">
             {howItWorks.map((step, index) => (
-              <motion.div key={index} className="flex flex-col items-center text-center max-w-xs" variants={itemVariants}>
-                <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4">
-                  {index + 1}
-                </div>
-                <h3 className="text-xl font-semibold mb-2">
-                  {step.title}
-                </h3>
-                <p className="text-muted-foreground">{step.description}</p>
-                {index < howItWorks.length - 1 && (
-                  <ArrowRight className="hidden md:block h-8 w-8 text-primary mt-4" />
-                )}
-                {index == howItWorks.length - 1 && (
-                  <CheckCircle className="hidden md:block h-8 w-8 text-primary mt-4" />
-                )}
-              </motion.div>
+              <HowItWorksStep key={index} step={step} index={index} />
             ))}
-          </motion.div>
+          </div>
         </section>
 
         <section className="container mx-auto px-4 py-16">

@@ -12,7 +12,6 @@ import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import { toast } from "@/hooks/use-toast"
 import isAuth from "@/components/isAuth"
-import "@/app/SentOffersPage.css"
 import { Textarea } from "@/components/ui/textarea"
 import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from "@/components/ui/drawer"
 import LoadingSkeleton from "@/components/loading-skeleton"
