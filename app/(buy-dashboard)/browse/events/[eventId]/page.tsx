@@ -15,7 +15,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { toast } from "@/hooks/use-toast"
 import { ToastAction } from '@/components/ui/toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CalendarIcon, TagIcon, Armchair, Star, Ticket, Search } from "lucide-react"
+import { TagIcon, Armchair, Star, Ticket, Search } from "lucide-react"
 import isAuth from '@/components/isAuth';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from "@/components/ui/checkbox"
