@@ -17,6 +17,9 @@ import { ToastAction } from '@/components/ui/toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CalendarIcon, TagIcon, Armchair, Star, Ticket, Search } from "lucide-react"
 import isAuth from '@/components/isAuth';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from "@/components/ui/checkbox"
+import { DualRangeSlider } from "@/components/ui/DualRangeSlider"
 
 type EventType = {
   id: string;
@@ -36,6 +39,9 @@ type EventType = {
         seller_rating: number;
         tickets_sold: number;
       };
+      offers: Array<{
+        sender: string;
+      }>;
     };
   }>;
 };
@@ -68,6 +74,9 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedTicketTypes, setSelectedTicketTypes] = useState<string[]>([]);
+  const [hideOfferedTickets, setHideOfferedTickets] = useState(false);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 300]);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const perPage = 30; // You can adjust this value as needed
 
@@ -104,7 +113,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
       const ticketsResponse = await pb.collection('tickets').getList(currentPage, perPage, {
         filter: `event_id="${eventId}" && seller_id!="${pb.authStore.model?.id}" && status!="Sold"`,
         sort: sortString,
-        expand: 'seller_id'
+        expand: 'seller_id, offers'
       });
 
       const data: EventType = {
@@ -125,6 +134,9 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
               seller_rating: ticket.expand?.seller_id.seller_rating,
               tickets_sold: ticket.expand?.seller_id.tickets_sold,
             },
+            offers: ticket.expand?.offers?.map((offer: { sender: string }) => ({
+              sender: offer.sender
+            })) || []
           },
         }))
       };
@@ -214,10 +226,23 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   };
 
   const sortedAndFilteredTickets = event?.tickets
-    .filter(ticket =>
-      ticket.expand.seller_id.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.ticket_type.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    .filter(ticket => {
+      // Search filter
+      const searchMatch = ticket.expand.seller_id.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ticket.ticket_type.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      // Ticket type filter
+      const typeMatch = selectedTicketTypes.length === 0 || selectedTicketTypes.includes(ticket.ticket_type);
+      
+      // Offers filter
+      const offersMatch = !hideOfferedTickets || 
+        !ticket.expand.offers.some(offer => offer.sender === pb.authStore.model?.id);
+      
+      // Price range filter
+      const priceMatch = ticket.price >= priceRange[0] && ticket.price <= priceRange[1];
+      
+      return searchMatch && typeMatch && offersMatch && priceMatch;
+    });
 
   // Render loading skeleton while fetching event data
   if (event == null) {
@@ -290,13 +315,68 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                 />
               </div>
             </div>
+
+            {/* Filter Controls */}
+            <div className="flex flex-col md:flex-row gap-4 items-center">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="ezone"
+                    checked={selectedTicketTypes.includes("Ezone")}
+                    onCheckedChange={(checked) => {
+                      setSelectedTicketTypes(prev => 
+                        checked 
+                          ? [...prev, "Ezone"]
+                          : prev.filter(t => t !== "Ezone")
+                      );
+                    }}
+                  />
+                  <Label htmlFor="ezone">EZone</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="reserved"
+                    checked={selectedTicketTypes.includes("Reserved")}
+                    onCheckedChange={(checked) => {
+                      setSelectedTicketTypes(prev => 
+                        checked 
+                          ? [...prev, "Reserved"]
+                          : prev.filter(t => t !== "Reserved")
+                      );
+                    }}
+                  />
+                  <Label htmlFor="reserved">Reserved</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="hideOffered"
+                    checked={hideOfferedTickets}
+                    onCheckedChange={(checked) => setHideOfferedTickets(!!checked)}
+                  />
+                  <Label htmlFor="hideOffered">Hide Offered</Label>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-4 w-[200px]">
+                <DualRangeSlider
+                  min={0}
+                  max={300}
+                  step={5}
+                  value={priceRange}
+                  onValueChange={(value) => setPriceRange(value as [number, number])}
+                  className="w-full"
+                  label={(value) => `$${value}`}
+                  labelPosition="top"
+                />
+              </div>
+            </div>
+
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="price">Price: Low to High</SelectItem>
-                <SelectItem value="type">Ticket Type</SelectItem>
                 <SelectItem value="rating">Seller Rating</SelectItem>
                 <SelectItem value="sold">Seller Tickets Sold</SelectItem>
               </SelectContent>
@@ -305,7 +385,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {sortedAndFilteredTickets?.map((ticket) => (
-              <Card key={ticket.id} className='cursor-pointer hover:shadow-lg transition-shadow border border-border rounded-lg'>
+              <Card key={ticket.id} className='cursor-pointer hover:shadow-lg transition-shadow border border-border rounded-lg flex flex-col'>
                 <CardHeader className='bg-muted text-card-foreground p-4 border border-border rounded-t-lg'>
                   <CardTitle>{ticket.expand.seller_id.name}</CardTitle>
                   <CardDescription className="flex items-center">
@@ -316,16 +396,25 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                     <Ticket className="ml-4 mr-2 h-4 w-4" /> Tickets Sold: {ticket.expand.seller_id.tickets_sold}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className='border border-border rounded-b-lg'>
+                <CardContent className='border border-border rounded-b-lg flex-grow'>
                   <p className="flex mt-4 items-center text-md font-regular">
                     <Armchair className="mr-2 h-4 w-4" /> {ticket.ticket_type}
                   </p>
                   <p className="flex items-center text-lg font-semibold">
                     <TagIcon className="mr-2 h-4 w-4" /> ${ticket.price}
                   </p>
-                  <p className={`mt-2 ${ticket.status === "Available" ? "text-green-600" : "text-yellow-600"}`}>
-                    {ticket.status}
-                  </p>
+                  <div className="flex items-center">
+                    <Badge className={`${ticket.status === "Available" ? "bg-green-500" : "bg-yellow-500"} text-foreground`}>
+                      {ticket.status}
+                    </Badge>
+                    {ticket.expand.offers.filter(offer => offer.sender === pb.authStore.model?.id).length > 0 && (
+                      <p className="ml-2 text-muted-foreground">
+                        {" "}({ticket.expand.offers.filter(offer => offer.sender === pb.authStore.model?.id).length === 1 
+                          ? "You've sent an offer already"
+                          : `You've sent ${ticket.expand.offers.filter(offer => offer.sender === pb.authStore.model?.id).length} offers already`})
+                      </p>
+                    )}
+                  </div>
                   {offerMade.includes(ticket.id) ? (
                     <Button className="mt-4 w-full" onClick={() => router.push("/account/sent-offers")}>
                       View Offer
