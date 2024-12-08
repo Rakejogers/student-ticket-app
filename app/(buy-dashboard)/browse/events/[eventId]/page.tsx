@@ -300,7 +300,11 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
     <Suspense fallback={<div>Loading...</div>}>
       <div className="min-h-screen bg-background">
         <div className="container mx-auto p-4">
-          <h1 className="text-3xl font-bold mb-6">{event.name}</h1>
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold">{event.name}</h1>
+            <p className="text-muted-foreground">{formatDate(event.date)}</p>
+          </div>
+
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <Label htmlFor="search" className="sr-only">Search tickets</Label>
@@ -388,9 +392,6 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
               <Card key={ticket.id} className='cursor-pointer hover:shadow-lg transition-shadow border border-border rounded-lg flex flex-col'>
                 <CardHeader className='bg-muted text-card-foreground p-4 border border-border rounded-t-lg'>
                   <CardTitle>{ticket.expand.seller_id.name}</CardTitle>
-                  <CardDescription className="flex items-center">
-                    <CalendarIcon className="mr-2 h-4 w-4" /> {formatDate(event.date)}
-                  </CardDescription>
                   <CardDescription className="flex items-center mt-1">
                     <Star className="mr-2 h-4 w-4" /> Rating: {ticket.expand.seller_id.tickets_sold < 3 ? 'N/A' : `${ticket.expand.seller_id.seller_rating.toFixed(0)}%`}
                     <Ticket className="ml-4 mr-2 h-4 w-4" /> Tickets Sold: {ticket.expand.seller_id.tickets_sold}
