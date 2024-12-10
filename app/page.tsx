@@ -255,25 +255,25 @@ export default function LandingPage() {
 
       <footer className="bg-transparent text-secondary-foreground">
         <div className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 justify-center text-center">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-center text-center">
+            {/* <div>
               <h3 className="text-lg font-semibold mb-4">About</h3>
               <ul className="space-y-2">
                 <li><Link href="/about" className="hover:underline">Our Story</Link></li>
                 <li><Link href="/team" className="hover:underline">Team</Link></li>
               </ul>
-            </div>
+            </div> */}
             <div>
               <h3 className="text-lg font-semibold mb-4">Support</h3>
               <ul className="space-y-2">
                 <li><Link href="/contact" className="hover:underline">Contact Us</Link></li>
-                <li><Link href="/terms" className="hover:underline">Terms of Service</Link></li>
               </ul>
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-4">Legal</h3>
               <ul className="space-y-2">
                 <li><Link href="/privacy" className="hover:underline">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:underline">Terms of Service</Link></li>
               </ul>
             </div>
           </div>

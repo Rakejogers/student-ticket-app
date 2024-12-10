@@ -11,6 +11,7 @@ import Input46 from '@/components/orginui/phoneInput'
 import pb from '@/app/pocketbase'
 import { useRouter } from 'next/navigation'
 import { toast } from '@/hooks/use-toast'
+import { Filter } from 'bad-words'
 
 const formFields = [
   { id: 'name', label: 'Name', icon: CiUser, type: 'text', placeholder: 'Your Name' },
@@ -51,6 +52,25 @@ export default function AnimatedSignUpForm() {
       });
     //   setError(`Please enter your ${currentField.label.toLowerCase()}`)
       return false
+    }
+
+    if (currentField.id === 'name' && value.length < 2) {
+        toast({
+            title: "Invalid Name",
+            description: 'Name must be at least 2 characters long',
+            variant: "destructive",
+        });
+        return false
+    }
+
+    const filter = new Filter();
+    if (currentField.id === 'name' && filter.clean(value) !== value) {
+        toast({
+            title: "Invalid Name",
+            description: "Name can not use inappropriate language.",
+            variant: "destructive",
+        });
+        return false
     }
 
     if (currentField.id === 'email' && !value.endsWith('@uky.edu')) {
