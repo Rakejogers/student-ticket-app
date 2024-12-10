@@ -77,7 +77,7 @@ const BrowseEventsPage: React.FC = () => {
           <Toggle 
             pressed={selectedSport === 'all'} 
             onPressedChange={() => setSelectedSport('all')}
-            className="bg-secondary text-secondary-foreground"
+            className={`bg-secondary text-secondary-foreground ${selectedSport === 'all' ? 'ring-2 ring-ring' : ''}`}
           >
             <TbList className="mr-2 h-4 w-4" />
             All
@@ -85,7 +85,7 @@ const BrowseEventsPage: React.FC = () => {
           <Toggle 
             pressed={selectedSport === 'basketball'} 
             onPressedChange={() => setSelectedSport('basketball')}
-            className="bg-secondary text-secondary-foreground"
+            className={`bg-secondary text-secondary-foreground ${selectedSport === 'basketball' ? 'ring-2 ring-ring' : ''}`}
           >
             <TbBallBasketball className="mr-2 h-4 w-4" />
             Basketball
@@ -93,7 +93,7 @@ const BrowseEventsPage: React.FC = () => {
           <Toggle 
             pressed={selectedSport === 'football'} 
             onPressedChange={() => setSelectedSport('football')}
-            className="bg-secondary text-secondary-foreground"
+            className={`bg-secondary text-secondary-foreground ${selectedSport === 'football' ? 'ring-2 ring-ring' : ''}`}
           >
             <TbBallAmericanFootball className="mr-2 h-4 w-4" />
             Football
