@@ -11,15 +11,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, Users, DollarSign, Shield, Zap, ArrowRight, Star, Search, ArrowUpRight, ChevronDown } from 'lucide-react'
+import { CheckCircle, Users, DollarSign, Shield, Lock, ArrowRight, Star, Search, ArrowUpRight, ChevronDown, GraduationCap } from 'lucide-react'
 
 const features = [
   { icon: DollarSign, title: "No Fees", description: "No fees or inflated prices, ever" },
   { icon: Users, title: "Student-to-Student", description: "Connect directly with fellow students" },
   { icon: Shield, title: "Verified Students", description: "All students are verified for authenticity" },
   { icon: Star, title: "Reputation and Rating System", description: "Keepings users accountable with seller ratings" },
-  { icon: Zap, title: "Instant Transfer", description: "Quick and easy ticket transfers" },
-  { icon: CheckCircle, title: "Built for Students, by Students", description: "Designed and built from students from your univeristy" },
+  { icon: Lock, title: "Secure Platform", description: "Your data is only used for ticket transactions" },
+  { icon: GraduationCap, title: "Built for Students, by Students", description: "Designed and built from students at UK" },
 ]
 
 const howItWorks = [
