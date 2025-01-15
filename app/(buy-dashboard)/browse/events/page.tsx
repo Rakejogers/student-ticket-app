@@ -38,7 +38,8 @@ const BrowseEventsPage: React.FC = () => {
       try {
         const records = await pb.collection('events').getList(1, 10, {
           sort: '+date',
-          expand: 'tickets'
+          expand: 'tickets',
+          filter: 'active=true'
         });
         setEvents(records.items);
       } catch (error) {

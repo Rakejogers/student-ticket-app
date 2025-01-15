@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
-import { CiAt, CiCircleAlert, CiLock } from "react-icons/ci";
+import { CiAt, CiLock } from "react-icons/ci";
 import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation'
 import pb from '@/app/pocketbase'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { toast } from '@/hooks/use-toast'
 
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary">
@@ -27,7 +27,6 @@ const LoadingSpinner = () => (
 export default function Component() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
   const [isView, setIsView] = useState(false)
   const [isLoading, setIsLoading] = useState(false);
 
@@ -48,30 +47,51 @@ export default function Component() {
       const params = new URLSearchParams(window.location.search);
       const redirectPath = params.get('redirect') || '/browse/events';
       router.push(redirectPath);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error('Login failed:', error)
+      const errorData = Object.values(error?.response?.data || {})[0] as { message: string } | undefined
+      if (error.message === "Failed to authenticate."){
+        toast({
+          title: "Login failed",
+          description: "Incorrect email or password",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Login failed",
+          description: errorData?.message || "An unexpected error occurred",
+          variant: "destructive",
+        });
+      }
       setIsLoading(false)
-    } catch (error) {
-      setIsLoading(false)
-      setError('Invalid email or password');
-      console.error('Login failed:', error);
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
 
     if (!email || !password) {
-      setError('Please fill in all fields')
+      toast({
+        title: "Please fill in all fields",
+        variant: "destructive",
+      });
       return
     }
 
     if (!/\S+@\S+\.\S+/.test(email)) {
-      setError('Please enter a valid email address')
+      toast({
+        title: "Enter a valid email address",
+        variant: "destructive",
+      });
       return
     }
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters long')
+      toast({
+        title: "Password must be 8 characters long",
+        variant: "destructive",
+      });
       return
     }
 
@@ -137,12 +157,6 @@ export default function Component() {
                   )}
                 </div>
               </div>
-              {error && (
-                <Alert variant="destructive">
-                  <CiCircleAlert className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <Button type="submit" className="w-full">Login</Button>

@@ -80,7 +80,8 @@ const AdminPage = () => {
       const utcDate = convertToUTC(newEvent.date)
       const eventData = {
         ...newEvent,
-        date: utcDate
+        date: utcDate,
+        active: true
       }
       const createdEvent = await pb.collection('events').create(eventData)
       setEvents([...events, createdEvent])

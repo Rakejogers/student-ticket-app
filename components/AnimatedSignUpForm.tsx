@@ -174,9 +174,15 @@ export default function AnimatedSignUpForm() {
 
       await pb.collection('users').create(data)
       await login(formData.email, formData.password)
-    } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       console.error('Registration failed:', error)
-      setError('Registration failed. Please try again.')
+      const errorData = Object.values(error?.response?.data || {})[0] as { message: string } | undefined
+      toast({
+        title: "Registration failed",
+        description: errorData?.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
       setIsLoading(false)
     }
   }
