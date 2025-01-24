@@ -31,7 +31,7 @@ const SellTicketsPage: React.FC = () => {
       if (!sport) return;
       try {
         const records = await pb.collection('events').getList(1, 10, {
-          filter: `sport="${sport}"`,
+          filter: `sport="${sport}" && active=true`,
           sort: '-date'
         });
         setEvents(records.items);

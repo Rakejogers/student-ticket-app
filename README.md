@@ -27,4 +27,12 @@ Welcome to the Student Ticket Marketplace! This project is designed to provide a
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/student-ticket-marketplace.git
+   git clone https://github.com/rakejogers/student-ticket-app.git
+
+2. Install Dependencies:
+   ```bash
+   npm install
+
+2. Run Local Serverr:
+   ```bash
+   npm run dev

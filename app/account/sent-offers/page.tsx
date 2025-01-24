@@ -48,7 +48,7 @@ const SentOffersPage: React.FC = () => {
           return
         }
         const userOffers = await pb.collection('offers').getList(1, 10, {
-          filter: `sender="${pb.authStore.model.id}"`,
+          filter: `sender="${pb.authStore.model.id}" && ticket.event_id.active=true`,
           sort: '+status',
           expand: 'ticket.event_id'
         });

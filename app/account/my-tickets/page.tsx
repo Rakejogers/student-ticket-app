@@ -174,7 +174,7 @@ const UserTicketsPage: React.FC = () => {
         return
       }
       const userTickets = await pb.collection('tickets').getList(1, 10, {
-        filter: `seller_id="${pb.authStore.model.id}"`,
+        filter: `seller_id="${pb.authStore.model.id}" && event_id.active = true`,
         sort: '-status',
         expand: 'event_id,buyer_id,offers',
       });
