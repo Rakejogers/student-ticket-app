@@ -11,15 +11,17 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, Users, DollarSign, Shield, Zap, ArrowRight, Star, Search, ArrowUpRight, ChevronDown } from 'lucide-react'
+import { CheckCircle, Users, DollarSign, Shield, Lock, ArrowRight, Star, Search, ArrowUpRight, ChevronDown, GraduationCap } from 'lucide-react'
+import pb from './pocketbase'
+import { useRouter } from 'next/navigation'
 
 const features = [
   { icon: DollarSign, title: "No Fees", description: "No fees or inflated prices, ever" },
   { icon: Users, title: "Student-to-Student", description: "Connect directly with fellow students" },
   { icon: Shield, title: "Verified Students", description: "All students are verified for authenticity" },
   { icon: Star, title: "Reputation and Rating System", description: "Keepings users accountable with seller ratings" },
-  { icon: Zap, title: "Instant Transfer", description: "Quick and easy ticket transfers" },
-  { icon: CheckCircle, title: "Built for Students, by Students", description: "Designed and built from students from your univeristy" },
+  { icon: Lock, title: "Secure Platform", description: "Your data is only used for ticket transactions" },
+  { icon: GraduationCap, title: "Built for Students, by Students", description: "Designed and built from students at UK" },
 ]
 
 const howItWorks = [
@@ -29,7 +31,7 @@ const howItWorks = [
 ]
 
 const faqs = [
-  { question: "How does the ticket marketplace work?", answer: "Our app allows students to buy and sell tickets directly from one another. Sellers list their tickets with event details, and buyers can browse, message, and finalize deals directly with them. It’s a peer-to-peer, fee-free marketplace made just for students!" },
+  { question: "How does the ticket marketplace work?", answer: "Our app allows students to buy and sell tickets directly from one another. Sellers list their tickets with event details, and buyers can browse, message, and finalize deals directly with them. It's a peer-to-peer, fee-free marketplace made just for students!" },
   { question: "How do I verify my student status?", answer: "You can verify your student status by signing up with your official university email address. We'll send a verification link to confirm your enrollment." },
   { question: "Are there any fees for using Scholar Seats?", answer: "Scholar Seats is completely free for students to use. We don't charge any fees for listing or purchasing tickets." },
   { question: "How is the app kept safe for students?", answer: "We require student verification at sign-up, so only verified students can use the platform. Plus, we have a reputation and rating system to help ensure trust and accountability among users." },
@@ -101,6 +103,17 @@ const HowItWorksStep = ({ step, index }: { step: typeof howItWorks[0], index: nu
 };
 
 export default function LandingPage() {
+  const router = useRouter();
+
+  const oauthLogin = async () => {
+    const authData = await pb.collection('users').authWithOAuth2({ provider: 'microsoft' });
+    console.log(authData)
+    if(authData.meta?.isNew){
+      router.push("/onboarding")
+    } else{
+      router.push("/browse/events")
+    }
+  }
 
   const scrollToFeatures = () => {
     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
@@ -137,17 +150,13 @@ export default function LandingPage() {
                 transition={{ delay: 0.3, duration: 0.6 }}
                 className="flex flex-col md:flex-row gap-4 justify-center items-center mb-12"
               >
-                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 group" asChild>
-                  <Link href="/signup" className="flex items-center gap-2">
-                    Get Started
-                    <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" className="group" asChild>
-                  <Link href="/browse/events" className="flex items-center gap-2">
-                    Browse Tickets
-                    <Search className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                  </Link>
+                <Button 
+                  size="lg" 
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 group flex items-center gap-2" 
+                  onClick={() => oauthLogin()}
+                >
+                  Login with LinkBlue
+                  <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                 </Button>
               </motion.div>
 

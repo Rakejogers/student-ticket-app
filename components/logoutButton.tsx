@@ -16,7 +16,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ className }) => {
       try {
           await pb.authStore.clear();
           // Redirect to login page
-          router.push('/login');
+          router.push('/');
       } catch (error) {
           console.error('Logout failed', error);
       }

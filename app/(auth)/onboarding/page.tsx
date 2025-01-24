@@ -16,7 +16,7 @@ export default function SignUpPage() {
       >
         <Card className="mx-auto">
           <CardHeader>
-            <CardTitle className="text-2xl">Sign Up</CardTitle>
+            <CardTitle className="text-2xl">Create Your Account</CardTitle>
             <CardDescription>Let&apos;s create your student ticket account</CardDescription>
           </CardHeader>
           <CardContent>

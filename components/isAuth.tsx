@@ -15,13 +15,11 @@ export default function isAuth<P extends object>(Component: React.ComponentType<
           if (pb.authStore.isValid) {
             await pb.collection('users').authRefresh();
           } else {
-            const currentPath = window.location.pathname;
-            router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
+            router.push("/")
           }
         } catch (error) {
           console.error('Authentication error:', error);
-          const currentPath = window.location.pathname;
-          router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
+          router.push("/");
         }
       };
       checkAuth();

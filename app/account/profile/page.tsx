@@ -11,6 +11,7 @@ import { ProfileActions } from "./components/profile-actions"
 import { UpdateDialog } from "./components/update-dialog"
 import { PasswordDialog } from "./components/password-dialog"
 import { DeleteDialog } from "./components/delete-dialog"
+import { motion } from 'framer-motion'
 
 const ProfilePage: React.FC = () => {
   const [user, setUser] = useState<RecordModel | null>(null)
@@ -112,7 +113,15 @@ const ProfilePage: React.FC = () => {
   }
 
   if (!user) {
-    return <div>Loading...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary">
+        <motion.div
+          className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        />
+      </div>
+    )
   }
 
   return (
@@ -127,7 +136,6 @@ const ProfilePage: React.FC = () => {
           verificationCooldown={verificationCooldown}
         />
         <ProfileActions 
-          onChangePassword={() => setIsPasswordDialogOpen(true)}
           onDeleteAccount={() => setIsDeleteDialogOpen(true)}
         />
       </div>
@@ -150,12 +158,6 @@ const ProfilePage: React.FC = () => {
         field="phone"
         currentValue={user.phone}
         onUpdate={handleUpdateUser}
-      />
-
-      <PasswordDialog 
-        open={isPasswordDialogOpen}
-        onOpenChange={setIsPasswordDialogOpen}
-        onChangePassword={handleChangePassword}
       />
 
       <DeleteDialog 

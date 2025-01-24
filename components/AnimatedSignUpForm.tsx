@@ -6,31 +6,23 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { CiAt, CiCircleAlert, CiLock, CiUser } from "react-icons/ci"
+import { CiCircleAlert, CiUser } from "react-icons/ci"
 import Input46 from '@/components/orginui/phoneInput'
-import pb from '@/app/pocketbase'
 import { useRouter } from 'next/navigation'
 import { toast } from '@/hooks/use-toast'
 import { Filter } from 'bad-words'
+import pb from '@/app/pocketbase'
 
 const formFields = [
   { id: 'name', label: 'Name', icon: CiUser, type: 'text', placeholder: 'Your Name' },
-  { id: 'email', label: 'Student Email', icon: CiAt, type: 'email', placeholder: 'your.name@uky.edu' },
-  { id: 'phone', label: 'Phone Number', icon: null, type: 'phone', placeholder: '' },
-  { id: 'password', label: 'Password', icon: CiLock, type: 'password', placeholder: 'Enter your password' },
-  { id: 'confirmPassword', label: 'Confirm Password', icon: CiLock, type: 'password', placeholder: 'Confirm your password' },
-  { id: 'inviteCode', label: 'Invite Code', icon: null, type: 'text', placeholder: 'Enter your invite code' },
+  { id: 'phone', label: 'Phone Number (Optional)', icon: null, type: 'phone', placeholder: '' },
 ]
 
 export default function AnimatedSignUpForm() {
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
-    inviteCode: ''
+    phone: ''
   })
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -44,84 +36,44 @@ export default function AnimatedSignUpForm() {
     const currentField = formFields[currentStep]
     const value = formData[currentField.id as keyof typeof formData]
 
-    if (!value) {
-      toast({
-          title: `No ${currentField.label} entered`,
-          description: `Please enter your ${currentField.label.toLowerCase()}`,
+    if (currentField.id === 'name') {
+      if (!value) {
+        toast({
+          title: "No Name entered",
+          description: "Please enter your name",
           variant: "destructive",
-      });
-    //   setError(`Please enter your ${currentField.label.toLowerCase()}`)
-      return false
-    }
-
-    if (currentField.id === 'name' && value.length < 2) {
-        toast({
-            title: "Invalid Name",
-            description: 'Name must be at least 2 characters long',
-            variant: "destructive",
         });
         return false
-    }
+      }
 
-    const filter = new Filter();
-    if (currentField.id === 'name' && filter.clean(value) !== value) {
+      if (value.length < 2) {
         toast({
-            title: "Invalid Name",
-            description: "Name can not use inappropriate language.",
-            variant: "destructive",
+          title: "Invalid Name",
+          description: 'Name must be at least 2 characters long',
+          variant: "destructive",
         });
         return false
-    }
+      }
 
-    if (currentField.id === 'email' && !value.endsWith('@uky.edu')) {
+      const filter = new Filter();
+      if (filter.clean(value) !== value) {
         toast({
-            title: "Invalid Email",
-            description: 'Please use a valid uky.edu email address',
-            variant: "destructive",
+          title: "Invalid Name",
+          description: "Name cannot use inappropriate language.",
+          variant: "destructive",
         });
-        // setError('Please use a valid uky.edu email address')
         return false
+      }
     }
 
-    if (currentField.id === 'password' && value.length < 8) {
-        toast({
-            title: "Invalid Password",
-            description: 'Password must be at least 8 characters long',
-            variant: "destructive",
-        });
-        // setError('Password must be at least 8 characters long')
-        return false
-    }
-
-    if (currentField.id === 'confirmPassword' && value !== formData.password) {
-        toast({
-            title: "Passwords do not match",
-            description: 'Both passwords have to match',
-            variant: "destructive",
-        });
-        // setError('Passwords do not match')
-        return false
-    }
-
-    if (currentField.id === 'inviteCode' && value !== 'UKY2024-Beta-1') {
-        toast({
-            title: "Invalid Code",
-            description: 'Please enter a valid invite code',
-            variant: "destructive",
-        });
-        // setError('Invalid invite code')
-        return false
-    }
-
-    if (currentField.id === 'phone') {
+    if (currentField.id === 'phone' && value) {
       const phoneRegex = /^\+?1?\s*\d{3}[-.\s]?\d{3}[-.\s]?\d{4}$/
       if (!phoneRegex.test(value) || value.length < 12) {
         toast({
-            title: "Invalid Number",
-            description: "Please enter a valid phone number.",
-            variant: "destructive",
+          title: "Invalid Number",
+          description: "Please enter a valid phone number or leave it empty for now.",
+          variant: "destructive",
         });
-        // setError("Please enter a valid phone number.")
         return false
       }
     }
@@ -146,44 +98,16 @@ export default function AnimatedSignUpForm() {
     }
   }
 
-  const login = async (email: string, password: string) => {
-    try {
-      await pb.collection('users').authWithPassword(email, password)
-      await pb.collection('users').requestVerification(email)
-      setIsLoading(false)
-      router.push('/signup/verify')
-    } catch (error) {
-      console.error('Login failed:', error)
-      setError('Login failed. Please try again.')
-    }
-  }
-
-  const register = async () => {
-    setIsLoading(true)
-    try {
-      const data = {
-        email: formData.email,
-        emailVisibility: true,
-        password: formData.password,
-        passwordConfirm: formData.password,
-        name: formData.name,
-        seller_rating: 100,
-        details: formData.inviteCode,
-        phone: formData.phone
-      }
-
-      await pb.collection('users').create(data)
-      await login(formData.email, formData.password)
-    } catch (error) {
-      console.error('Registration failed:', error)
-      setError('Registration failed. Please try again.')
-      setIsLoading(false)
-    }
-  }
-
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateStep()) {
-      register()
+      // Handle the submission of name and phone
+      await pb.collection('users').update(
+        pb.authStore.model?.id,
+        { name: formData.name, phone: formData.phone }
+      )
+      console.log('Form submitted:', formData)
+      // Add your submission logic here
+      router.push('/browse/events') // or wherever you want to redirect after
     }
   }
 
@@ -202,6 +126,11 @@ export default function AnimatedSignUpForm() {
         >
           <div className="space-y-2">
             <Label htmlFor={currentField.id}>{currentField.label}</Label>
+            {currentField.id === 'phone' && (
+              <p className="text-sm text-muted-foreground">
+                You can skip this step and add your phone number later in your profile settings.
+              </p>
+            )}
             <div className="relative">
               {currentField.icon && (
                 <currentField.icon className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
