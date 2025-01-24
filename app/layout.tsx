@@ -74,18 +74,20 @@ export default function RootLayout({
                       </Link>
                     )}
                     <div className="hidden md:flex items-center space-x-2">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href="/list-ticket">Sell</Link>
-                      </Button>
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href="/browse/events">Buy</Link>
-                      </Button>
                       {!isAuthenticated ? (
                         <>
                           <LoginButton />
                         </>
                       ) : (
-                        <UserNav/>
+                        <>
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link href="/list-ticket">Sell</Link>
+                          </Button>
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link href="/browse/events">Buy</Link>
+                          </Button>
+                          <UserNav/>
+                        </>
                       )}
                       <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme" suppressHydrationWarning>
                         {currentTheme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
@@ -112,19 +114,19 @@ export default function RootLayout({
                       className="md:hidden bg-background border-t overflow-hidden"
                     >
                       <div className="container mx-auto px-4 py-4 space-y-2">
-                        <Button variant="ghost" size="sm" asChild className="w-full justify-start">
-                          <Link href="/list-ticket">Sell</Link>
-                        </Button>
-                        <Button variant="ghost" size="sm" asChild className="w-full justify-start">
-                          <Link href="/browse/events">Buy</Link>
-                        </Button>
-                        <DropdownMenuSeparator />
                         {!isAuthenticated ? (
                           <>
                             <LoginButton />
                           </>
                         ) : (
                           <>
+                            <Button variant="ghost" size="sm" asChild className="w-full justify-start">
+                              <Link href="/list-ticket">Sell</Link>
+                            </Button>
+                            <Button variant="ghost" size="sm" asChild className="w-full justify-start">
+                              <Link href="/browse/events">Buy</Link>
+                            </Button>
+                            <DropdownMenuSeparator />
                             <Button variant="ghost" size="sm" asChild className="w-full justify-start">
                               <Link href="/account/profile">Profile</Link>
                             </Button>
