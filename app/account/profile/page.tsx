@@ -86,7 +86,7 @@ const ProfilePage: React.FC = () => {
       }
       await pb.collection('users').delete(user.id)
       console.log("Account deleted")
-      router.push("/")
+      router.push("/api/entra-logout")
     } catch (error) {
       console.error('Failed to delete account', error)
     }

@@ -315,19 +315,19 @@ const SentOffersPage: React.FC = () => {
                       <div className="space-y-2">
                         <p className="flex items-center">
                           <UserIcon className="mr-2 h-4 w-4 flex-shrink-0" /> 
-                          Seller: {sellerInfo[offer.id]?.name}
+                           {sellerInfo[offer.id]?.name}
                         </p>
                         <p className="flex items-center">
                           <PhoneIcon className="mr-2 h-4 w-4 flex-shrink-0" /> 
-                          Phone: {sellerInfo[offer.id]?.phone}
+                           {sellerInfo[offer.id]?.phone}
                         </p>
                         <p className="flex items-center">
                           <MailIcon className="mr-2 h-4 w-4 flex-shrink-0" /> 
-                          Email: {sellerInfo[offer.id]?.email}
+                           {sellerInfo[offer.id]?.email}
                         </p>
                         <p className="flex items-center">
                           <Wallet className="mr-2 h-4 w-4 flex-shrink-0" /> 
-                          Venmo: {sellerInfo[offer.id]?.venmo}
+                           {sellerInfo[offer.id]?.venmo}
                         </p>
                       </div>
                     </CardContent>
