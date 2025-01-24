@@ -32,7 +32,7 @@ const howItWorks = [
 
 const faqs = [
   { question: "How does the ticket marketplace work?", answer: "Our app allows students to buy and sell tickets directly from one another. Sellers list their tickets with event details, and buyers can browse, message, and finalize deals directly with them. It's a peer-to-peer, fee-free marketplace made just for students!" },
-  { question: "How do I verify my student status?", answer: "You can verify your student status by signing up with your official university email address. We'll send a verification link to confirm your enrollment." },
+  { question: "How do I verify my student status?", answer: "You sign in with your official university's Single Sign-On, which automatically verifies that you attend that university. We never handle or see your university credentials; they are managed by your university." },
   { question: "Are there any fees for using Scholar Seats?", answer: "Scholar Seats is completely free for students to use. We don't charge any fees for listing or purchasing tickets." },
   { question: "How is the app kept safe for students?", answer: "We require student verification at sign-up, so only verified students can use the platform. Plus, we have a reputation and rating system to help ensure trust and accountability among users." },
   { question: "How are payments handled?", answer: "Payments are made directly between the buyer and seller, using platforms like Venmo, Cash App, or any payment method you agree on. This keeps things simple and flexible!" },
@@ -148,7 +148,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
-                className="flex flex-col md:flex-row gap-4 justify-center items-center mb-12"
+                className="flex flex-col gap-4 justify-center items-center mb-12"
               >
                 <Button 
                   size="lg" 
@@ -158,8 +158,11 @@ export default function LandingPage() {
                   Login with LinkBlue
                   <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                 </Button>
+                <p className="text-xs text-muted-foreground text-center w-full flex items-center justify-center gap-1">
+                  <Lock className="w-4 h-4" />
+                  Secure login through Microsoft
+                </p>
               </motion.div>
-
               {/* Stats section */}
               {/* <motion.div
                 initial={{ opacity: 0, y: 20 }}
