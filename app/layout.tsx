@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoonStar, Sun} from 'lucide-react'
 import LogoutButton from "../components/logoutButton"
+import LoginButton from "../components/loginButton"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -81,12 +82,7 @@ export default function RootLayout({
                       </Button>
                       {!isAuthenticated ? (
                         <>
-                          <Button variant="ghost" size="sm" asChild>
-                            <Link href="/login">Login</Link>
-                          </Button>
-                          <Button variant="default" size="sm" asChild>
-                            <Link href="/signup">Sign Up</Link>
-                          </Button>
+                          <LoginButton />
                         </>
                       ) : (
                         <UserNav/>
@@ -125,12 +121,7 @@ export default function RootLayout({
                         <DropdownMenuSeparator />
                         {!isAuthenticated ? (
                           <>
-                            <Button variant="ghost" size="sm" asChild className="w-full justify-start">
-                              <Link href="/login">Login</Link>
-                            </Button>
-                            <Button variant="default" size="sm" asChild className="w-full justify-start">
-                              <Link href="/signup">Sign Up</Link>
-                            </Button>
+                            <LoginButton />
                           </>
                         ) : (
                           <>

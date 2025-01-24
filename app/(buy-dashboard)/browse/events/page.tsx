@@ -52,7 +52,7 @@ const BrowseEventsPage: React.FC = () => {
     fetchEvents();
   }, []);
 
-  const filteredEvents = events.filter(event => 
+  const filteredEvents = events.filter(event =>
     (selectedSport === 'all' || event.sport === selectedSport) &&
     event.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
@@ -75,24 +75,24 @@ const BrowseEventsPage: React.FC = () => {
         <h1 className="text-2xl font-bold mb-4">Events</h1>
 
         <div className="flex space-x-4 mb-4">
-          <Toggle 
-            pressed={selectedSport === 'all'} 
+          <Toggle
+            pressed={selectedSport === 'all'}
             onPressedChange={() => setSelectedSport('all')}
             className={`bg-secondary text-secondary-foreground ${selectedSport === 'all' ? 'ring-2 ring-ring' : ''}`}
           >
             <TbList className="mr-2 h-4 w-4" />
             All
           </Toggle>
-          <Toggle 
-            pressed={selectedSport === 'basketball'} 
+          <Toggle
+            pressed={selectedSport === 'basketball'}
             onPressedChange={() => setSelectedSport('basketball')}
             className={`bg-secondary text-secondary-foreground ${selectedSport === 'basketball' ? 'ring-2 ring-ring' : ''}`}
           >
             <TbBallBasketball className="mr-2 h-4 w-4" />
             Basketball
           </Toggle>
-          <Toggle 
-            pressed={selectedSport === 'football'} 
+          <Toggle
+            pressed={selectedSport === 'football'}
             onPressedChange={() => setSelectedSport('football')}
             className={`bg-secondary text-secondary-foreground ${selectedSport === 'football' ? 'ring-2 ring-ring' : ''}`}
           >

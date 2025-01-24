@@ -19,7 +19,7 @@ import { TagIcon, Armchair, Star, Ticket, Search } from "lucide-react"
 import isAuth from '@/components/isAuth';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from "@/components/ui/checkbox"
-import { DualRangeSlider } from "@/components/ui/DualRangeSlider"
+import { Slider } from "@/components/ui/slider"
 
 type EventType = {
   id: string;
@@ -76,7 +76,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedTicketTypes, setSelectedTicketTypes] = useState<string[]>([]);
   const [hideOfferedTickets, setHideOfferedTickets] = useState(false);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 300]);
+  const [maxPrice, setMaxPrice] = useState<number>(0);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const perPage = 30; // You can adjust this value as needed
 
@@ -140,6 +140,12 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
           },
         }))
       };
+
+      // Set the max price for the slider
+      const maxTicketPrice = Math.max(...data.tickets.map(ticket => ticket.price));
+      //if no tickets set to default value
+      if (maxTicketPrice === -Infinity) setMaxPrice(10);
+      else setMaxPrice(maxTicketPrice);
 
       setEvent(data);
       setTotalPages(ticketsResponse.totalPages);
@@ -238,8 +244,8 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
       const offersMatch = !hideOfferedTickets || 
         !ticket.expand.offers.some(offer => offer.sender === pb.authStore.model?.id);
       
-      // Price range filter
-      const priceMatch = ticket.price >= priceRange[0] && ticket.price <= priceRange[1];
+      // Price filter
+      const priceMatch = ticket.price <= maxPrice;
       
       return searchMatch && typeMatch && offersMatch && priceMatch;
     });
@@ -361,16 +367,13 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4 w-[200px]">
-                <DualRangeSlider
-                  min={0}
-                  max={300}
-                  step={5}
-                  value={priceRange}
-                  onValueChange={(value) => setPriceRange(value as [number, number])}
-                  className="w-full"
-                  label={(value) => `$${value}`}
-                  labelPosition="top"
+              <div className="flex flex-col space-y-2 w-[200px]">
+                <Label>Max Price: ${maxPrice}</Label>
+                <Slider
+                  value={[maxPrice]}
+                  onValueChange={(values) => setMaxPrice(values[0])}
+                  max={event ? Math.max(...event.tickets.map(ticket => ticket.price)) : 1000}
+                  step={1}
                 />
               </div>
             </div>
