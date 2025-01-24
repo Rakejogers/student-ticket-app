@@ -25,7 +25,7 @@ export default function AnimatedSignUpForm() {
     phone: ''
   })
   const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading] = useState(false)
   const router = useRouter()
 
   const handleInputChange = (id: string, value: string) => {

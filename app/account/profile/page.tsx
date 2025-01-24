@@ -9,7 +9,6 @@ import { ProfileHeader } from "./components/profile-header"
 import { ProfileInfo } from "./components/profile-info"
 import { ProfileActions } from "./components/profile-actions"
 import { UpdateDialog } from "./components/update-dialog"
-import { PasswordDialog } from "./components/password-dialog"
 import { DeleteDialog } from "./components/delete-dialog"
 import { motion } from 'framer-motion'
 
@@ -17,7 +16,6 @@ const ProfilePage: React.FC = () => {
   const [user, setUser] = useState<RecordModel | null>(null)
   const [isVenmoDialogOpen, setIsVenmoDialogOpen] = useState(false)
   const [isPhoneDialogOpen, setIsPhoneDialogOpen] = useState(false)
-  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [verificationCooldown, setVerificationCooldown] = useState(0)
   const router = useRouter()
@@ -78,24 +76,6 @@ const ProfilePage: React.FC = () => {
       console.log(`${field} updated successfully!`)
     } catch (error) {
       console.error(`Failed to update ${field}`, error)
-    }
-  }
-
-  const handleChangePassword = async (oldPassword: string, newPassword: string) => {
-    try {
-      if (user == null) {
-        throw new Error("User not found")
-      }
-      await pb.collection('users').update(user.id, {
-        oldPassword: oldPassword,
-        password: newPassword,
-        passwordConfirm: newPassword
-      })
-      await pb.collection('users').authRefresh()
-      console.log("Password changed successfully")
-    } catch (error) {
-      console.error('Failed to change password', error)
-      throw error
     }
   }
 

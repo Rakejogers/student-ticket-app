@@ -11,7 +11,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, Users, DollarSign, Shield, Lock, ArrowRight, Star, Search, ArrowUpRight, ChevronDown, GraduationCap } from 'lucide-react'
+import { CheckCircle, Users, DollarSign, Shield, Lock, ArrowRight, Star, ArrowUpRight, ChevronDown, GraduationCap } from 'lucide-react'
 import pb from './pocketbase'
 import { useRouter } from 'next/navigation'
 

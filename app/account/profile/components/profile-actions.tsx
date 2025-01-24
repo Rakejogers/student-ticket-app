@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { KeyRound, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 
 interface ProfileActionsProps {
   onDeleteAccount: () => void
