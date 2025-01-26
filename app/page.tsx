@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle, Users, DollarSign, Shield, Lock, ArrowRight, Star, ArrowUpRight, ChevronDown, GraduationCap } from 'lucide-react'
 import pb from './pocketbase'
 import { useRouter } from 'next/navigation'
+import { toast } from '@/hooks/use-toast'
 
 const features = [
   { icon: DollarSign, title: "No Fees", description: "No fees or inflated prices, ever" },
@@ -108,10 +109,22 @@ export default function LandingPage() {
   const oauthLogin = async () => {
     const authData = await pb.collection('users').authWithOAuth2({ provider: 'microsoft' });
     console.log(authData)
-    if(authData.meta?.isNew){
-      router.push("/onboarding")
-    } else{
-      router.push("/browse/events")
+    const email = authData.meta?.email;
+    const emailDomain = email?.split('@')[1];
+
+    if (emailDomain === 'uky.edu') {
+      if (authData.meta?.isNew) {
+        router.push("/onboarding")
+      } else {
+        router.push("/browse/events")
+      }
+    } else {
+      await pb.collection('users').delete(authData.record.id);
+      toast({
+        title: "Access Denied",
+        description: "You must use a uky.edu email to access this application.",
+        variant: "destructive",
+      });
     }
   }
 
