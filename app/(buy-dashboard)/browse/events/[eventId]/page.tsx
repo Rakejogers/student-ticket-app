@@ -20,6 +20,7 @@ import isAuth from '@/components/isAuth';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from "@/components/ui/checkbox"
 import { Slider } from "@/components/ui/slider"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 type EventType = {
   id: string;
@@ -68,7 +69,7 @@ interface BrowseTicketsPageProps {
 
 const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   const [event, setEvent] = useState<EventType | null>(null);
-  const [offerAmount, setOfferAmount] = useState(0);
+  const [offerAmount, setOfferAmount] = useState<string>('');
   const [offerMade, setOfferMade] = useState<string[]>([]); // Track which ticket has an offer made
   const [sortBy, setSortBy] = useState<string>("price");
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -169,7 +170,6 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
         return;
       }
 
-      console.log(pb.authStore.model!.phone)
       if (pb.authStore.model!.phone == null) {
         toast({
           title: `Phone Number Required`,
@@ -182,12 +182,22 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
         return;
       }
 
+      const numericAmount = parseFloat(offerAmount);
+      if (isNaN(numericAmount) || numericAmount <= 0) {
+        toast({
+          title: "Invalid Amount",
+          description: "Please enter a valid offer amount.",
+          variant: "destructive",
+        })
+        return;
+      }
+
       // Send offer to seller
       const data = {
         ticket: ticketId,
         sender: pb.authStore.model?.id,
         receiver: sellerId,
-        amount: offerAmount,
+        amount: numericAmount,
         status: "Pending"
       };
 
@@ -200,9 +210,9 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
       const sellerName = event?.tickets.find(ticket => ticket.id === ticketId)?.expand.seller_id.name;
       toast({
         title: `Offer Sent to ${sellerName}`,
-        description: `Your offer of $${offerAmount} has been sent to the seller.`,
+        description: `Your offer of $${numericAmount} has been sent to the seller.`,
       })
-      setOfferAmount(0);
+      setOfferAmount('');
       setOfferMade((prevOffers) => [...prevOffers, ticketId]);
 
     } catch (error) {
@@ -438,13 +448,24 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                           </div>
                           <div className="grid gap-2">
                             <Label htmlFor="amount">Offer Amount</Label>
-                            <Input
-                              id="amount"
-                              placeholder="Enter amount"
-                              type="number"
-                              value={offerAmount}
-                              onChange={(e) => setOfferAmount(Number(e.target.value))}
-                            />
+                            <div className="relative">
+                              <span className="absolute left-3 top-2 text-muted-foreground">$</span>
+                              <Input
+                                id="amount"
+                                className="pl-7"
+                                placeholder="0.00"
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={offerAmount}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
+                                    setOfferAmount(value);
+                                  }
+                                }}
+                              />
+                            </div>
                           </div>
                           <Button onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}>
                             Send Offer
@@ -453,36 +474,48 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                       </PopoverContent>
                     </Popover>
                   ) : (
-                    <Drawer>
-                      <DrawerTrigger asChild>
+                    <Dialog>
+                      <DialogTrigger asChild>
                         <Button className="mt-4 w-full">Make an Offer</Button>
-                      </DrawerTrigger>
-                      <DrawerContent>
-                        <DrawerHeader>
-                          <DrawerTitle>Make an Offer</DrawerTitle>
-                          <DrawerDescription>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Make an Offer</DialogTitle>
+                          <DialogDescription>
                             Enter your offer amount for this ticket.
-                          </DrawerDescription>
-                        </DrawerHeader>
-                        <div className="p-4 pb-8">
-                          <div className="grid gap-4">
-                            <div className="grid gap-2">
-                              <Label htmlFor="amount-mobile">Offer Amount</Label>
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                          <div className="grid gap-2">
+                            <Label htmlFor="amount-mobile">Offer Amount</Label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-2 text-muted-foreground">$</span>
                               <Input
                                 id="amount-mobile"
-                                placeholder="Enter amount"
+                                className="pl-7"
+                                placeholder="0.00"
+                                inputMode="decimal"
                                 type="number"
+                                min="0"
+                                step="0.01"
                                 value={offerAmount}
-                                onChange={(e) => setOfferAmount(Number(e.target.value))}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
+                                    setOfferAmount(value);
+                                  }
+                                }}
                               />
                             </div>
-                            <Button onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}>
-                              Send Offer
-                            </Button>
                           </div>
                         </div>
-                      </DrawerContent>
-                    </Drawer>
+                        <DialogFooter>
+                          <Button onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)} className="w-full">
+                            Send Offer
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   )}
                 </CardContent>
               </Card>

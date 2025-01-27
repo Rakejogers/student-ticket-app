@@ -119,6 +119,7 @@ export default function LandingPage() {
         router.push("/browse/events")
       }
     } else {
+      pb.authStore.clear();
       await pb.collection('users').delete(authData.record.id);
       toast({
         title: "Access Denied",
