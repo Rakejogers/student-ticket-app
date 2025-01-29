@@ -10,7 +10,7 @@ import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from '@vercel/speed-insights/next'
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<string>(Cookies.get('theme') || 'dark')
+  const [theme, setTheme] = useState<string>(Cookies.get('theme') || 'system')
 
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme)
