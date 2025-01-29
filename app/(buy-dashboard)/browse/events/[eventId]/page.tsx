@@ -20,7 +20,6 @@ import isAuth from '@/components/isAuth';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from "@/components/ui/checkbox"
 import { Slider } from "@/components/ui/slider"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 type EventType = {
   id: string;
@@ -474,48 +473,53 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                       </PopoverContent>
                     </Popover>
                   ) : (
-                    <Dialog>
-                      <DialogTrigger asChild>
+                    <Drawer>
+                      <DrawerTrigger asChild>
                         <Button className="mt-4 w-full">Make an Offer</Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                          <DialogTitle>Make an Offer</DialogTitle>
-                          <DialogDescription>
-                            Enter your offer amount for this ticket.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <div className="grid gap-2">
-                            <Label htmlFor="amount-mobile">Offer Amount</Label>
-                            <div className="relative">
-                              <span className="absolute left-3 top-2 text-muted-foreground">$</span>
-                              <Input
-                                id="amount-mobile"
-                                className="pl-7"
-                                placeholder="0.00"
-                                inputMode="decimal"
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value={offerAmount}
-                                onChange={(e) => {
-                                  const value = e.target.value;
-                                  if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
-                                    setOfferAmount(value);
-                                  }
-                                }}
-                              />
+                      </DrawerTrigger>
+                      <DrawerContent>
+                        <div className="mx-auto w-full max-w-sm">
+                          <DrawerHeader>
+                            <DrawerTitle>Make an Offer</DrawerTitle>
+                            <DrawerDescription>
+                              Enter your offer amount for this ticket.
+                            </DrawerDescription>
+                          </DrawerHeader>
+                          <div className="p-4">
+                            <div className="grid gap-4">
+                              <div className="grid gap-2">
+                                <Label htmlFor="amount-mobile">Offer Amount</Label>
+                                <div className="relative">
+                                  <span className="absolute left-3 top-2 text-muted-foreground">$</span>
+                                  <Input
+                                    id="amount-mobile"
+                                    className="pl-7"
+                                    placeholder="0.00"
+                                    inputMode="decimal"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={offerAmount}
+                                    onChange={(e) => {
+                                      const value = e.target.value;
+                                      if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
+                                        setOfferAmount(value);
+                                      }
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              <Button 
+                                onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}
+                                className="w-full"
+                              >
+                                Send Offer
+                              </Button>
                             </div>
                           </div>
                         </div>
-                        <DialogFooter>
-                          <Button onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)} className="w-full">
-                            Send Offer
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
+                      </DrawerContent>
+                    </Drawer>
                   )}
                 </CardContent>
               </Card>

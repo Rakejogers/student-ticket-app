@@ -154,7 +154,7 @@ export default function LandingPage() {
                   Scholar Seats
                 </h1>
                 <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-                  The Free Student-First Ticket Marketplace
+                  No Add-Backs. No Ghosting. Just Tickets.
                 </p>
               </motion.div>
 
