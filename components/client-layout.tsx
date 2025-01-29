@@ -21,7 +21,12 @@ interface ClientLayoutProps {
 export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     setIsAuthenticated(pb.authStore.isValid)
@@ -54,7 +59,7 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
               Scholar Seats
             </Link>
           )}
-          <div className="hidden md:flex items-center space-x-2">
+          <div className="hidden md:flex items-center space-x-2" suppressHydrationWarning>
             {!isAuthenticated ? (
               <>
                 <LoginButton />
@@ -70,14 +75,18 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
                 <UserNav/>
               </>
             )}
-            <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme" suppressHydrationWarning>
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
-            </Button>
+            {mounted && (
+              <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
+                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
+              </Button>
+            )}
           </div>
-          <div className="md:hidden flex items-center space-x-2">
-            <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme" suppressHydrationWarning>
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
-            </Button>
+          <div className="md:hidden flex items-center space-x-2" suppressHydrationWarning>
+            {mounted && (
+              <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
+                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
+              </Button>
+            )}
             <Button variant="ghost" size="icon" onClick={toggleMobileMenu}>
               <MenuIcon isOpen={isMobileMenuOpen} toggleMenu={toggleMobileMenu} />
             </Button>
