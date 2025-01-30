@@ -14,9 +14,9 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ className }) => {
 
     const handleLogout = useCallback(async () => {
       try {
-          await pb.authStore.clear();
+          pb.authStore.clear();
           // Redirect to login page
-        router.push('/api/entra-logout');
+          router.push('/api/entra-logout');
       } catch (error) {
           console.error('Logout failed', error);
       }

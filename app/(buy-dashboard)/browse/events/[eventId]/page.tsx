@@ -20,6 +20,9 @@ import isAuth from '@/components/isAuth';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from "@/components/ui/checkbox"
 import { Slider } from "@/components/ui/slider"
+import { EmptyState } from "@/components/empty-state"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { HandCoins } from "lucide-react"
 
 type EventType = {
   id: string;
@@ -39,8 +42,19 @@ type EventType = {
         seller_rating: number;
         tickets_sold: number;
       };
+      event_id: {
+        name: string;
+      };
       offers: Array<{
+        id: string;
         sender: string;
+        amount: number;
+        status: string;
+        expand?: {
+          sender: {
+            name: string;
+          };
+        };
       }>;
     };
   }>;
@@ -68,7 +82,7 @@ interface BrowseTicketsPageProps {
 
 const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   const [event, setEvent] = useState<EventType | null>(null);
-  const [offerAmount, setOfferAmount] = useState(0);
+  const [offerAmount, setOfferAmount] = useState<string>('');
   const [offerMade, setOfferMade] = useState<string[]>([]); // Track which ticket has an offer made
   const [sortBy, setSortBy] = useState<string>("price");
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -79,6 +93,8 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   const [maxPrice, setMaxPrice] = useState<number>(0);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const perPage = 30; // You can adjust this value as needed
+  const [isOffersDialogOpen, setIsOffersDialogOpen] = useState(false);
+  const [selectedTicket] = useState<EventType['tickets'][0] | null>(null);
 
   const { eventId } = params
   const router = useRouter();
@@ -113,7 +129,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
       const ticketsResponse = await pb.collection('tickets').getList(currentPage, perPage, {
         filter: `event_id="${eventId}" && seller_id!="${pb.authStore.model?.id}" && status!="Sold"`,
         sort: sortString,
-        expand: 'seller_id, offers'
+        expand: 'seller_id,event_id,offers,offers.sender'
       });
 
       const data: EventType = {
@@ -134,8 +150,20 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
               seller_rating: ticket.expand?.seller_id.seller_rating,
               tickets_sold: ticket.expand?.seller_id.tickets_sold,
             },
-            offers: ticket.expand?.offers?.map((offer: { sender: string }) => ({
-              sender: offer.sender
+            event_id: {
+              name: ticket.expand?.event_id.name,
+            },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            offers: ticket.expand?.offers?.map((offer: any) => ({
+              id: offer.id,
+              sender: offer.sender,
+              amount: offer.amount,
+              status: offer.status,
+              expand: {
+                sender: {
+                  name: offer.expand?.sender?.name
+                }
+              }
             })) || []
           },
         }))
@@ -169,7 +197,6 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
         return;
       }
 
-      console.log(pb.authStore.model!.phone)
       if (pb.authStore.model!.phone == null) {
         toast({
           title: `Phone Number Required`,
@@ -182,12 +209,22 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
         return;
       }
 
+      const numericAmount = parseFloat(offerAmount);
+      if (isNaN(numericAmount) || numericAmount <= 0) {
+        toast({
+          title: "Invalid Amount",
+          description: "Please enter a valid offer amount.",
+          variant: "destructive",
+        })
+        return;
+      }
+
       // Send offer to seller
       const data = {
         ticket: ticketId,
         sender: pb.authStore.model?.id,
         receiver: sellerId,
-        amount: offerAmount,
+        amount: numericAmount,
         status: "Pending"
       };
 
@@ -200,9 +237,9 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
       const sellerName = event?.tickets.find(ticket => ticket.id === ticketId)?.expand.seller_id.name;
       toast({
         title: `Offer Sent to ${sellerName}`,
-        description: `Your offer of $${offerAmount} has been sent to the seller.`,
+        description: `Your offer of $${numericAmount} has been sent to the seller.`,
       })
-      setOfferAmount(0);
+      setOfferAmount('');
       setOfferMade((prevOffers) => [...prevOffers, ticketId]);
 
     } catch (error) {
@@ -438,13 +475,24 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                           </div>
                           <div className="grid gap-2">
                             <Label htmlFor="amount">Offer Amount</Label>
-                            <Input
-                              id="amount"
-                              placeholder="Enter amount"
-                              type="number"
-                              value={offerAmount}
-                              onChange={(e) => setOfferAmount(Number(e.target.value))}
-                            />
+                            <div className="relative">
+                              <span className="absolute left-3 top-2 text-muted-foreground">$</span>
+                              <Input
+                                id="amount"
+                                className="pl-7"
+                                placeholder="0.00"
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={offerAmount}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
+                                    setOfferAmount(value);
+                                  }
+                                }}
+                              />
+                            </div>
                           </div>
                           <Button onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}>
                             Send Offer
@@ -458,27 +506,44 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                         <Button className="mt-4 w-full">Make an Offer</Button>
                       </DrawerTrigger>
                       <DrawerContent>
-                        <DrawerHeader>
-                          <DrawerTitle>Make an Offer</DrawerTitle>
-                          <DrawerDescription>
-                            Enter your offer amount for this ticket.
-                          </DrawerDescription>
-                        </DrawerHeader>
-                        <div className="p-4 pb-8">
-                          <div className="grid gap-4">
-                            <div className="grid gap-2">
-                              <Label htmlFor="amount-mobile">Offer Amount</Label>
-                              <Input
-                                id="amount-mobile"
-                                placeholder="Enter amount"
-                                type="number"
-                                value={offerAmount}
-                                onChange={(e) => setOfferAmount(Number(e.target.value))}
-                              />
+                        <div className="mx-auto w-full max-w-sm">
+                          <DrawerHeader>
+                            <DrawerTitle>Make an Offer</DrawerTitle>
+                            <DrawerDescription>
+                              Enter your offer amount for this ticket.
+                            </DrawerDescription>
+                          </DrawerHeader>
+                          <div className="p-4">
+                            <div className="grid gap-4">
+                              <div className="grid gap-2">
+                                <Label htmlFor="amount-mobile">Offer Amount</Label>
+                                <div className="relative">
+                                  <span className="absolute left-3 top-2 text-muted-foreground">$</span>
+                                  <Input
+                                    id="amount-mobile"
+                                    className="pl-7"
+                                    placeholder="0.00"
+                                    inputMode="decimal"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={offerAmount}
+                                    onChange={(e) => {
+                                      const value = e.target.value;
+                                      if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
+                                        setOfferAmount(value);
+                                      }
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              <Button 
+                                onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}
+                                className="w-full"
+                              >
+                                Send Offer
+                              </Button>
                             </div>
-                            <Button onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}>
-                              Send Offer
-                            </Button>
                           </div>
                         </div>
                       </DrawerContent>
@@ -490,7 +555,11 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
           </div>
 
           {sortedAndFilteredTickets?.length === 0 && (
-            <p className="text-center text-muted-foreground mt-4">No tickets available for this event.</p>
+            <EmptyState
+              icon={<Ticket className="h-12 w-12 text-muted-foreground" />}
+              title="No tickets available"
+              description="There are no tickets available for this event at the moment. Try adjusting your filters or check back later."
+            />
           )}
           {/* Add the pagination component */}
           <div className="mt-8 flex justify-center">
@@ -520,6 +589,46 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
               </PaginationContent>
             </Pagination>
           </div>
+
+          <Dialog open={isOffersDialogOpen} onOpenChange={setIsOffersDialogOpen}>
+            <DialogContent className="max-h-[80vh] flex flex-col">
+              <DialogHeader>
+                <DialogTitle>Offers for {selectedTicket?.expand?.event_id?.name}</DialogTitle>
+                <DialogDescription>
+                  Ticket Price: ${selectedTicket?.price}
+                </DialogDescription>
+              </DialogHeader>
+              {selectedTicket?.expand?.offers?.length === 0 ? (
+                <EmptyState
+                  icon={<HandCoins className="h-12 w-12 text-muted-foreground/50" />}
+                  title="No offers yet"
+                  description="This ticket hasn't received any offers yet. Be the first to make an offer!"
+                  className="min-h-[200px]"
+                />
+              ) : (
+                <div className="flex-1 overflow-y-auto pr-2 my-4">
+                  <div className="space-y-4">
+                    {selectedTicket?.expand?.offers?.map((offer) => (
+                      <Card key={offer.id} className="p-4">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium">From: {offer.expand?.sender?.name || 'Anonymous'}</p>
+                            <p className="text-sm text-muted-foreground">Amount: ${offer.amount}</p>
+                          </div>
+                          <Badge variant={offer.status === 'Accepted' ? 'default' : 'secondary'}>
+                            {offer.status}
+                          </Badge>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <DialogFooter className="mt-2">
+                <Button onClick={() => setIsOffersDialogOpen(false)}>Close</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </Suspense>

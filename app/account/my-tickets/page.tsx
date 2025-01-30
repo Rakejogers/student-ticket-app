@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { CalendarIcon, MoreVerticalIcon, PlusIcon, TagIcon, UserIcon, MailIcon, PhoneIcon } from "lucide-react"
+import { CalendarIcon, MoreVerticalIcon, PlusIcon, TagIcon, UserIcon, MailIcon, PhoneIcon, Ticket } from "lucide-react"
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import Link from 'next/link'
@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea"
 import LoadingSkeleton from '@/components/loading-skeleton'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
 import { useRouter } from 'next/navigation'
+import { EmptyState } from '@/components/empty-state'
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -176,7 +177,7 @@ const UserTicketsPage: React.FC = () => {
       const userTickets = await pb.collection('tickets').getList(1, 10, {
         filter: `seller_id="${pb.authStore.model.id}" && event_id.active = true`,
         sort: '-status',
-        expand: 'event_id,buyer_id,offers',
+        expand: 'event_id,buyer_id,offers,offers.sender',
       });
       setTickets(userTickets.items)
       setLoading(false)
@@ -216,7 +217,15 @@ const UserTicketsPage: React.FC = () => {
         </header>
 
         {tickets.length === 0 ? (
-          <p>You don&apos;t have any tickets for sale.</p>
+          <EmptyState
+            icon={<Ticket className="h-12 w-12 text-muted-foreground/50" />}
+            title="No tickets listed"
+            description="You haven't listed any tickets for sale yet. Start selling by adding your first ticket."
+            action={{
+              label: "List a Ticket",
+              onClick: () => router.push('/list-ticket')
+            }}
+          />
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tickets.map((ticket) => (
@@ -345,40 +354,62 @@ const UserTicketsPage: React.FC = () => {
       </div>
 
       <Dialog open={isOffersDialogOpen} onOpenChange={setIsOffersDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[80vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Offers for {selectedTicket?.expand?.event_id?.name}</DialogTitle>
             <DialogDescription>
               Ticket Price: ${selectedTicket?.price}
             </DialogDescription>
           </DialogHeader>
-          {selectedTicket?.expand?.offers?.length === 0 ? (
+          {Array.isArray(selectedTicket?.expand?.offers) && selectedTicket.expand.offers.length === 0 ? (
             <p>No offers yet for this ticket.</p>
-          ) : (
-            <div className="space-y-4">
-              {selectedTicket?.expand?.offers?.map((offer: RecordModel) => (
-                <div key={offer.id} className="flex justify-between items-center">
-                  <span>Offer: ${offer.amount}</span>
-                  {offer.status === 'Pending' && (
-                    <div>
-                      <Button variant="outline" className="mr-2" onClick={() => handleOfferAction(offer.id, 'accept')}>
-                        Accept
-                      </Button>
-                      <Button variant="outline" onClick={() => handleOfferAction(offer.id, 'decline')}>
-                        Decline
-                      </Button>
+          ) : Array.isArray(selectedTicket?.expand?.offers) ? (
+            <div className="flex-1 overflow-y-auto pr-2 my-4">
+              <div className="space-y-4">
+                {selectedTicket.expand.offers.map((offer: RecordModel) => (
+                  <Card key={offer.id} className="p-4">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                      <div className="space-y-1">
+                        <p className="font-medium">Offer: ${offer.amount}</p>
+                        <p className="text-sm text-muted-foreground">
+                          From: {offer.expand?.sender?.name || 'Anonymous'}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {offer.status === 'Pending' ? (
+                          <>
+                            <Button 
+                              variant="default" 
+                              className="sm:mr-2" 
+                              onClick={() => handleOfferAction(offer.id, 'accept')}
+                            >
+                              Accept
+                            </Button>
+                            <Button 
+                              variant="destructive" 
+                              onClick={() => handleOfferAction(offer.id, 'decline')}
+                            >
+                              Decline
+                            </Button>
+                          </>
+                        ) : (
+                          <Badge 
+                            variant={offer.status === 'Accepted' ? 'default' : 'destructive'}
+                            className="px-4 py-1"
+                          >
+                            {offer.status}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                  )}
-                  {offer.status !== 'Pending' && (
-                    <span className={offer.status === 'Accepted' ? 'text-green-600' : 'text-destructive'}>
-                      {offer.status}
-                    </span>
-                  )}
-                </div>
-              ))}
+                  </Card>
+                ))}
+              </div>
             </div>
+          ) : (
+            <p>No offers yet for this ticket.</p>
           )}
-          <DialogFooter>
+          <DialogFooter className="mt-2">
             <Button onClick={() => setIsOffersDialogOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>

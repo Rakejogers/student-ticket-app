@@ -32,7 +32,7 @@ const SellTicketsPage: React.FC = () => {
       try {
         const records = await pb.collection('events').getList(1, 10, {
           filter: `sport="${sport}" && active=true`,
-          sort: '-date'
+          sort: '+date'
         });
         setEvents(records.items);
       } catch (error) {

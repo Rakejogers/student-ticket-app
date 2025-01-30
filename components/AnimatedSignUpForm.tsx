@@ -103,8 +103,10 @@ export default function AnimatedSignUpForm() {
       // Handle the submission of name and phone
       await pb.collection('users').update(
         pb.authStore.model?.id,
-        { name: formData.name, phone: formData.phone }
-      )
+        { name: formData.name,
+          phone: formData.phone,
+          emailVisibility: true, 
+      })
       console.log('Form submitted:', formData)
       // Add your submission logic here
       router.push('/browse/events') // or wherever you want to redirect after
