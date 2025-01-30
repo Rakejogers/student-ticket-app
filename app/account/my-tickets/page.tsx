@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { CalendarIcon, MoreVerticalIcon, PlusIcon, TagIcon, UserIcon, MailIcon, PhoneIcon, Ticket, HandCoins } from "lucide-react"
+import { CalendarIcon, MoreVerticalIcon, PlusIcon, TagIcon, UserIcon, MailIcon, PhoneIcon, Ticket } from "lucide-react"
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import Link from 'next/link'

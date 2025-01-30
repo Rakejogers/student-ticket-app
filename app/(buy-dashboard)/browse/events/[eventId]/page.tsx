@@ -94,7 +94,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const perPage = 30; // You can adjust this value as needed
   const [isOffersDialogOpen, setIsOffersDialogOpen] = useState(false);
-  const [selectedTicket, setSelectedTicket] = useState<EventType['tickets'][0] | null>(null);
+  const [selectedTicket] = useState<EventType['tickets'][0] | null>(null);
 
   const { eventId } = params
   const router = useRouter();
@@ -153,6 +153,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
             event_id: {
               name: ticket.expand?.event_id.name,
             },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             offers: ticket.expand?.offers?.map((offer: any) => ({
               id: offer.id,
               sender: offer.sender,
