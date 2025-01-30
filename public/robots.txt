@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://scholarseats.com
+
+# Sitemaps
+Sitemap: https://scholarseats.com/sitemap.xml
