@@ -10,7 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import isAuth from '@/components/isAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from 'date-fns';
-import { Filter } from 'bad-words';
+import { RegExpMatcher, TextCensor, englishDataset, englishRecommendedTransformers } from 'obscenity';
 
 type Params = {
   offerId: string;
@@ -30,7 +30,10 @@ const SentOffersChatPage: React.FC<SentOffersChatProps> = ({ params }: { params:
   const [isLoading, setIsLoading] = useState(true);
   const [showScrollButton, setShowScrollButton] = useState(false);
 
-  const filter = new Filter();
+  const matcher = new RegExpMatcher({
+    ...englishDataset.build(), ...englishRecommendedTransformers
+  });
+  const censor = new TextCensor();
 
   useEffect(() => {
     if (!offerId) return;
@@ -95,12 +98,14 @@ const SentOffersChatPage: React.FC<SentOffersChatProps> = ({ params }: { params:
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !offerId) return;
+    
+    const censoredMessage = censor.applyTo(newMessage, matcher.getAllMatches(newMessage));
 
     try {
       await pb.collection('messages').create({
         offer: offerId,
         sender: pb.authStore.model?.id,
-        content: newMessage,
+        content: censoredMessage,
         receiver: receiverId,
       });
 
@@ -179,7 +184,7 @@ const SentOffersChatPage: React.FC<SentOffersChatProps> = ({ params }: { params:
         <div className="flex items-center space-x-2">
           <Textarea
             value={newMessage}
-            onChange={(e) => setNewMessage(filter.clean(e.target.value))}
+            onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
             onKeyPress={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
