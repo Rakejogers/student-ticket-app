@@ -15,6 +15,7 @@ import { CheckCircle, Users, DollarSign, Shield, Lock, ArrowRight, Star, ArrowUp
 import pb from './pocketbase'
 import { useRouter } from 'next/navigation'
 import { toast } from '@/hooks/use-toast'
+import type { JSX } from 'react'
 
 const features = [
   { icon: DollarSign, title: "No Fees", description: "No fees or inflated prices, ever" },
@@ -321,13 +322,6 @@ export default function LandingPage() {
       <footer className="bg-transparent text-secondary-foreground">
         <div className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-center text-center">
-            {/* <div>
-              <h3 className="text-lg font-semibold mb-4">About</h3>
-              <ul className="space-y-2">
-                <li><Link href="/about" className="hover:underline">Our Story</Link></li>
-                <li><Link href="/team" className="hover:underline">Team</Link></li>
-              </ul>
-            </div> */}
             <div>
               <h3 className="text-lg font-semibold mb-4">Support</h3>
               <ul className="space-y-2">
@@ -343,7 +337,21 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-8 border-t border-secondary-foreground/10 pt-8 text-center">
+            <motion.a
+              href="https://www.buymeacoffee.com/jakerogers"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-4 py-2 mb-4 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-foreground"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span className="mr-2">☕</span>
+              Buy Us a Coffee
+            </motion.a>
             <p>&copy; {new Date().getFullYear()} Scholar Seats. All rights reserved.</p>
+            <p className="text-xs text-muted-foreground text-center w-full flex items-center justify-center gap-1 mt-1">
+              Built by Jake and Nate
+            </p>
           </div>
         </div>
       </footer>
