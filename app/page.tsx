@@ -56,9 +56,20 @@ const FeatureCard = ({ feature, index }: { feature: typeof features[0], index: n
       }}
       transition={{ duration: 0.5, delay: index * 0.2 }}
     >
-      <Card className="h-full hover:shadow-lg transition-shadow duration-300">
+      <Card className="h-full hover:shadow-lg transition-shadow duration-300 relative overflow-hidden">
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent"
+          initial={{ opacity: 0 }}
+          whileHover={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        />
         <CardHeader>
-          <feature.icon className="h-8 w-8 mb-2 text-primary" />
+          <motion.div 
+            whileHover={{ scale: 1.1 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <feature.icon className="h-8 w-8 mb-2 text-primary" />
+          </motion.div>
           <CardTitle>{feature.title}</CardTitle>
         </CardHeader>
         <CardContent>
@@ -164,14 +175,23 @@ export default function LandingPage() {
                 transition={{ delay: 0.3, duration: 0.6 }}
                 className="flex flex-col gap-4 justify-center items-center mb-12"
               >
-                <Button 
-                  size="lg" 
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 group flex items-center gap-2" 
-                  onClick={() => oauthLogin()}
+                <motion.div
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 0 20px rgba(99, 102, 241, 0.4)"
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 300 }}
                 >
-                  Login with LinkBlue
-                  <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                </Button>
+                  <Button 
+                    size="lg" 
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 group flex items-center gap-2" 
+                    onClick={() => oauthLogin()}
+                  >
+                    Login with LinkBlue
+                    <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  </Button>
+                </motion.div>
                 <p className="text-xs text-muted-foreground text-center w-full flex items-center justify-center gap-1">
                   <Lock className="w-4 h-4" />
                   Secure login through Microsoft
@@ -212,7 +232,7 @@ export default function LandingPage() {
                 className="flex flex-col items-center gap-2 group hover:bg-transparent hover:text-primary"
                 onClick={scrollToFeatures}
               >
-                How it Works
+                Learn More
                 <motion.div
                   animate={{
                     y: [0, 5, 0],
@@ -271,8 +291,27 @@ export default function LandingPage() {
           <Accordion type="single" collapsible className="w-full max-w-2xl mx-auto">
             {faqs.map((faq, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger>{faq.question}</AccordionTrigger>
-                <AccordionContent>{faq.answer}</AccordionContent>
+                <motion.div
+                  whileHover={{ x: 5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <AccordionTrigger>
+                    <motion.div
+                      animate={{ rotate: 0 }}
+                      exit={{ rotate: -90 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {faq.question}
+                    </motion.div>
+                  </AccordionTrigger>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                >
+                  <AccordionContent>{faq.answer}</AccordionContent>
+                </motion.div>
               </AccordionItem>
             ))}
           </Accordion>
