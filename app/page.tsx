@@ -15,7 +15,6 @@ import { CheckCircle, Users, DollarSign, Shield, Lock, ArrowRight, Star, ArrowUp
 import pb from './pocketbase'
 import { useRouter } from 'next/navigation'
 import { toast } from '@/hooks/use-toast'
-import type { JSX } from 'react'
 
 const features = [
   { icon: DollarSign, title: "No Fees", description: "No fees or inflated prices, ever" },
