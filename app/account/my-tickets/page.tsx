@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { CalendarIcon, MoreVerticalIcon, PlusIcon, TagIcon, UserIcon, MailIcon, PhoneIcon } from "lucide-react"
+import { CalendarIcon, MoreVerticalIcon, PlusIcon, TagIcon, UserIcon, MailIcon, PhoneIcon, Ticket, HandCoins } from "lucide-react"
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import Link from 'next/link'
@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea"
 import LoadingSkeleton from '@/components/loading-skeleton'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
 import { useRouter } from 'next/navigation'
+import { EmptyState } from '@/components/empty-state'
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -216,7 +217,15 @@ const UserTicketsPage: React.FC = () => {
         </header>
 
         {tickets.length === 0 ? (
-          <p>You don&apos;t have any tickets for sale.</p>
+          <EmptyState
+            icon={<Ticket className="h-12 w-12 text-muted-foreground/50" />}
+            title="No tickets listed"
+            description="You haven't listed any tickets for sale yet. Start selling by adding your first ticket."
+            action={{
+              label: "List a Ticket",
+              onClick: () => router.push('/list-ticket')
+            }}
+          />
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tickets.map((ticket) => (
@@ -352,12 +361,12 @@ const UserTicketsPage: React.FC = () => {
               Ticket Price: ${selectedTicket?.price}
             </DialogDescription>
           </DialogHeader>
-          {selectedTicket?.expand?.offers?.length === 0 ? (
+          {Array.isArray(selectedTicket?.expand?.offers) && selectedTicket.expand.offers.length === 0 ? (
             <p>No offers yet for this ticket.</p>
-          ) : (
+          ) : Array.isArray(selectedTicket?.expand?.offers) ? (
             <div className="flex-1 overflow-y-auto pr-2 my-4">
               <div className="space-y-4">
-                {selectedTicket?.expand?.offers?.map((offer: RecordModel) => (
+                {selectedTicket.expand.offers.map((offer: RecordModel) => (
                   <Card key={offer.id} className="p-4">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                       <div className="space-y-1">
@@ -397,6 +406,8 @@ const UserTicketsPage: React.FC = () => {
                 ))}
               </div>
             </div>
+          ) : (
+            <p>No offers yet for this ticket.</p>
           )}
           <DialogFooter className="mt-2">
             <Button onClick={() => setIsOffersDialogOpen(false)}>Close</Button>

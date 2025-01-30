@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CalendarIcon, TagIcon, TicketIcon, UserIcon, PhoneIcon, MailIcon, Wallet, StarIcon, Undo2 } from "lucide-react"
+import { CalendarIcon, TagIcon, TicketIcon, UserIcon, PhoneIcon, MailIcon, Wallet, StarIcon, Undo2, HandCoins } from "lucide-react"
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import { toast } from "@/hooks/use-toast"
@@ -16,6 +16,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from "@/components/ui/drawer"
 import LoadingSkeleton from "@/components/loading-skeleton"
 import Link from "next/link"
+import { EmptyState } from "@/components/empty-state"
+import { useRouter } from "next/navigation"
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -40,6 +42,7 @@ const SentOffersPage: React.FC = () => {
   const [isReportDrawerOpen, setIsReportDrawerOpen] = useState(false);
   const [isRatingDrawerOpen, setIsRatingDrawerOpen] = useState(false);
   const [currentSellerId, setCurrentSellerId] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchOffers() {
@@ -208,7 +211,15 @@ const SentOffersPage: React.FC = () => {
         <h1 className="text-2xl font-bold mb-6">My Sent Offers</h1>
         
         {sentOffers.length === 0 ? (
-          <p>You haven&apos;t sent any offers yet.</p>
+          <EmptyState
+            icon={<HandCoins className="h-12 w-12 text-muted-foreground" />}
+            title="No offers sent"
+            description="You haven't made any offers yet. Browse available tickets and make your first offer!"
+            action={{
+              label: "Browse Tickets",
+              onClick: () => router.push('/browse/events')
+            }}
+          />
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {sentOffers.map((offer) => (
