@@ -69,7 +69,7 @@ export default function ContactPage() {
             <h1 className="text-4xl font-bold mb-8 text-center">Contact Us</h1>
             
             {/* <div className="grid md:grid-cols-2 gap-8 mb-12"> */}
-            <div className="mb-12">
+            <div className="mb-12 mx-4">
                 <Card>
                     <CardHeader>
                         <CardTitle>Send us a message</CardTitle>
@@ -149,13 +149,13 @@ export default function ContactPage() {
                 </Card> */}
             </div>
             
-            <Card className="mb-8">
+            <Card className="mb-8 mx-4">
                 <CardHeader>
                     <CardTitle>Frequently Asked Questions</CardTitle>
                     <CardDescription>Find quick answers to common questions.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Accordion type="single" collapsible className="w-full">
+                    <Accordion type="single" collapsible className="w-full text-sm">
                     {faqs.map((faq, index) => (
                         <AccordionItem key={index} value={`item-${index}`}>
                             <AccordionTrigger>{faq.question}</AccordionTrigger>

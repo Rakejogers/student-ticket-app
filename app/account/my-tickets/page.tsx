@@ -205,7 +205,7 @@ const UserTicketsPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4">
         <header className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">My Tickets</h1>
@@ -308,7 +308,7 @@ const UserTicketsPage: React.FC = () => {
                               <MailIcon className="mr-2 h-4 w-4" /> {ticket.expand.buyer_id.email}
                             </p>
                             <p className="flex items-center">
-                              <PhoneIcon className="mr-2 h-4 w-4" /> {ticket.expand.buyer_id.phone}
+                              <PhoneIcon className="mr-2 h-4 w-4" /> {ticket.expand.buyer_id.phone || "Not shared"}
                             </p>
                           </div>
                         )}

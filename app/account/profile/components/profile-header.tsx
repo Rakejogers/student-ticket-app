@@ -31,6 +31,11 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
             <span className="ml-1">{user.tickets_sold < 3 ? 'N/A' : `${user.seller_rating?.toFixed(0)}%`}</span>
           </div>
         </div>
+        {user.tickets_sold < 3 && (
+          <p className="text-sm text-muted-foreground text-center">
+            Your rating will be displayed after 3 sold tickets
+          </p>
+        )}
       </CardHeader>
     </Card>
   )
