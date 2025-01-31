@@ -66,6 +66,17 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
               </>
             ) : (
               <>
+                <motion.a
+                    href="https://www.buymeacoffee.com/jakerogers"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hidden md:inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-muted hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-foreground"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                  <span className="mr-2">☕</span>
+                  Buy Us a Coffee
+                </motion.a>
                 <Button variant="ghost" size="sm" asChild>
                   <Link href="/list-ticket">Sell</Link>
                 </Button>
@@ -83,9 +94,23 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
           </div>
           <div className="md:hidden flex items-center space-x-2" suppressHydrationWarning>
             {mounted && (
-              <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
-                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
-              </Button>
+              <>
+                {isAuthenticated && (
+                  <motion.a
+                    href="https://www.buymeacoffee.com/jakerogers"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center w-8 h-8 rounded-md shadow-sm text-white bg-muted hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-foreground"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <span>☕</span>
+                  </motion.a>
+                )}
+                <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
+                  {theme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
+                </Button>
+              </>
             )}
             <Button variant="ghost" size="icon" onClick={toggleMobileMenu}>
               <MenuIcon isOpen={isMobileMenuOpen} toggleMenu={toggleMobileMenu} />
