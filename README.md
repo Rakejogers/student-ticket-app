@@ -1,6 +1,6 @@
-# Student Ticket Marketplace
+# Scholar Seats
 
-Welcome to the Student Ticket Marketplace! This project is designed to provide a simple, secure platform for students to buy and sell event tickets. The marketplace is built with Next.js, React, TailwindCSS, and TypeScript to create a modern, user-friendly experience.
+Welcome to Scholar Seats! This project is designed to provide a simple, secure platform for students to buy and sell event tickets. The marketplace is built with Next.js, React, TailwindCSS, and TypeScript to create a modern, user-friendly experience.
 
 ## Features
 
@@ -13,7 +13,7 @@ Welcome to the Student Ticket Marketplace! This project is designed to provide a
 ## Technologies Used
 
 - **Frontend**: Next.js, React, TailwindCSS
-- **Backend**: Appwrite for database and authentication
+- **Backend**: Pocketbase for database and authentication
 - **Language**: TypeScript
 
 ## Getting Started

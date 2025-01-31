@@ -70,7 +70,7 @@ const BrowseEventsPage: React.FC = () => {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Events</h1>
 
@@ -128,7 +128,11 @@ const BrowseEventsPage: React.FC = () => {
                 <Link href={`/browse/events/${event.id}`} key={event.id}>
                   <Card className="cursor-pointer hover:shadow-lg transition-shadow border border-border rounded-lg">
                     <CardHeader className="bg-muted text-card-foreground p-4 border border-border rounded-t-lg">
-                      <CardTitle className="text-xl font-semibold">{event.name}</CardTitle>
+                      <CardTitle className="text-xl font-semibold flex items-center gap-2">
+                        {event.name}
+                        {event.sport === 'basketball' && <TbBallBasketball className="h-5 w-5" />}
+                        {event.sport === 'football' && <TbBallAmericanFootball className="h-5 w-5" />}
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="p-4 bg-card border border-border rounded-b-lg">
                       <p className="text-muted-foreground mt-2 flex items-center"><Calendar className="mr-2 h-4 w-4" /> {formatDate(event.date)}</p>

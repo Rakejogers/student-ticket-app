@@ -11,7 +11,7 @@ interface DeleteDialogProps {
 export function DeleteDialog({ open, onOpenChange, onDeleteAccount }: DeleteDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px] mx-auto rounded-lg">
         <DialogHeader>
           <DialogTitle>Delete Account</DialogTitle>
           <DialogDescription>Are you sure you want to delete your account? This action cannot be undone.</DialogDescription>
@@ -19,7 +19,7 @@ export function DeleteDialog({ open, onOpenChange, onDeleteAccount }: DeleteDial
         <div className="flex items-center justify-center py-4">
           <AlertTriangle className="h-16 w-16 text-yellow-500" />
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex flex-col gap-2">
           <Button variant="secondary" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>

@@ -206,7 +206,7 @@ const SentOffersPage: React.FC = () => {
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-6">My Sent Offers</h1>
         
