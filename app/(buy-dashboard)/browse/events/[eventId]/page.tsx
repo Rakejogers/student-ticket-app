@@ -559,6 +559,10 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
               icon={<Ticket className="h-12 w-12 text-muted-foreground" />}
               title="No tickets available"
               description="There are no tickets available for this event at the moment. Try adjusting your filters or check back later."
+              action={{
+                label: "List Your Ticket",
+                onClick: () => router.push('/list-ticket')
+              }}
             />
           )}
           {/* Add the pagination component */}
