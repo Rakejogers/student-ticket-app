@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { usePushNotifications } from "@/hooks/use-push-notifications"
 import { usePwaInstall } from "@/hooks/use-pwa-install"
-import { Bell, BellOff, Trash2, Share2, Plus } from "lucide-react"
+import { Bell, BellOff, Trash2, Share, Plus } from "lucide-react"
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -137,7 +137,7 @@ export function ProfileActions({ onDeleteAccount }: ProfileActionsProps) {
             <div className="space-y-4">
               <p className="text-sm">To install on your iOS device:</p>
               <ol className="list-decimal list-inside space-y-2 text-sm">
-                <li>Tap the share button <Share2 className="h-4 w-4 inline mx-1" /></li>
+                <li>Tap the share button <Share className="h-4 w-4 inline mx-1" /></li>
                 <li>Scroll down and tap &quot;Add to Home Screen&quot; <Plus className="h-4 w-4 inline mx-1" /></li>
                 <li>Tap &quot;Add&quot; in the top right corner</li>
               </ol>
