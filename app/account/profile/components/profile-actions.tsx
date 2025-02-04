@@ -51,24 +51,24 @@ export function ProfileActions({ onDeleteAccount }: ProfileActionsProps) {
       <CardContent className="p-6">
         {/* <h2 className="text-2xl font-bold mb-4">Account Actions</h2> */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-          <Button
-            variant="outline"
-            className="w-full sm:w-auto flex items-center gap-2"
-            onClick={handleNotificationToggle}
-            disabled={isLoading}
-          >
-            {isSubscribed ? (
-              <>
-                <BellOff className="h-4 w-4" />
-                Disable Notifications
-              </>
-            ) : (
-              <>
-                <Bell className="h-4 w-4" />
-                Enable Notifications
-              </>
-            )}
-          </Button>
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto flex items-center gap-2"
+              onClick={handleNotificationToggle}
+              disabled={isLoading}
+            >
+              {isSubscribed ? (
+                <>
+                  <BellOff className="h-4 w-4" />
+                  Disable Notifications
+                </>
+              ) : (
+                <>
+                  <Bell className="h-4 w-4" />
+                  Enable Notifications
+                </>
+              )}
+            </Button>
           
           <Button
             variant="destructive"

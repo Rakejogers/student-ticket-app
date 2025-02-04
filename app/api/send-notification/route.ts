@@ -1,38 +1,34 @@
 import webpush from 'web-push';
 import { NextResponse } from 'next/server';
-import pb from '@/app/pocketbase';
 
 webpush.setVapidDetails(
-  'mailto:jakero0828@gmail.com', // Replace with your email
+  'mailto:jakero0828@gmail.com',
   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
   process.env.VAPID_PRIVATE_KEY!
 );
 
 export async function POST(request: Request) {
   try {
-    const { userId, title, message } = await request.json();
+    const { subscription, title, message } = await request.json();
 
-    // Get user from PocketBase
-    const user = await pb.collection('users').getOne(userId);
-    
-    if (!user.pushSubscription) {
-      return NextResponse.json({ error: 'User not subscribed to push notifications' }, { status: 400 });
+    if (!subscription) {
+      return NextResponse.json({ error: 'Subscription object is required' }, { status: 400 });
     }
 
-    const subscription = JSON.parse(user.pushSubscription);
-
     // Send push notification
-    await webpush.sendNotification(
-      subscription,
-      JSON.stringify({
-        title,
-        body: message,
-      })
-    );
+    const payload = JSON.stringify({
+      title: title || 'Test Notification',
+      body: message || 'This is a test notification!',
+    });
+
+    await webpush.sendNotification(subscription, payload);
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error sending push notification:', error);
-    return NextResponse.json({ error: 'Failed to send notification' }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to send notification' }, 
+      { status: 500 }
+    );
   }
 } 
