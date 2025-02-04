@@ -1,3 +1,24 @@
+// Listen for the install event
+self.addEventListener('install', (event) => {
+  console.log('Service Worker installing...');
+  // Skip waiting to become active immediately
+  self.skipWaiting();
+});
+
+// Listen for the activate event
+self.addEventListener('activate', (event) => {
+  console.log('Service Worker activating...');
+  // Claim all clients to ensure the service worker is controlling the page
+  event.waitUntil(clients.claim());
+});
+
+// Listen for messages from the client
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('push', function(event) {
   const options = {
     body: event.data.text(),
@@ -25,30 +46,20 @@ self.addEventListener('notificationclick', function(event) {
   event.notification.close();
 
   if (event.action === 'explore') {
-    // Handle the action click
     event.waitUntil(
-      clients.openWindow('https://scholarseats.com/')
+      clients.openWindow('/account/my-tickets')
     );
   }
 });
 
-// Cache static assets
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open('static-v1').then((cache) => {
-      return cache.addAll([
-        '/',
-        '/icons/icon-192x192.png',
-        '/icons/icon-512x512.png',
-      ]);
-    })
-  );
-});
-
+// Only cache responses for navigation requests
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
-  );
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          return caches.match('/');
+        })
+    );
+  }
 }); 

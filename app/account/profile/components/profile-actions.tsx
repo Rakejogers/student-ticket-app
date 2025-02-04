@@ -2,12 +2,16 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { usePushNotifications } from "@/hooks/use-push-notifications"
 import { Bell, BellOff, Trash2 } from "lucide-react"
+import { useState } from "react"
+import { useToast } from "@/hooks/use-toast"
 
 interface ProfileActionsProps {
   onDeleteAccount: () => void
 }
 
 export function ProfileActions({ onDeleteAccount }: ProfileActionsProps) {
+  const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
   const { 
     isSubscribed, 
     subscribeToNotifications, 
@@ -15,14 +19,30 @@ export function ProfileActions({ onDeleteAccount }: ProfileActionsProps) {
   } = usePushNotifications()
 
   const handleNotificationToggle = async () => {
+    setIsLoading(true)
     try {
       if (isSubscribed) {
         await unsubscribeFromNotifications()
+        toast({
+          title: "Notifications disabled",
+          description: "You will no longer receive push notifications"
+        })
       } else {
         await subscribeToNotifications()
+        toast({
+          title: "Notifications enabled",
+          description: "You will now receive push notifications for ticket updates"
+        })
       }
     } catch (error) {
       console.error('Error toggling notifications:', error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to toggle notifications"
+      })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -35,6 +55,7 @@ export function ProfileActions({ onDeleteAccount }: ProfileActionsProps) {
             variant="outline"
             className="w-full sm:w-auto flex items-center gap-2"
             onClick={handleNotificationToggle}
+            disabled={isLoading}
           >
             {isSubscribed ? (
               <>
