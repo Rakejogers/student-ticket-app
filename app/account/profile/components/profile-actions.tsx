@@ -138,8 +138,8 @@ export function ProfileActions({ onDeleteAccount }: ProfileActionsProps) {
               <p className="text-sm">To install on your iOS device:</p>
               <ol className="list-decimal list-inside space-y-2 text-sm">
                 <li>Tap the share button <Share2 className="h-4 w-4 inline mx-1" /></li>
-                <li>Scroll down and tap "Add to Home Screen" <Plus className="h-4 w-4 inline mx-1" /></li>
-                <li>Tap "Add" in the top right corner</li>
+                <li>Scroll down and tap &quot;Add to Home Screen&quot; <Plus className="h-4 w-4 inline mx-1" /></li>
+                <li>Tap &quot;Add&quot; in the top right corner</li>
               </ol>
               <p className="text-sm">Once installed, return here to enable notifications.</p>
             </div>
