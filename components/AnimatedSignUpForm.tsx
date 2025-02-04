@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from '@/hooks/use-toast'
 import { Filter } from 'bad-words'
 import pb from '@/app/pocketbase'
+import { Share } from 'lucide-react'
 
 const formFields = [
   { id: 'name', label: 'Name', icon: CiUser, type: 'text', placeholder: 'Your Name' },
@@ -20,6 +21,7 @@ const formFields = [
 
 export default function AnimatedSignUpForm() {
   const [currentStep, setCurrentStep] = useState(0)
+  const [showNotificationInfo, setShowNotificationInfo] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     phone: ''
@@ -108,12 +110,40 @@ export default function AnimatedSignUpForm() {
           emailVisibility: true, 
       })
       console.log('Form submitted:', formData)
-      // Add your submission logic here
-      router.push('/browse/events') // or wherever you want to redirect after
+      setShowNotificationInfo(true)
     }
   }
 
   const currentField = formFields[currentStep]
+
+  if (showNotificationInfo) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md mx-auto space-y-6"
+      >
+        <h2 className="text-2xl font-semibold text-center">Stay Updated!</h2>
+        <p className="text-center text-muted-foreground">
+          Want to receive notifications about your tickets?
+        </p>
+        <div className="space-y-4 text-sm">
+          <p>To enable notifications:</p>
+          <ol className="list-decimal list-inside space-y-2">
+            <li>Add this app to your home screen via share menu <Share className="h-4 w-4 inline mx-1" /></li>
+            <li>Go to Profile page in the menu</li>
+            <li>Click the &quot;Enable Notifications&quot; button</li>
+          </ol>
+        </div>
+        <Button 
+          onClick={() => router.push('/browse/events')} 
+          className="w-full mt-6"
+        >
+          Continue to Browse
+        </Button>
+      </motion.div>
+    )
+  }
 
   return (
     <div className="w-full max-w-md mx-auto">
