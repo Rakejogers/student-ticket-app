@@ -27,7 +27,7 @@ self.addEventListener('notificationclick', function(event) {
   if (event.action === 'explore') {
     // Handle the action click
     event.waitUntil(
-      clients.openWindow('/account/my-tickets')
+      clients.openWindow('https://scholarseats.com/')
     );
   }
 });
