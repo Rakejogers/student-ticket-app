@@ -16,12 +16,12 @@ export async function POST(request: Request) {
     }
 
     // Send push notification
-    const payload = JSON.stringify({
-      title: title || 'Test Notification',
-      body: message || 'This is a test notification!',
-    });
+    const payload = {
+      title: title || 'Student Ticket App',
+      body: message || ''
+    };
 
-    await webpush.sendNotification(subscription, payload);
+    await webpush.sendNotification(subscription, JSON.stringify(payload));
 
     return NextResponse.json({ success: true });
   } catch (error) {

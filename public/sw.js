@@ -20,26 +20,41 @@ self.addEventListener('message', (event) => {
 });
 
 self.addEventListener('push', function(event) {
-  const options = {
-    body: event.data.text(),
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/icon-192x192.png',
-    vibrate: [100, 50, 100],
-    data: {
-      dateOfArrival: Date.now(),
-      primaryKey: '1'
-    },
-    actions: [
-      {
-        action: 'explore',
-        title: 'View Details',
-      }
-    ]
-  };
+  try {
+    const data = event.data.text();
+    let payload;
+    try {
+      payload = JSON.parse(data);
+    } catch (e) {
+      payload = {
+        title: 'New Notification',
+        body: data
+      };
+    }
 
-  event.waitUntil(
-    self.registration.showNotification('Student Ticket App', options)
-  );
+    const options = {
+      body: payload.body || 'No message content',
+      icon: '/icon-192x192.png',
+      badge: '/icon-192x192.png',
+      vibrate: [100, 50, 100],
+      data: {
+        dateOfArrival: Date.now(),
+        primaryKey: '1'
+      },
+      actions: [
+        {
+          action: 'explore',
+          title: 'View Details',
+        }
+      ]
+    };
+
+    event.waitUntil(
+      self.registration.showNotification(payload.title || 'Student Ticket App', options)
+    );
+  } catch (error) {
+    console.error('Error showing notification:', error);
+  }
 });
 
 self.addEventListener('notificationclick', function(event) {
@@ -47,7 +62,7 @@ self.addEventListener('notificationclick', function(event) {
 
   if (event.action === 'explore') {
     event.waitUntil(
-      clients.openWindow('/account/my-tickets')
+      clients.openWindow('https://scholarseats.com/account/my-tickets')
     );
   }
 });
