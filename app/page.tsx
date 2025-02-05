@@ -124,7 +124,7 @@ export default function LandingPage() {
     const emailDomain = email?.split('@')[1];
 
     if (emailDomain === 'uky.edu') {
-      if (authData.meta?.isNew) {
+      if (authData.meta?.isNew || authData.record?.name === "") {
         router.push("/onboarding")
       } else {
         router.push("/browse/events")
