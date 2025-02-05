@@ -119,6 +119,32 @@ const UserTicketsPage: React.FC = () => {
     try {
       await pb.collection('offers').update(offerId, { status: action === 'accept' ? 'Accepted' : 'Declined' });
 
+      if (action === 'accept' && selectedTicket) {
+        // Get the event ID and sender ID from the current offer
+        const eventId = selectedTicket.expand?.event_id?.id;
+        const currentOffer = selectedTicket.expand?.offers?.find((offer: RecordModel) => offer.id === offerId);
+        const senderId = currentOffer?.sender;
+
+        if (eventId && senderId) {
+          // Find all tickets for this event
+          const eventTickets = await pb.collection('tickets').getFullList({
+            filter: `event_id="${eventId}" && id!="${selectedTicket.id}"`,
+            expand: 'offers,offers.sender',
+          });
+
+          // Find and delete other pending offers from the same sender
+          for (const ticket of eventTickets) {
+            const otherOffers = ticket.expand?.offers?.filter((offer: RecordModel) => 
+              offer.sender === senderId && offer.status === 'Pending'
+            ) || [];
+
+            for (const offer of otherOffers) {
+              await pb.collection('offers').delete(offer.id);
+            }
+          }
+        }
+      }
+
       setSelectedTicket((prevSelectedTicket) => {
         if (!prevSelectedTicket) return null;
         return {
