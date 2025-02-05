@@ -19,7 +19,11 @@ const formFields = [
   { id: 'phone', label: 'Phone Number (Optional)', icon: null, type: 'phone', placeholder: '' },
 ]
 
-export default function AnimatedSignUpForm() {
+interface AnimatedSignUpFormProps {
+  hideParentHeader: (showing: boolean) => void;
+}
+
+export default function AnimatedSignUpForm({ hideParentHeader }: AnimatedSignUpFormProps) {
   const [currentStep, setCurrentStep] = useState(0)
   const [showNotificationInfo, setShowNotificationInfo] = useState(false)
   const [formData, setFormData] = useState({
@@ -111,6 +115,7 @@ export default function AnimatedSignUpForm() {
       })
       console.log('Form submitted:', formData)
       setShowNotificationInfo(true)
+      hideParentHeader(true)
     }
   }
 
@@ -123,24 +128,33 @@ export default function AnimatedSignUpForm() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md mx-auto space-y-6"
       >
-        <h2 className="text-2xl font-semibold text-center">Stay Updated!</h2>
+        <h2 className="text-2xl font-semibold text-center mt-6">Stay Updated!</h2>
         <p className="text-center text-muted-foreground">
           Want to receive notifications about your tickets?
         </p>
         <div className="space-y-4 text-sm">
-          <p>To enable notifications:</p>
+          <p>To enable push notifications:</p>
           <ol className="list-decimal list-inside space-y-2">
             <li>Add this app to your home screen via share menu <Share className="h-4 w-4 inline mx-1" /></li>
-            <li>Go to Profile page in the menu</li>
+            <li>Open the app and go to Profile page in the menu</li>
             <li>Click the &quot;Enable Notifications&quot; button</li>
           </ol>
         </div>
-        <Button 
-          onClick={() => router.push('/browse/events')} 
-          className="w-full mt-6"
-        >
-          Continue to Browse
-        </Button>
+        <div className="flex gap-4 mt-6">
+          <Button 
+            onClick={() => router.push('/account/profile')} 
+            className="w-full"
+            variant="outline"
+          >
+            Go to Profile
+          </Button>
+          <Button 
+            onClick={() => router.push('/browse/events')} 
+            className="w-full"
+          >
+            Browse Tickets
+          </Button>
+        </div>
       </motion.div>
     )
   }

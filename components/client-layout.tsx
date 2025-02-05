@@ -70,7 +70,7 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
                     href="https://www.buymeacoffee.com/jakerogers"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hidden md:inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-muted hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-foreground"
+                    className="hidden md:inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-foreground bg-muted hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-foreground"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >

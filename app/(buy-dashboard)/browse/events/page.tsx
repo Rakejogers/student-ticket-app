@@ -121,8 +121,10 @@ const BrowseEventsPage: React.FC = () => {
             </>
           ) : (
             filteredEvents.map(event => {
-              // Filter out tickets from the current user
-              const availableTickets = event.expand?.tickets.filter((ticket: { seller_id: string }) => ticket.seller_id !== pb.authStore.model?.id) || [];
+              // Filter out tickets from the current user and sold tickets
+              const availableTickets = event.expand?.tickets.filter((ticket: { seller_id: string, status: string }) => 
+                ticket.seller_id !== pb.authStore.model?.id && ticket.status !== 'sold'
+              ) || [];
               console.log(availableTickets)
               return (
                 <Link href={`/browse/events/${event.id}`} key={event.id}>
