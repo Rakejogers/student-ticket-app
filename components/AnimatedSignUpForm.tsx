@@ -136,7 +136,7 @@ export default function AnimatedSignUpForm({ hideParentHeader }: AnimatedSignUpF
           <p>To enable push notifications:</p>
           <ol className="list-decimal list-inside space-y-2">
             <li>Add this app to your home screen via share menu <Share className="h-4 w-4 inline mx-1" /></li>
-            <li>Go to Profile page in the menu</li>
+            <li>Open the app and go to Profile page in the menu</li>
             <li>Click the &quot;Enable Notifications&quot; button</li>
           </ol>
         </div>
