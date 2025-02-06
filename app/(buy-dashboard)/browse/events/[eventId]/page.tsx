@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerClose } from "@/components/ui/drawer"
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import pb from '@/app/pocketbase'
@@ -505,19 +505,8 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                       <DrawerTrigger asChild>
                         <Button className="mt-4 w-full">Make an Offer</Button>
                       </DrawerTrigger>
-                      <DrawerContent className="h-[50vh]">
-                        <form 
-                          onSubmit={async (e) => {
-                            e.preventDefault();
-                            try {
-                              console.log('Form submitted in PWA');
-                              await handleOfferSubmit(ticket.id, ticket.seller_id);
-                            } catch (error) {
-                              console.error('Error in form submission:', error);
-                            }
-                          }}
-                          className="mx-auto w-full max-w-sm"
-                        >
+                      <DrawerContent>
+                        <div className="mx-auto w-full max-w-sm">
                           <DrawerHeader>
                             <DrawerTitle>Make an Offer</DrawerTitle>
                             <DrawerDescription>
@@ -548,17 +537,22 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                                   />
                                 </div>
                               </div>
-                              <DrawerClose asChild>
-                                <Button 
-                                  type="submit"
-                                  className="w-full"
-                                >
-                                  Send Offer
-                                </Button>
-                              </DrawerClose>
+                              <Button 
+                                type="button" 
+                                onClick={async () => {
+                                  await handleOfferSubmit(ticket.id, ticket.seller_id);
+                                  const drawerClose = document.querySelector('[data-vaul-drawer-close]');
+                                  if (drawerClose instanceof HTMLElement) {
+                                    drawerClose.click();
+                                  }
+                                }} 
+                                className="w-full"
+                              >
+                                Send Offer
+                              </Button>
                             </div>
                           </div>
-                        </form>
+                        </div>
                       </DrawerContent>
                     </Drawer>
                   )}
