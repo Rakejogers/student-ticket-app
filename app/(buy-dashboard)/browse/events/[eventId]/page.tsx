@@ -21,8 +21,6 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from "@/components/ui/checkbox"
 import { Slider } from "@/components/ui/slider"
 import { EmptyState } from "@/components/empty-state"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { HandCoins } from "lucide-react"
 
 type EventType = {
   id: string;
@@ -93,8 +91,6 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   const [maxPrice, setMaxPrice] = useState<number>(0);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const perPage = 30; // You can adjust this value as needed
-  const [isOffersDialogOpen, setIsOffersDialogOpen] = useState(false);
-  const [selectedTicket] = useState<EventType['tickets'][0] | null>(null);
 
   const { eventId } = params
   const router = useRouter();
@@ -513,7 +509,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                               Enter your offer amount for this ticket.
                             </DrawerDescription>
                           </DrawerHeader>
-                          <div className="p-4">
+                          <div className="p-4 pb-8">
                             <div className="grid gap-4">
                               <div className="grid gap-2">
                                 <Label htmlFor="amount-mobile">Offer Amount</Label>
@@ -538,15 +534,20 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                                 </div>
                               </div>
                               <Button 
-                                type="button" 
-                                onClick={async () => {
-                                  await handleOfferSubmit(ticket.id, ticket.seller_id);
-                                  const drawerClose = document.querySelector('[data-vaul-drawer-close]');
-                                  if (drawerClose instanceof HTMLElement) {
-                                    drawerClose.click();
-                                  }
+                                type="submit" 
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  // Add a small delay to ensure the event is processed
+                                  setTimeout(async () => {
+                                    await handleOfferSubmit(ticket.id, ticket.seller_id);
+                                    const drawerClose = document.querySelector('[data-vaul-drawer-close]');
+                                    if (drawerClose instanceof HTMLElement) {
+                                      drawerClose.click();
+                                    }
+                                  }, 50);
                                 }} 
-                                className="w-full"
+                                className="w-full touch-none"
                               >
                                 Send Offer
                               </Button>
@@ -600,46 +601,6 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
               </PaginationContent>
             </Pagination>
           </div>
-
-          <Dialog open={isOffersDialogOpen} onOpenChange={setIsOffersDialogOpen}>
-            <DialogContent className="max-h-[80vh] flex flex-col">
-              <DialogHeader>
-                <DialogTitle>Offers for {selectedTicket?.expand?.event_id?.name}</DialogTitle>
-                <DialogDescription>
-                  Ticket Price: ${selectedTicket?.price}
-                </DialogDescription>
-              </DialogHeader>
-              {selectedTicket?.expand?.offers?.length === 0 ? (
-                <EmptyState
-                  icon={<HandCoins className="h-12 w-12 text-muted-foreground/50" />}
-                  title="No offers yet"
-                  description="This ticket hasn't received any offers yet. Be the first to make an offer!"
-                  className="min-h-[200px]"
-                />
-              ) : (
-                <div className="flex-1 overflow-y-auto pr-2 my-4">
-                  <div className="space-y-4">
-                    {selectedTicket?.expand?.offers?.map((offer) => (
-                      <Card key={offer.id} className="p-4">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-medium">From: {offer.expand?.sender?.name || 'Anonymous'}</p>
-                            <p className="text-sm text-muted-foreground">Amount: ${offer.amount}</p>
-                          </div>
-                          <Badge variant={offer.status === 'Accepted' ? 'default' : 'secondary'}>
-                            {offer.status}
-                          </Badge>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <DialogFooter className="mt-2">
-                <Button onClick={() => setIsOffersDialogOpen(false)}>Close</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
     </Suspense>
