@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerClose } from "@/components/ui/drawer"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import pb from '@/app/pocketbase'
@@ -537,9 +537,18 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                                   />
                                 </div>
                               </div>
-                              <Button type="button" onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)} className="w-full">
-                                Send Offer
-                              </Button>
+                              <DrawerClose asChild>
+                                <Button 
+                                  type="button" 
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleOfferSubmit(ticket.id, ticket.seller_id);
+                                  }} 
+                                  className="w-full"
+                                >
+                                  Send Offer
+                                </Button>
+                              </DrawerClose>
                             </div>
                           </div>
                         </div>
