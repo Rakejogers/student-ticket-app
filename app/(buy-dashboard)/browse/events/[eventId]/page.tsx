@@ -505,8 +505,19 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                       <DrawerTrigger asChild>
                         <Button className="mt-4 w-full">Make an Offer</Button>
                       </DrawerTrigger>
-                      <DrawerContent>
-                        <div className="mx-auto w-full max-w-sm">
+                      <DrawerContent className="h-[50vh]">
+                        <form 
+                          onSubmit={async (e) => {
+                            e.preventDefault();
+                            try {
+                              console.log('Form submitted in PWA');
+                              await handleOfferSubmit(ticket.id, ticket.seller_id);
+                            } catch (error) {
+                              console.error('Error in form submission:', error);
+                            }
+                          }}
+                          className="mx-auto w-full max-w-sm"
+                        >
                           <DrawerHeader>
                             <DrawerTitle>Make an Offer</DrawerTitle>
                             <DrawerDescription>
@@ -539,11 +550,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                               </div>
                               <DrawerClose asChild>
                                 <Button 
-                                  type="button" 
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    handleOfferSubmit(ticket.id, ticket.seller_id);
-                                  }} 
+                                  type="submit"
                                   className="w-full"
                                 >
                                   Send Offer
@@ -551,7 +558,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                               </DrawerClose>
                             </div>
                           </div>
-                        </div>
+                        </form>
                       </DrawerContent>
                     </Drawer>
                   )}
