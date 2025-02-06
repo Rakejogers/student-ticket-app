@@ -537,10 +537,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                                   />
                                 </div>
                               </div>
-                              <Button 
-                                onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}
-                                className="w-full"
-                              >
+                              <Button type="button" onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)} className="w-full">
                                 Send Offer
                               </Button>
                             </div>
