@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerClose } from "@/components/ui/drawer"
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import pb from '@/app/pocketbase'
@@ -83,7 +83,7 @@ interface BrowseTicketsPageProps {
 const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   const [event, setEvent] = useState<EventType | null>(null);
   const [offerAmount, setOfferAmount] = useState<string>('');
-  const [offerMade, setOfferMade] = useState<string[]>([]); // Track which ticket has an offer made
+  const [offerMade, setOfferMade] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>("price");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -95,6 +95,8 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   const perPage = 30; // You can adjust this value as needed
   const [isOffersDialogOpen, setIsOffersDialogOpen] = useState(false);
   const [selectedTicket] = useState<EventType['tickets'][0] | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [currentTicket, setCurrentTicket] = useState<{ id: string; sellerId: string } | null>(null);
 
   const { eventId } = params
   const router = useRouter();
@@ -501,9 +503,17 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                       </PopoverContent>
                     </Popover>
                   ) : (
-                    <Drawer>
+                    <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
                       <DrawerTrigger asChild>
-                        <Button className="mt-4 w-full">Make an Offer</Button>
+                        <Button 
+                          className="mt-4 w-full"
+                          onClick={() => {
+                            setCurrentTicket({ id: ticket.id, sellerId: ticket.seller_id });
+                            setIsDrawerOpen(true);
+                          }}
+                        >
+                          Make an Offer
+                        </Button>
                       </DrawerTrigger>
                       <DrawerContent>
                         <div className="mx-auto w-full max-w-sm">
@@ -537,18 +547,20 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                                   />
                                 </div>
                               </div>
-                              <DrawerClose asChild>
-                                <Button 
-                                  type="button" 
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    handleOfferSubmit(ticket.id, ticket.seller_id);
-                                  }} 
-                                  className="w-full"
-                                >
-                                  Send Offer
-                                </Button>
-                              </DrawerClose>
+                              <Button 
+                                type="button" 
+                                onClick={async () => {
+                                  if (currentTicket) {
+                                    await handleOfferSubmit(currentTicket.id, currentTicket.sellerId);
+                                    setIsDrawerOpen(false);
+                                    setCurrentTicket(null);
+                                    setOfferAmount('');
+                                  }
+                                }} 
+                                className="w-full"
+                              >
+                                Send Offer
+                              </Button>
                             </div>
                           </div>
                         </div>
