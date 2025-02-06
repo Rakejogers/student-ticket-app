@@ -88,6 +88,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   const [selectedTicketTypes, setSelectedTicketTypes] = useState<string[]>([]);
   const [hideOfferedTickets, setHideOfferedTickets] = useState(false);
   const [maxPrice, setMaxPrice] = useState<number>(0);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const perPage = 30; // You can adjust this value as needed
 
@@ -187,6 +188,11 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
           variant: "destructive",
         })
         return;
+      }
+
+      // Close dialog immediately if on mobile
+      if (!isDesktop) {
+        setDialogOpen(false);
       }
 
       // Send offer to seller
@@ -471,9 +477,9 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                       </PopoverContent>
                     </Popover>
                   ) : (
-                    <Dialog>
+                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                       <DialogTrigger asChild>
-                        <Button className="mt-4 w-full">Make an Offer</Button>
+                        <Button className="mt-4 w-full" onClick={() => setDialogOpen(true)}>Make an Offer</Button>
                       </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
