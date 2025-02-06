@@ -233,13 +233,21 @@ const UserTicketsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4">
-        <header className="flex justify-between items-center mb-6">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <h1 className="text-2xl font-bold">My Tickets</h1>
-          <Link href="/list-ticket">
-            <Button>
-              <PlusIcon className="mr-2 h-4 w-4" /> Add New Ticket
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Link href="https://am.ticketmaster.com/ukstudents/" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full">
+                <Ticket className="mr-2 h-4 w-4" /> UK Ticket Portal
+              </Button>
+            </Link>
+            <Link href="/list-ticket" className="w-full sm:w-auto">
+
+              <Button className="w-full">
+                <PlusIcon className="mr-2 h-4 w-4" /> Add New Ticket
+              </Button>
+            </Link>
+          </div>
         </header>
 
         {tickets.length === 0 ? (
