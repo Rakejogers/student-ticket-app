@@ -5,6 +5,10 @@ import "./globals.css"
 export const metadata: Metadata = {
   title: 'Scholar Seats',
   description: 'Buy and sell student tickets for events',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+  },
 }
 
 export const viewport: Viewport = {
