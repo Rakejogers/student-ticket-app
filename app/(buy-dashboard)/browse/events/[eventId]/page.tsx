@@ -7,13 +7,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import pb from '@/app/pocketbase'
 import { Suspense, useEffect, useState } from 'react'
 import { toast } from "@/hooks/use-toast"
-import { ToastAction } from '@/components/ui/toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TagIcon, Armchair, Star, Ticket, Search } from "lucide-react"
 import isAuth from '@/components/isAuth';
@@ -180,31 +179,6 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
 
   const handleOfferSubmit = async (ticketId: string, sellerId: string) => {
     try {
-      //make sure buyer is verified
-      if (pb.authStore.model!.verified == false) {
-        toast({
-          title: `Verification Required`,
-          description: `Verify your account before sending an offer.`,
-          variant: "destructive",
-          action: (
-            <ToastAction onClick={() => { router.push("/account/profile") }} altText='Verify Account'>Verify Now</ToastAction>
-          ),
-        })
-        return;
-      }
-
-      if (pb.authStore.model!.phone == null) {
-        toast({
-          title: `Phone Number Required`,
-          description: `Add a phone number before sending an offer.`,
-          variant: "destructive",
-          action: (
-            <ToastAction onClick={() => { router.push("/account/profile") }} altText='Add Number'>Add Now</ToastAction>
-          ),
-        })
-        return;
-      }
-
       const numericAmount = parseFloat(offerAmount);
       if (isNaN(numericAmount) || numericAmount <= 0) {
         toast({
@@ -497,65 +471,50 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                       </PopoverContent>
                     </Popover>
                   ) : (
-                    <Drawer>
-                      <DrawerTrigger asChild>
+                    <Dialog>
+                      <DialogTrigger asChild>
                         <Button className="mt-4 w-full">Make an Offer</Button>
-                      </DrawerTrigger>
-                      <DrawerContent>
-                        <div className="mx-auto w-full max-w-sm">
-                          <DrawerHeader>
-                            <DrawerTitle>Make an Offer</DrawerTitle>
-                            <DrawerDescription>
-                              Enter your offer amount for this ticket.
-                            </DrawerDescription>
-                          </DrawerHeader>
-                          <div className="p-4 pb-8">
-                            <div className="grid gap-4">
-                              <div className="grid gap-2">
-                                <Label htmlFor="amount-mobile">Offer Amount</Label>
-                                <div className="relative">
-                                  <span className="absolute left-3 top-2 text-muted-foreground">$</span>
-                                  <Input
-                                    id="amount-mobile"
-                                    className="pl-7"
-                                    placeholder="0.00"
-                                    inputMode="decimal"
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={offerAmount}
-                                    onChange={(e) => {
-                                      const value = e.target.value;
-                                      if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
-                                        setOfferAmount(value);
-                                      }
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                              <Button 
-                                type="submit" 
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  // Add a small delay to ensure the event is processed
-                                  setTimeout(async () => {
-                                    await handleOfferSubmit(ticket.id, ticket.seller_id);
-                                    const drawerClose = document.querySelector('[data-vaul-drawer-close]');
-                                    if (drawerClose instanceof HTMLElement) {
-                                      drawerClose.click();
-                                    }
-                                  }, 50);
-                                }} 
-                                className="w-full touch-none"
-                              >
-                                Send Offer
-                              </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Make an Offer</DialogTitle>
+                          <DialogDescription>
+                            Enter your offer amount for this ticket.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                          <div className="grid gap-2">
+                            <Label htmlFor="amount-mobile">Offer Amount</Label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-2 text-muted-foreground">$</span>
+                              <Input
+                                id="amount-mobile"
+                                className="pl-7"
+                                placeholder="0.00"
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={offerAmount}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
+                                    setOfferAmount(value);
+                                  }
+                                }}
+                              />
                             </div>
                           </div>
                         </div>
-                      </DrawerContent>
-                    </Drawer>
+                        <DialogFooter>
+                          <Button 
+                            onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}
+                            className="w-full"
+                          >
+                            Send Offer
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   )}
                 </CardContent>
               </Card>
