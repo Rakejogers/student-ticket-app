@@ -4,7 +4,7 @@ import "./globals.css"
 
 export const metadata: Metadata = {
   title: 'Scholar Seats',
-  description: 'Buy and sell student tickets for events',
+  description: 'Buy and sell University of Kentucky student tickets easily with Scholar Seats. Get great deals on football, basketball, and other UK events. Secure, fast, and student-friendly ticket exchange. Join now!',
 }
 
 export const viewport: Viewport = {
