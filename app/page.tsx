@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { Button } from "@/components/ui/button"
@@ -11,7 +12,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, Users, DollarSign, Shield, Lock, ArrowRight, Star, ArrowUpRight, ChevronDown, GraduationCap } from 'lucide-react'
+import { CheckCircle, Users, DollarSign, Shield, Lock, ArrowRight, Star, ChevronDown, GraduationCap } from 'lucide-react'
 import pb from './pocketbase'
 import { useRouter } from 'next/navigation'
 import { toast } from '@/hooks/use-toast'
@@ -147,25 +148,61 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
       <main>
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-          {/* Radial gradient background */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-primary/5 to-transparent animate-pulse" />
+        <section className="relative min-h-[950px] flex items-center justify-center overflow-hidden bg-background px-4 sm:px-10 pt-16 md:pt-20">
+          {/* Gradient overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/70 to-background/90 z-[1]"></div>
+          
+          {/* Background images */}
+          {/* First image - Top Right */}
+          <div className="absolute right-[-20px] sm:right-[-44px] top-[60px] sm:top-[50px] z-0 w-[280px] sm:w-[479px] h-[180px] sm:h-[304px] rounded-3xl transform rotate-3 hover:rotate-0 transition-all duration-500 hover:shadow-xl hover:scale-105 hover:z-10">
+            <Image 
+              src="/images/uk_football.jpg" 
+              alt="Concert stage background image" 
+              fill
+              className="object-cover rounded-3xl opacity-50 sm:opacity-70 hover:opacity-90 transition-opacity duration-500"
+            />
           </div>
-
+          {/* Second image - Below Left */}
+          <div className="absolute left-[-50px] sm:left-[-101px] top-[180px] sm:top-[100px] z-0 w-[280px] sm:w-[491px] h-[200px] sm:h-[325px] rounded-3xl transform -rotate-2 hover:rotate-0 transition-all duration-500 hover:shadow-xl hover:scale-105 hover:z-10">
+            <Image 
+              src="/images/ky-basketball.jpg"
+              alt="Concert lights background image" 
+              fill
+              className="object-cover rounded-3xl opacity-50 sm:opacity-70 hover:opacity-90 transition-opacity duration-500"
+            />
+          </div>
+          {/* Third image - Below Right */}
+          <div className="absolute right-[-40px] sm:right-[-120px] top-[320px] sm:top-[400px] z-0 w-[280px] sm:w-[472px] h-[180px] sm:h-[291px] rounded-3xl transform rotate-2 hover:rotate-0 transition-all duration-500 hover:shadow-xl hover:scale-105 hover:z-10">
+            <Image 
+              src="/images/rupp-arena.jpg" 
+              alt="Concert performance background image" 
+              fill
+              className="object-cover rounded-3xl opacity-50 sm:opacity-70 hover:opacity-90 transition-opacity duration-500"
+            />
+          </div>
+          {/* Fourth image - Bottom Left */}
+          <div className="absolute left-[-60px] sm:left-[-171px] top-[460px] sm:top-[450px] z-0 w-[280px] sm:w-[450px] h-[180px] sm:h-[280px] rounded-3xl transform -rotate-3 hover:rotate-0 transition-all duration-500 hover:shadow-xl hover:scale-105 hover:z-10">
+            <Image 
+              src="/images/kroger_field.webp" 
+              alt="Concert crowd background image" 
+              fill
+              className="object-cover rounded-3xl opacity-50 sm:opacity-70 hover:opacity-90 transition-opacity duration-500"
+            />
+          </div>
+          
           <div className="container mx-auto px-4 relative z-10">
-            <div className="max-w-4xl mx-auto text-center">
+            <div className="mx-auto text-center">
               <motion.div
                 className="mb-8"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
-                <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
-                  Scholar Seats
+                <h1 className="text-3xl sm:text-6xl md:text-[88px] font-extrabold mb-4 sm:mb-6 text-primary leading-tight uppercase font-['Reddit_Sans_Condensed',_sans-serif]">
+                  GET INVOLVED.<br/>GET YOUR <span className="text-foreground">SEAT.</span>
                 </h1>
-                <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-                  No Add-Backs. No Ghosting. Just Tickets.
+                <p className="text-base sm:text-xl md:text-2xl text-muted-foreground mb-6 sm:mb-8 max-w-[600px] mx-auto">
+                  Buy and sell university sports tickets directly with verified students. No fees, no hassle.
                 </p>
               </motion.div>
 
@@ -173,52 +210,31 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
-                className="flex flex-col gap-4 justify-center items-center mb-12"
+                className="flex flex-col gap-4 justify-center items-center mb-8 sm:mb-12"
               >
                 <motion.div
                   whileHover={{ 
                     scale: 1.05,
-                    boxShadow: "0 0 20px rgba(99, 102, 241, 0.4)"
+                    boxShadow: "0 0 20px rgba(var(--primary), 0.4)"
                   }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 300 }}
+                  className="w-full max-w-[250px]"
                 >
                   <Button 
                     size="lg" 
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 group flex items-center gap-2" 
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 group flex items-center gap-2 w-full py-2.5 sm:py-3 px-6 sm:px-8 text-base sm:text-lg font-semibold" 
                     onClick={() => oauthLogin()}
                   >
-                    Login with LinkBlue
-                    <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    Get Ticket now
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </Button>
                 </motion.div>
-                <p className="text-xs text-muted-foreground text-center w-full flex items-center justify-center gap-1">
-                  <Lock className="w-4 h-4" />
+                <p className="text-[10px] sm:text-xs text-muted-foreground text-center w-full flex items-center justify-center gap-1">
+                  <Lock className="w-3 h-3 sm:w-4 sm:h-4" />
                   Secure login through Microsoft
                 </p>
               </motion.div>
-              {/* Stats section */}
-              {/* <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.6 }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
-              >
-                {[
-                  { label: "Completely Free", value: "$0.00" },
-                  { label: "Tickets Exchanged", value: "5,000+" },
-                  { label: "Verified Students", value: "100%" },
-                ].map((stat, index) => (
-                  <motion.div
-                    key={index}
-                    whileHover={{ scale: 1.05 }}
-                    className="p-6 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50"
-                  >
-                    <h3 className="text-3xl font-bold text-primary mb-2">{stat.value}</h3>
-                    <p className="text-muted-foreground">{stat.label}</p>
-                  </motion.div>
-                ))}
-              </motion.div> */}
             </div>
             <motion.div
               className="flex justify-center mt-24"
@@ -249,6 +265,7 @@ export default function LandingPage() {
             </motion.div>
           </div>
         </section>
+
         <section 
           id="features"
           className="container mx-auto px-4 py-16"
@@ -269,7 +286,10 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="container mx-auto px-4 py-16">
+        <section 
+          id="how-it-works" 
+          className="container mx-auto px-4 py-16"
+        >
           <motion.h2
             className="text-3xl font-bold mb-8 text-center"
             initial={{ opacity: 0, y: 20 }}
@@ -286,7 +306,10 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="container mx-auto px-4 py-16">
+        <section 
+          id="faq" 
+          className="container mx-auto px-4 py-16"
+        >
           <h2 className="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
           <Accordion type="single" collapsible className="w-full max-w-2xl mx-auto">
             {faqs.map((faq, index) => (
