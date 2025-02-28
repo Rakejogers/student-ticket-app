@@ -104,7 +104,12 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   }
 
   useEffect(() => {
+    if (!pb.authStore.isValid) {
+      router.push(`/login?redirect=${encodeURIComponent("/browse/events/" + eventId)}`);
+    }
+
     const fetchEvent = async () => {
+      
       pb.autoCancellation(false);
 
       const event = await pb.collection('events').getOne(eventId, {});
@@ -180,7 +185,7 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
     };
 
     fetchEvent();
-  }, [eventId, currentPage, sortBy]);
+  }, [eventId, currentPage, sortBy, router]);
 
   const handleOfferSubmit = async (ticketId: string, sellerId: string) => {
     try {

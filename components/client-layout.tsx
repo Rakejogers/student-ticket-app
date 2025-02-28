@@ -12,7 +12,6 @@ import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MenuIcon } from '@/components/icons/menu'
 import { UserNav } from '@/components/user-nav'
-import { toast } from '@/hooks/use-toast'
 
 interface ClientLayoutProps {
   theme: string;
@@ -48,29 +47,6 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
     onThemeChange(newTheme)
   }
 
-  const oauthLogin = async () => {
-    const authData = await pb.collection('users').authWithOAuth2({ provider: 'microsoft' });
-    console.log(authData)
-    const email = authData.meta?.email;
-    const emailDomain = email?.split('@')[1];
-
-    if (emailDomain === 'uky.edu') {
-      if (authData.meta?.isNew || authData.record?.name === "") {
-        router.push("/onboarding")
-      } else {
-        router.push("/browse/events")
-      }
-    } else {
-      pb.authStore.clear();
-      await pb.collection('users').delete(authData.record.id);
-      toast({
-        title: "Access Denied",
-        description: "You must use a uky.edu email to access this application.",
-        variant: "destructive",
-      });
-    }
-  }
-
   const scrollToFeatures = () => {
     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -104,16 +80,16 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
           {isLandingPage && !isAuthenticated ? (
             <>
               <div className="hidden md:flex items-start gap-2 text-sm text-muted-foreground font-medium">
-                <Button variant="ghost" className="rounded-md px-3 py-2" onClick={scrollToHowItWorks}>How it works</Button>
                 <Button variant="ghost" className="rounded-md px-3 py-2" onClick={scrollToFeatures}>Features</Button>
+                <Button variant="ghost" className="rounded-md px-3 py-2" onClick={scrollToHowItWorks}>How it works</Button>
                 <Button variant="ghost" className="rounded-md px-3 py-2" onClick={scrollToFAQ}>FAQ</Button>
               </div>
               
               <div className="hidden md:flex items-center gap-2">
-                <Button variant="ghost" className="text-muted-foreground font-medium" onClick={() => oauthLogin()}>
+                <Button variant="ghost" className="text-muted-foreground font-medium" onClick={() => router.push('/login')}>
                   Login
                 </Button>
-                <Button className="bg-primary text-primary-foreground font-semibold" onClick={() => router.push('/sell')}>
+                <Button className="bg-primary text-primary-foreground font-semibold" onClick={() => router.push('/list-ticket')}>
                   Sell Tickets
                 </Button>
                 {mounted && (
@@ -128,7 +104,7 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
             <div className="hidden md:flex items-center space-x-2" suppressHydrationWarning>
               {!isAuthenticated ? (
                 <>
-                  <LoginButton />
+                  <LoginButton buttonText="Login" variant="ghost"/>
                 </>
               ) : (
                 <>
@@ -211,7 +187,7 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
                     FAQ
                   </Button>
                   <DropdownMenuSeparator />
-                  <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => oauthLogin()}>
+                  <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => router.push('/login')}>
                     Login
                   </Button>
                   <Button className="w-full justify-start bg-primary text-primary-foreground" onClick={() => router.push('/sell')}>
@@ -220,7 +196,7 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
                 </>
               ) : !isAuthenticated ? (
                 <>
-                  <LoginButton />
+                  <LoginButton buttonText="Login" />
                 </>
               ) : (
                 <>

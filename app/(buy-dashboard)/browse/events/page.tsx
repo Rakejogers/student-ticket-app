@@ -11,6 +11,7 @@ import isAuth from '@/components/isAuth'
 import pb from '@/app/pocketbase'
 import { RecordModel } from 'pocketbase'
 import { Calendar } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -29,9 +30,14 @@ const BrowseEventsPage: React.FC = () => {
   const [selectedSport, setSelectedSport] = useState<'basketball' | 'football' | 'all' | null>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter();
 
   // fetch events
   useEffect(() => {
+    if (!pb.authStore.isValid) {
+      router.push(`/login?redirect=${encodeURIComponent("/browse/events")}`);
+    }
+
     const fetchEvents = async () => {
       pb.autoCancellation(false);
       setIsLoading(true);
@@ -50,7 +56,7 @@ const BrowseEventsPage: React.FC = () => {
     };
 
     fetchEvents();
-  }, []);
+  }, [router]);
 
   const filteredEvents = events.filter(event =>
     (selectedSport === 'all' || event.sport === selectedSport) &&

@@ -1,9 +1,20 @@
+'use client'
+
 import { Button } from "@/components/ui/button"
 import pb from '@/app/pocketbase'
 import { useRouter } from 'next/navigation'
 import { toast } from "@/hooks/use-toast";
 
-export default function LoginButton() {
+interface LoginButtonProps {
+  redirectPath?: string;
+  buttonText?: string;
+  icon?: React.ReactNode;
+  className?: string;
+  variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link';
+}
+
+// This is the login button that is used to login with Microsoft that can have a custom button text set and icon defaulting to none and additional classes added
+export default function LoginButton({ redirectPath = '/browse/events', buttonText = 'Sign in with Microsoft', icon = null, className = '', variant = 'default' }: LoginButtonProps) {
   const router = useRouter();
 
   const oauthLogin = async () => {
@@ -17,7 +28,7 @@ export default function LoginButton() {
       if (authData.meta?.isNew || authData.record.name === "") {
         router.push("/onboarding")
       } else {
-        router.push("/browse/events")
+        router.push(redirectPath);
       }
     } else {
       await pb.collection('users').delete(authData.record.id);
@@ -30,8 +41,14 @@ export default function LoginButton() {
   }
 
   return (
-    <Button variant="default" size="sm" onClick={oauthLogin}>
-      Login
+    <Button 
+      variant={variant} 
+      size="lg" 
+      onClick={oauthLogin}
+      className={`${className}`}
+    >
+      {icon}
+      <span>{buttonText}</span>
     </Button>
   )
 } 

@@ -2,7 +2,7 @@
   "name": "Student Ticket App",
   "short_name": "SchlrSeats",
   "description": "Buy and sell student tickets securely",
-  "start_url": "/",
+  "start_url": "/browse/events",
   "display": "standalone",
   "background_color": "#02050c",
   "theme_color": "#0d4298",
