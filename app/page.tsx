@@ -237,7 +237,19 @@ export default function LandingPage() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
-                <h1 className="text-3xl sm:text-6xl md:text-[88px] font-extrabold mb-4 sm:mb-6 text-primary leading-tight uppercase font-['Reddit_Sans_Condensed',_sans-serif]">
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-2 mb-6"
+                >
+                  <div className="relative w-2 h-2">
+                    <div className="absolute inset-0 bg-primary rounded-full animate-ping" />
+                    <div className="absolute inset-0 bg-primary rounded-full" />
+                  </div>
+                  <span className="text-sm font-medium text-primary">New: Get Push Notifications on Mobile</span>
+                </motion.div>
+                <h1 className="text-3xl sm:text-6xl md:text-[88px] font-black mb-4 sm:mb-6 text-primary leading-tight uppercase font-['Reddit_Sans_Condensed',_sans-serif]">
                   GET INVOLVED.<br/>GET YOUR <span className="text-foreground">SEAT.</span>
                 </h1>
                 <p className="text-base sm:text-xl md:text-2xl text-muted-foreground mb-6 sm:mb-8 max-w-[600px] mx-auto">
@@ -354,7 +366,7 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <div className="text-4xl md:text-6xl lg:text-[88px] font-extrabold leading-tight uppercase font-['Reddit_Sans_Condensed',_sans-serif]">
+              <div className="text-3xl md:text-6xl lg:text-[88px] font-black leading-tight uppercase font-['Reddit_Sans_Condensed',_sans-serif]">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
