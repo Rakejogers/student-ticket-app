@@ -190,7 +190,7 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
                   <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => router.push('/login')}>
                     Login
                   </Button>
-                  <Button className="w-full justify-start bg-primary text-primary-foreground" onClick={() => router.push('/sell')}>
+                  <Button className="w-full justify-start bg-primary text-primary-foreground" onClick={() => router.push('/list-ticket')}>
                     Sell Tickets
                   </Button>
                 </>

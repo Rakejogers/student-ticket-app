@@ -18,8 +18,8 @@ export default function LoginButton({ redirectPath = '/browse/events', buttonTex
   const router = useRouter();
 
   const oauthLogin = async () => {
+    pb.autoCancellation(false);
     const authData = await pb.collection('users').authWithOAuth2({ provider: 'microsoft' });
-    console.log(authData)
     const email = authData.meta?.email;
     const emailDomain = email?.split('@')[1];
 

@@ -220,7 +220,7 @@ const BrowseEventsPage: React.FC = () => {
                       
                       {/* Event coming soon badge */}
                       {daysUntil <= 7 && daysUntil >= 0 && (
-                        <Badge variant="secondary" className="absolute bottom-4 left-4 bg-primary/20 text-primary-foreground">
+                        <Badge variant="secondary" className="absolute bottom-4 left-4 bg-primary/20 text-white">
                           {daysUntil === 0 ? 'Today' : `${daysUntil} day${daysUntil === 1 ? '' : 's'} away`}
                         </Badge>
                       )}
