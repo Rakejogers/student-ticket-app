@@ -45,6 +45,10 @@ export default function LoginButton({ redirectPath = '/browse/events', buttonTex
       variant={variant} 
       size="lg" 
       onClick={oauthLogin}
+      onTouchEnd={(e) => {
+        e.preventDefault();
+        oauthLogin();
+      }}
       className={`${className}`}
     >
       {icon}

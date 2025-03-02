@@ -79,7 +79,7 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
           {/* Landing page navigation for non-authenticated users */}
           {isLandingPage && !isAuthenticated ? (
             <>
-              <div className="hidden md:flex items-start gap-2 text-sm text-muted-foreground font-medium">
+              <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground font-medium">
                 <Button variant="ghost" className="rounded-md px-3 py-2" onClick={scrollToFeatures}>Features</Button>
                 <Button variant="ghost" className="rounded-md px-3 py-2" onClick={scrollToHowItWorks}>How it works</Button>
                 <Button variant="ghost" className="rounded-md px-3 py-2" onClick={scrollToFAQ}>FAQ</Button>
