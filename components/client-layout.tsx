@@ -12,6 +12,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MenuIcon } from '@/components/icons/menu'
 import { UserNav } from '@/components/user-nav'
+import { InstallButton } from '@/components/InstallButton'
 
 interface ClientLayoutProps {
   theme: string;
@@ -93,9 +94,12 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
                   Sell Tickets
                 </Button>
                 {mounted && (
-                  <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
-                    {theme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
-                  </Button>
+                  <>
+                    <InstallButton />
+                    <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
+                      {theme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
+                    </Button>
+                  </>
                 )}
               </div>
             </>
@@ -105,6 +109,7 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
               {!isAuthenticated ? (
                 <>
                   <LoginButton buttonText="Login" variant="ghost"/>
+                  {mounted && <InstallButton />}
                 </>
               ) : (
                 <>
@@ -125,6 +130,7 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
                   <Button variant="ghost" size="sm" asChild>
                     <Link href="/browse/events">Buy</Link>
                   </Button>
+                  {mounted && <InstallButton />}
                   <UserNav/>
                 </>
               )}
@@ -152,6 +158,7 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
                     <span>☕</span>
                   </motion.a>
                 )}
+                <InstallButton size="icon" />
                 <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
                   {theme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
                 </Button>
