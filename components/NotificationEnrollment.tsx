@@ -40,9 +40,18 @@ export function NotificationEnrollment() {
     if (isSubscribed || notificationPromptDismissed) return
     
     // Check if the app is running in standalone mode (already installed)
-    // If it's installed and user is authenticated, show notification prompt
+    // If it's installed and user is authenticated, show notification prompt immediately
     if (isStandalone && isAuthenticated) {
-      setShowNotificationDialog(true)
+      // For iOS PWA, we need to handle notification permission differently
+      if (isIOS) {
+        // Show notification dialog immediately without waiting for user interaction
+        setTimeout(() => {
+          setShowNotificationDialog(true)
+        }, 1000) // Short delay for better UX after app launch
+      } else {
+        // For non-iOS, show notification dialog immediately
+        setShowNotificationDialog(true)
+      }
       return
     }
     

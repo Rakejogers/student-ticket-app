@@ -83,10 +83,26 @@ export const usePushNotifications = () => {
         throw new Error('VAPID public key not found');
       }
 
+      // Check if iOS
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      // Check if in standalone mode (PWA)
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
       console.log('Requesting push notification permission...');
-      const permission = await Notification.requestPermission();
+      // For iOS in standalone mode, we show our own UI and then request permission
+      // This helps with iOS Safari PWA notification permission issues
+      let permission = Notification.permission;
       if (permission !== 'granted') {
-        throw new Error('Permission not granted for notifications');
+        permission = await Notification.requestPermission();
+      }
+      
+      if (permission !== 'granted') {
+        // If on iOS PWA, provide specific guidance
+        if (isIOS && isStandalone) {
+          throw new Error('For iOS PWA: Please enable notifications in your device settings for this app');
+        } else {
+          throw new Error('Permission not granted for notifications');
+        }
       }
 
       console.log('Creating push subscription...');

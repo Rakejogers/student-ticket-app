@@ -7,6 +7,9 @@
   "background_color": "#02050c",
   "theme_color": "#0d4298",
   "orientation": "portrait",
+  "scope": "/",
+  "capture_links": "existing-client-navigate",
+  "handle_links": "preferred",
   "icons": [
     {
       "src": "/icon-192x192.png",
