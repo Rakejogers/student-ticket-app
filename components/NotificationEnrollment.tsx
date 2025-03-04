@@ -179,7 +179,7 @@ export function NotificationEnrollment() {
             <ul className="list-disc list-inside space-y-1 text-sm">
               <li>New ticket offers</li>
               <li>Messages from buyers or sellers</li>
-              <li>Price changes for tickets you're watching</li>
+              <li>Price changes for tickets you&apos;re watching</li>
               <li>Transaction confirmations</li>
             </ul>
           </div>

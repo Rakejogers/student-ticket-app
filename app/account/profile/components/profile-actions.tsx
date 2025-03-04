@@ -1,11 +1,9 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { usePushNotifications } from "@/hooks/use-push-notifications"
-import { usePwaInstall } from "@/hooks/use-pwa-install"
-import { Bell, BellOff, Trash2, Share, Plus } from "lucide-react"
+import { Bell, BellOff, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 interface ProfileActionsProps {
   onDeleteAccount: () => void
@@ -19,7 +17,6 @@ export function ProfileActions({ onDeleteAccount }: ProfileActionsProps) {
     subscribeToNotifications, 
     unsubscribeFromNotifications 
   } = usePushNotifications()
-  const { isStandalone } = usePwaInstall()
 
   const handleNotificationToggle = async () => {
     setIsLoading(true)
