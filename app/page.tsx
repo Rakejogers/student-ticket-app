@@ -188,12 +188,25 @@ export default function LandingPage() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const [startX, setStartX] = useState(0);
+  const [userCount, setUserCount] = useState(0);
 
   useEffect(() => {
     if (pb.authStore.isValid) {
       router.push('/browse/events');
     }
   }, [router]);
+
+  useEffect(() => {
+    const fetchUserCount = async () => {
+      try {
+        const record = await pb.collection('num_users').getOne('1');
+        setUserCount(Math.round(record.totalUsers / 5) * 5);
+      } catch (error) {
+        console.error('Error fetching user count:', error);
+      }
+    };
+    fetchUserCount();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -360,7 +373,7 @@ export default function LandingPage() {
                         </div>
                       </div>
                       <span className="text-xs text-muted-foreground">
-                        <b>100+</b> UK students
+                        <b>{userCount}+</b> UK students
                       </span>
                     </div>
                   </div>
@@ -518,6 +531,25 @@ export default function LandingPage() {
                 <p className="text-base sm:text-xl md:text-2xl text-muted-foreground mb-5 sm:mb-8 max-w-[600px] mx-auto">
                   Buy and sell university sports tickets directly with verified students. No fees, no hassle.
                 </p>
+                {/* Desktop User Count */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="hidden sm:flex items-center justify-center gap-3 mb-8"
+                >
+                  <div className="flex -space-x-2">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
+                      <GraduationCap className="w-4 h-4 text-primary" />
+                    </div>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    Join <span className="font-semibold text-primary">{userCount}+</span> UK students
+                  </span>
+                </motion.div>
               </motion.div>
 
               <motion.div

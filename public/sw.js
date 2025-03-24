@@ -1,13 +1,11 @@
 // Listen for the install event
 self.addEventListener('install', (event) => {
-  console.log('Service Worker installing...');
   // Skip waiting to become active immediately
   self.skipWaiting();
 });
 
 // Listen for the activate event
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker activating...');
   // Claim all clients to ensure the service worker is controlling the page
   event.waitUntil(clients.claim());
 });
