@@ -95,7 +95,6 @@ const UserTicketsPage: React.FC = () => {
 
       setIsReportDrawerOpen(false);
       setReportReason('');
-      console.log('Report submitted');
     } catch (error) {
       console.error('Error submitting report:', error);
     }

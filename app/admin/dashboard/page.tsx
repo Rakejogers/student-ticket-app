@@ -55,7 +55,7 @@ const AdminPage = () => {
     const fetchData = async () => {
       setIsLoading(true)
       if (!pb.authStore.isAdmin) {
-        router.push('/browse/events')
+        router.push('/admin/login')
         return;
       }
       try {

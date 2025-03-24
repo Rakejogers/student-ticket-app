@@ -27,6 +27,10 @@ const SellTicketsPage: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
+    if (!pb.authStore.isValid) {
+      router.push(`/login?redirect=${encodeURIComponent("/list-ticket")}`);
+    }
+    
     const fetchEvents = async () => {
       if (!sport) return;
       try {
@@ -42,7 +46,7 @@ const SellTicketsPage: React.FC = () => {
     };
 
     fetchEvents();
-  }, [sport]);
+  }, [sport, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

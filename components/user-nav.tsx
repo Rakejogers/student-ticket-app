@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import pb from '@/app/pocketbase'
 import LogoutButton from "./logoutButton"
-import Link from "next/link"
+import { PWASafeLink } from "./PWASafeLink"
 
 interface UserData {
   name: string
@@ -44,16 +44,16 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
             <DropdownMenuItem asChild>
-                <Link href="/account/profile">Profile</Link>
+                <PWASafeLink href="/account/profile">Profile</PWASafeLink>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-                <Link href="/account/my-tickets">My Tickets</Link>
+                <PWASafeLink href="/account/my-tickets">My Tickets</PWASafeLink>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-                <Link href="/account/sent-offers">Sent Offers</Link>
+                <PWASafeLink href="/account/sent-offers">Sent Offers</PWASafeLink>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-                <Link href="/contact">Help</Link>
+                <PWASafeLink href="/contact">Help</PWASafeLink>
             </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

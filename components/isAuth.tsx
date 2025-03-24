@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import pb from "../app/pocketbase";
 
 export default function isAuth<P extends object>(Component: React.ComponentType<P>) {
   return function IsAuth(props: P) {
     const router = useRouter();
+    const pathname = usePathname();
     pb.autoCancellation(false);
 
     useEffect(() => {
@@ -15,15 +16,17 @@ export default function isAuth<P extends object>(Component: React.ComponentType<
           if (pb.authStore.isValid) {
             await pb.collection('users').authRefresh();
           } else {
-            router.push("/")
+            const redirectPath = pathname ? `?redirect=${encodeURIComponent(pathname)}` : '';
+            router.push(`/login${redirectPath}`);
           }
         } catch (error) {
           console.error('Authentication error:', error);
-          router.push("/");
+          const redirectPath = pathname ? `?redirect=${encodeURIComponent(pathname)}` : '';
+          router.push(`/login${redirectPath}`);
         }
       };
       checkAuth();
-    }, [router]);
+    }, [router, pathname]);
 
     return <Component {...props as P} />;
   };

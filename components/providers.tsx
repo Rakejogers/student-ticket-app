@@ -8,6 +8,7 @@ import Cookies from 'js-cookie'
 import { Toaster } from "@/components/ui/toaster"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { NotificationEnrollment } from '@/components/NotificationEnrollment'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<string>(Cookies.get('theme') || 'system')
@@ -38,6 +39,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <main className="flex-grow">
             {children}
           </main>
+          <NotificationEnrollment />
           <Toaster />
           <Analytics />
           <SpeedInsights />

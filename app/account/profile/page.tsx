@@ -55,7 +55,6 @@ const ProfilePage: React.FC = () => {
         throw new Error("User not found")
       }
       await pb.collection('users').requestVerification(user.email)
-      console.log("Verification email sent")
       setVerificationCooldown(60)
     } catch (error) {
       console.error('Failed to send verification email', error)
@@ -73,7 +72,6 @@ const ProfilePage: React.FC = () => {
       }
       await pb.collection('users').update(user.id, { [field]: value })
       setUser(prev => (prev ? { ...prev, [field]: value } : prev))
-      console.log(`${field} updated successfully!`)
     } catch (error) {
       console.error(`Failed to update ${field}`, error)
     }
@@ -85,7 +83,6 @@ const ProfilePage: React.FC = () => {
         throw new Error("User not found")
       }
       await pb.collection('users').delete(user.id)
-      console.log("Account deleted")
       router.push("/api/entra-logout")
     } catch (error) {
       console.error('Failed to delete account', error)

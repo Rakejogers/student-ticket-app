@@ -113,7 +113,6 @@ export default function AnimatedSignUpForm({ hideParentHeader }: AnimatedSignUpF
           phone: formData.phone,
           emailVisibility: true, 
       })
-      console.log('Form submitted:', formData)
       setShowNotificationInfo(true)
       hideParentHeader(true)
     }
