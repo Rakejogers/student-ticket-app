@@ -1,14 +1,22 @@
 import webpush from 'web-push';
 import { NextResponse } from 'next/server';
 
-webpush.setVapidDetails(
-  'mailto:jakero0828@gmail.com',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
+// Conditionally set VAPID details only if keys are available
+if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    'mailto:jakero0828@gmail.com',
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+}
 
 export async function POST(request: Request) {
   try {
+    // Check if VAPID keys are configured
+    if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
+      return NextResponse.json({ error: 'Push notifications not configured' }, { status: 503 });
+    }
+
     const { subscription, title, message } = await request.json();
 
     if (!subscription) {
