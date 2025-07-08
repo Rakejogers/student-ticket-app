@@ -7,13 +7,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import pb from '@/app/pocketbase'
 import { Suspense, useEffect, useState } from 'react'
 import { toast } from "@/hooks/use-toast"
-import { ToastAction } from '@/components/ui/toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TagIcon, Armchair, Star, Ticket, Search } from "lucide-react"
 import isAuth from '@/components/isAuth';
@@ -21,8 +20,6 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from "@/components/ui/checkbox"
 import { Slider } from "@/components/ui/slider"
 import { EmptyState } from "@/components/empty-state"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { HandCoins } from "lucide-react"
 
 type EventType = {
   id: string;
@@ -91,10 +88,9 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
   const [selectedTicketTypes, setSelectedTicketTypes] = useState<string[]>([]);
   const [hideOfferedTickets, setHideOfferedTickets] = useState(false);
   const [maxPrice, setMaxPrice] = useState<number>(0);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const perPage = 30; // You can adjust this value as needed
-  const [isOffersDialogOpen, setIsOffersDialogOpen] = useState(false);
-  const [selectedTicket] = useState<EventType['tickets'][0] | null>(null);
 
   const { eventId } = params
   const router = useRouter();
@@ -189,31 +185,6 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
 
   const handleOfferSubmit = async (ticketId: string, sellerId: string) => {
     try {
-      //make sure buyer is verified
-      if (pb.authStore.model!.verified == false) {
-        toast({
-          title: `Verification Required`,
-          description: `Verify your account before sending an offer.`,
-          variant: "destructive",
-          action: (
-            <ToastAction onClick={() => { router.push("/account/profile") }} altText='Verify Account'>Verify Now</ToastAction>
-          ),
-        })
-        return;
-      }
-
-      if (pb.authStore.model!.phone == null) {
-        toast({
-          title: `Phone Number Required`,
-          description: `Add a phone number before sending an offer.`,
-          variant: "destructive",
-          action: (
-            <ToastAction onClick={() => { router.push("/account/profile") }} altText='Add Number'>Add Now</ToastAction>
-          ),
-        })
-        return;
-      }
-
       const numericAmount = parseFloat(offerAmount);
       if (isNaN(numericAmount) || numericAmount <= 0) {
         toast({
@@ -222,6 +193,11 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
           variant: "destructive",
         })
         return;
+      }
+
+      // Close dialog immediately if on mobile
+      if (!isDesktop) {
+        setDialogOpen(false);
       }
 
       // Send offer to seller
@@ -506,53 +482,50 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
                       </PopoverContent>
                     </Popover>
                   ) : (
-                    <Drawer>
-                      <DrawerTrigger asChild>
-                        <Button className="mt-4 w-full">Make an Offer</Button>
-                      </DrawerTrigger>
-                      <DrawerContent>
-                        <div className="mx-auto w-full max-w-sm">
-                          <DrawerHeader>
-                            <DrawerTitle>Make an Offer</DrawerTitle>
-                            <DrawerDescription>
-                              Enter your offer amount for this ticket.
-                            </DrawerDescription>
-                          </DrawerHeader>
-                          <div className="p-4">
-                            <div className="grid gap-4">
-                              <div className="grid gap-2">
-                                <Label htmlFor="amount-mobile">Offer Amount</Label>
-                                <div className="relative">
-                                  <span className="absolute left-3 top-2 text-muted-foreground">$</span>
-                                  <Input
-                                    id="amount-mobile"
-                                    className="pl-7"
-                                    placeholder="0.00"
-                                    inputMode="decimal"
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={offerAmount}
-                                    onChange={(e) => {
-                                      const value = e.target.value;
-                                      if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
-                                        setOfferAmount(value);
-                                      }
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                              <Button 
-                                onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}
-                                className="w-full"
-                              >
-                                Send Offer
-                              </Button>
+                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="mt-4 w-full" onClick={() => setDialogOpen(true)}>Make an Offer</Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Make an Offer</DialogTitle>
+                          <DialogDescription>
+                            Enter your offer amount for this ticket.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                          <div className="grid gap-2">
+                            <Label htmlFor="amount-mobile">Offer Amount</Label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-2 text-muted-foreground">$</span>
+                              <Input
+                                id="amount-mobile"
+                                className="pl-7"
+                                placeholder="0.00"
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={offerAmount}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
+                                    setOfferAmount(value);
+                                  }
+                                }}
+                              />
                             </div>
                           </div>
                         </div>
-                      </DrawerContent>
-                    </Drawer>
+                        <DialogFooter>
+                          <Button 
+                            onClick={() => handleOfferSubmit(ticket.id, ticket.seller_id)}
+                            className="w-full"
+                          >
+                            Send Offer
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   )}
                 </CardContent>
               </Card>
@@ -598,46 +571,6 @@ const BrowseTicketsPage: React.FC<BrowseTicketsPageProps> = ({ params }) => {
               </PaginationContent>
             </Pagination>
           </div>
-
-          <Dialog open={isOffersDialogOpen} onOpenChange={setIsOffersDialogOpen}>
-            <DialogContent className="max-h-[80vh] flex flex-col">
-              <DialogHeader>
-                <DialogTitle>Offers for {selectedTicket?.expand?.event_id?.name}</DialogTitle>
-                <DialogDescription>
-                  Ticket Price: ${selectedTicket?.price}
-                </DialogDescription>
-              </DialogHeader>
-              {selectedTicket?.expand?.offers?.length === 0 ? (
-                <EmptyState
-                  icon={<HandCoins className="h-12 w-12 text-muted-foreground/50" />}
-                  title="No offers yet"
-                  description="This ticket hasn't received any offers yet. Be the first to make an offer!"
-                  className="min-h-[200px]"
-                />
-              ) : (
-                <div className="flex-1 overflow-y-auto pr-2 my-4">
-                  <div className="space-y-4">
-                    {selectedTicket?.expand?.offers?.map((offer) => (
-                      <Card key={offer.id} className="p-4">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-medium">From: {offer.expand?.sender?.name || 'Anonymous'}</p>
-                            <p className="text-sm text-muted-foreground">Amount: ${offer.amount}</p>
-                          </div>
-                          <Badge variant={offer.status === 'Accepted' ? 'default' : 'secondary'}>
-                            {offer.status}
-                          </Badge>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <DialogFooter className="mt-2">
-                <Button onClick={() => setIsOffersDialogOpen(false)}>Close</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
     </Suspense>
