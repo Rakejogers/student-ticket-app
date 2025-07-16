@@ -1,7 +1,6 @@
 import { Metadata, Viewport } from 'next'
 import { Providers } from '@/components/providers'
-import { OffSeasonBanner } from '@/components/OffSeasonBanner'
-import { config } from '@/lib/config'
+import OffSeasonBanner from '@/components/orginui/OffSeasonBanner'
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -24,7 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
-          <OffSeasonBanner isEnabled={config.isOffSeason} />
+          <OffSeasonBanner />
           {children}
         </Providers>
       </body>
