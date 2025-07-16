@@ -6,17 +6,25 @@ import { useState, useEffect } from "react";
 
 export default function OffSeasonBanner() {
   const [isClosed, setIsClosed] = useState(true);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+    
+    // Only proceed if it's actually off-season
+    if (!config.isOffSeason) {
+      return;
+    }
+    
+    // Check if user has previously closed the banner
     const closed = localStorage.getItem('offSeasonBannerClosed');
     setIsClosed(closed === 'true');
-
-    if (!config.isOffSeason) {
-      setIsClosed(true);
-    }
   }, []);
 
-  if (isClosed) return null;
+  // Don't render during SSR or if off-season is false or if user closed it
+  if (!isClient || !config.isOffSeason || isClosed) {
+    return null;
+  }
 
   return (
     // To make the notification fixed, add classes like `fixed bottom-4 inset-x-4` to the container element.
