@@ -57,7 +57,7 @@ const faqs = [
   { question: "Are there any fees for using Scholar Seats?", answer: "Scholar Seats is completely free for students to use. We don't charge any fees for listing or purchasing tickets. We run completely on donations from users and advertisers." },
   { question: "How is the app kept safe for students?", answer: "We require student verification at sign-up, so only verified students can use the platform. Plus, we have a reputation and rating system to help ensure trust and accountability among users." },
   { question: "How are payments handled?", answer: "Payments are made directly between the buyer and seller, using platforms like Venmo, Cash App, or any payment method you agree on. This keeps things simple and flexible!" },
-  { question: "What univeristies are supported?", answer: "Currently we are only supported at the Univerity of Kentucky, but we plan to roll out to other universites soon!" },
+  { question: "What universities are supported?", answer: "Currently we are only supported at the Univerity of Kentucky, but we plan to roll out to other universities soon!" },
 ]
 
 const FeatureCard = ({ feature, index }: { feature: typeof features[0], index: number }) => {
