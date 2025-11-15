@@ -40,22 +40,22 @@ function LoginContent() {
                             <p className="text-white text-lg font-medium">Rupp Arena - Home of the Wildcats</p>
                         </div>
                     </div>
-                    <h2 className="text-2xl font-bold text-white text-center">
+                    <h2 className="text-2xl font-bold text-foreground text-center">
                         University of Kentucky Scholar Seats
                     </h2>
-                    <p className="text-gray-300 text-center max-w-md">
+                    <p className="text-muted-foreground text-center max-w-md">
                         Easy access to tickets for UK athletic events.
                     </p>
                 </div>
                 
                 {/* Right side: Login card */}
-                <Card className="w-full max-w-md mx-auto bg-white/10 backdrop-blur-sm border-0 shadow-xl">
+                <Card className="w-full max-w-md mx-auto bg-card/80 backdrop-blur-sm border shadow-xl">
                     <CardHeader className="space-y-1 text-center">
-                        <div className="w-16 h-16 bg-blue-600 mx-auto rounded-full flex items-center justify-center mb-4">
-                            <FaLock className="text-white text-2xl" />
+                        <div className="w-16 h-16 bg-primary mx-auto rounded-full flex items-center justify-center mb-4">
+                            <FaLock className="text-primary-foreground text-2xl" />
                         </div>
-                        <CardTitle className="text-3xl font-bold text-white">Welcome Back</CardTitle>
-                        <CardDescription className="text-gray-300">
+                        <CardTitle className="text-3xl font-bold text-card-foreground">Welcome Back</CardTitle>
+                        <CardDescription>
                             Sign in with your university account to continue
                         </CardDescription>
                     </CardHeader>
@@ -64,8 +64,8 @@ function LoginContent() {
                         <div className="relative">
                             <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-blue-400 rounded-lg blur opacity-25"></div>
                             <div className="relative bg-card border-0 p-6 rounded-lg">
-                                <h3 className="font-medium text-center mb-2 text-white">University of Kentucky Students</h3>
-                                <p className="text-sm text-gray-400 text-center mb-4">
+                                <h3 className="font-medium text-center mb-2 text-card-foreground">University of Kentucky Students</h3>
+                                <p className="text-sm text-muted-foreground text-center mb-4">
                                     Use your LinkBlue credentials for secure access
                                 </p>
                                 <LoginButton 
@@ -79,21 +79,21 @@ function LoginContent() {
                         
                         {/* Mobile-only university information */}
                         <div className="md:hidden text-center space-y-4">
-                            <h3 className="text-lg font-medium text-white">UK Student Ticket Portal</h3>
-                            <p className="text-sm text-gray-400">
+                            <h3 className="text-lg font-medium text-foreground">UK Student Ticket Portal</h3>
+                            <p className="text-sm text-muted-foreground">
                                 Access exclusive tickets for UK athletic events, concerts, and campus activities
                             </p>
                         </div>
                     </CardContent>
                     
-                    <CardFooter className="flex flex-col space-y-4 border-t border-white/10 pt-4">
+                    <CardFooter className="flex flex-col space-y-4 border-t border-border pt-4">
                         <div className="w-full flex items-center justify-center space-x-4 text-sm">
-                            <Link href="/contact" className="text-blue-400 hover:text-blue-300 flex items-center">
+                            <Link href="/contact" className="text-primary hover:text-primary/80 flex items-center">
                                 <FaQuestionCircle className="mr-1" />
                                 <span>Help</span>
                             </Link>
                         </div>
-                        <p className="text-xs text-center text-gray-500">
+                        <p className="text-xs text-center text-muted-foreground">
                             &copy; {new Date().getFullYear()} University of Kentucky. All rights reserved.
                         </p>
                     </CardFooter>

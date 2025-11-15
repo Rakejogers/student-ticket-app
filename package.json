@@ -35,7 +35,7 @@
     "framer-motion": "^11.11.10",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.453.0",
-    "next": "14.2.21",
+    "next": "^14.2.32",
     "next-themes": "^0.3.0",
     "obscenity": "^0.4.3",
     "pocketbase": "^0.21.5",
