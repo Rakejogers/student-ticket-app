@@ -13,22 +13,41 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MenuIcon } from '@/components/icons/menu'
 import { UserNav } from '@/components/user-nav'
 import { InstallButton } from '@/components/InstallButton'
+import { useTheme } from 'next-themes'
 
 interface ClientLayoutProps {
   theme: string;
   onThemeChange: (theme: string) => void;
 }
 
-export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
+export function ClientLayout({ onThemeChange }: ClientLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [currentResolvedTheme, setCurrentResolvedTheme] = useState<'light' | 'dark'>('light')
   const pathname = usePathname()
   const router = useRouter()
+  const { resolvedTheme, setTheme: setNextTheme } = useTheme()
 
   useEffect(() => {
     setMounted(true)
+    // Check DOM on mount to get initial theme (handles 'system' case before resolvedTheme is ready)
+    if (document.documentElement.classList.contains('dark')) {
+      setCurrentResolvedTheme('dark')
+    } else {
+      setCurrentResolvedTheme('light')
+    }
   }, [])
+
+  // Update currentResolvedTheme when resolvedTheme changes
+  useEffect(() => {
+    if (resolvedTheme === 'dark' || resolvedTheme === 'light') {
+      setCurrentResolvedTheme(resolvedTheme)
+    } else if (mounted) {
+      // Fallback to DOM check if resolvedTheme is not ready
+      setCurrentResolvedTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light')
+    }
+  }, [resolvedTheme, mounted])
 
   useEffect(() => {
     setIsAuthenticated(pb.authStore.isValid)
@@ -44,7 +63,13 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
   }
 
   const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark'
+    // Use currentResolvedTheme which is always up-to-date
+    const newTheme = currentResolvedTheme === 'dark' ? 'light' : 'dark'
+    
+    // Update next-themes immediately for instant UI update
+    setNextTheme(newTheme)
+    
+    // Also update the parent state for cookie persistence
     onThemeChange(newTheme)
   }
 
@@ -97,7 +122,7 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
                   <>
                     <InstallButton />
                     <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
-                      {theme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
+                      {currentResolvedTheme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
                     </Button>
                   </>
                 )}
@@ -136,7 +161,7 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
               )}
               {mounted && (
                 <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
-                  {theme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
+                  {currentResolvedTheme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
                 </Button>
               )}
             </div>
@@ -160,7 +185,7 @@ export function ClientLayout({ theme, onThemeChange }: ClientLayoutProps) {
                 )}
                 <InstallButton size="icon" />
                 <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
-                  {theme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
+                  {currentResolvedTheme === 'dark' ? <Sun className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
                 </Button>
               </>
             )}
