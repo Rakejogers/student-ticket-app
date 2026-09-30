@@ -1,9 +1,7 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import pb from '@/app/pocketbase'
 import { useRouter } from 'next/navigation'
-import { toast } from "@/hooks/use-toast";
 
 interface LoginButtonProps {
   redirectPath?: string;
@@ -17,27 +15,9 @@ interface LoginButtonProps {
 export default function LoginButton({ redirectPath = '/browse/events', buttonText = 'Sign in with Microsoft', icon = null, className = '', variant = 'default' }: LoginButtonProps) {
   const router = useRouter();
 
-  const oauthLogin = async () => {
-    pb.autoCancellation(false);
-    const authData = await pb.collection('users').authWithOAuth2({ provider: 'microsoft' });
-    const email = authData.meta?.email;
-    const emailDomain = email?.split('@')[1];
-
-
-    if (emailDomain === 'uky.edu') {
-      if (authData.meta?.isNew || authData.record.name === "") {
-        router.push("/onboarding")
-      } else {
-        router.push(redirectPath);
-      }
-    } else {
-      await pb.collection('users').delete(authData.record.id);
-      toast({
-        title: "Access Denied",
-        description: "You must use a uky.edu email to access this application.",
-        variant: "destructive",
-      });
-    }
+  // Backend has been shut down; all sign up / sign in attempts go to the sunset page.
+  const oauthLogin = () => {
+    router.push('/sunset');
   }
 
   return (
